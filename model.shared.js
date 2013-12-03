@@ -1,10 +1,15 @@
 var model = require('./lib/model');
 
-var AmazonStoreModel = new model("AmazonStore")
-    .virtualAttr("url", Type.string)
-    .attr("fileSize", Type.int)
-    .attr("fileName", Type.string)
-    .operation("sign")  // Todo: attribute validation
+var Type = {
+  "string" : "string",
+  "int" : "int"
+};
+
+var AmazonStoreModel = new model("AmazonStore"
+  ).virtualAttr("url", Type.string
+  ).attr("fileSize", Type.int
+  ).attr("fileName", Type.string
+  ).operation("sign")  // Todo: attribute validation
   ;
 
 
@@ -18,7 +23,22 @@ var StammdatenModel = new model("Stammdaten")
 
 var PlanModel = new model("Plan")
     .attr("name", Type.string)
-    .attr("owner", Type.ref, StammdatenModel)
-    .attr("file", Type.object, "AmazonStore")
+    .attrRef("owner", StammdatenModel)
+    .attrObj("file", "AmazonStore")
   ;
 
+
+StammdatenModel.operationImpl("resetPassword", function() {
+  console.log('fooo :-)');
+});
+
+StammdatenModel.readFilter(function () {
+  return true;
+});
+
+
+module.exports = {
+  AmazonStoreModel : AmazonStoreModel,
+  StammdatenModel : StammdatenModel,
+  PlanModel : PlanModel
+};
