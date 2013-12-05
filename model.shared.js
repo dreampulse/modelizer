@@ -28,12 +28,19 @@ var PlanModel = new model("Plan")
   ;
 
 
+
 StammdatenModel.operationImpl("resetPassword", function() {
   console.log('fooo :-)');
 });
 
+
 StammdatenModel.readFilter(function () {
   return true;
+});
+
+
+StammdatenModel.readFilter(function () {
+  return {userId : "foo"};
 });
 
 
@@ -42,3 +49,9 @@ module.exports = {
   StammdatenModel : StammdatenModel,
   PlanModel : PlanModel
 };
+
+// TODO: nächste Schritte:
+// - model def einführen
+// - attr type validation (Type.string) könnte ja immer ein Validator sein
+// - überlegen wie ich das mit modell-verschachtelung am besten machen könnte
+// - operations im "instance scope"

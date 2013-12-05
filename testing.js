@@ -2,8 +2,9 @@
 
 var models = require('./model.shared.js');
 var foo = models.StammdatenModel.createObject()
-foo.save()
-
+foo.userId = "foo";
+foo.save();
+models.StammdatenModel.use.all()
 
 // todo: ich muss definieren können was ein Object für methoden anbietet
 
