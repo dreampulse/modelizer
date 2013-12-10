@@ -5,6 +5,7 @@ var foo = models.StammdatenModel.createObject()
 foo.userId = "foo";
 foo.save();
 models.StammdatenModel.use.all()
+var bar = models.PlanModel.createObject();
 
 // todo: ich muss definieren können was ein Object für methoden anbietet
 

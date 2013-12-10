@@ -24,9 +24,13 @@ var StammdatenModel = new model("Stammdaten")
 var PlanModel = new model("Plan")
     .attr("name", Type.string)
     .attrRef("owner", StammdatenModel)
-    .attrObj("file", "AmazonStore")
+    .attrObj("file", AmazonStoreModel)
   ;
 
+
+AmazonStoreModel.virtualAttrImpl("url", function(model) {
+  return "http://" + model.fileName;
+});
 
 
 StammdatenModel.operationImpl("resetPassword", function() {
@@ -39,9 +43,9 @@ StammdatenModel.readFilter(function () {
 });
 
 
-StammdatenModel.readFilter(function () {
-  return {userId : "foo"};
-});
+//StammdatenModel.readFilter(function () {
+//  return {userId : "foo"};
+//});
 
 
 module.exports = {
@@ -53,5 +57,5 @@ module.exports = {
 // TODO: nächste Schritte:
 // - model def einführen
 // - attr type validation (Type.string) könnte ja immer ein Validator sein
-// - überlegen wie ich das mit modell-verschachtelung am besten machen könnte
-// - operations im "instance scope"
+// - referenzen auf andere objekte (mit id)
+// - arrays (von referenzen)
