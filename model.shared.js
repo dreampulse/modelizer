@@ -5,6 +5,11 @@ var Type = {
   "int" : "int"
 };
 
+var AddressModel = new model("AdressModel")
+    .attr("street", Type.string)
+    .attr("number", Type.string)
+;
+
 var AmazonStoreModel = new model("AmazonStore"
   ).virtualAttr("url", Type.string
   ).attr("fileSize", Type.int
@@ -18,6 +23,7 @@ var StammdatenModel = new model("Stammdaten")
     .attr("name", Type.string)
     .attr("eMail", Type.string)
     .attr("age", Type.int)
+    .attrArray("address", AddressModel)
     .operation("resetPassword")
   ;
 
@@ -57,5 +63,4 @@ module.exports = {
 // TODO: nächste Schritte:
 // - model def einführen
 // - attr type validation (Type.string) könnte ja immer ein Validator sein
-// - referenzen auf andere objekte (mit id)
 // - arrays (von referenzen)
