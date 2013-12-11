@@ -30,6 +30,7 @@ var StammdatenModel = new model("Stammdaten")
 var PlanModel = new model("Plan")
     .attr("name", Type.string)
     .attrRef("owner", StammdatenModel)
+    .attrRefArray("participants", StammdatenModel)
     .attrObj("file", AmazonStoreModel)
   ;
 

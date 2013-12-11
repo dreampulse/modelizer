@@ -7,6 +7,11 @@ foo.save();
 models.StammdatenModel.use.all();
 var bar = models.PlanModel.createObject();
 
+bar.participants.createObject();
+bar.participants.ref[0].name = "user1";
+bar.participants.ref[0].save()
+bar.save();
+
 foo.createAddressElement();
 foo.save();
 
