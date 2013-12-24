@@ -10,11 +10,11 @@ var AddressModel = new model("AdressModel")
     .attr("number", Type.string)
 ;
 
-var AmazonStoreModel = new model("AmazonStore"
-  ).virtualAttr("url", Type.string
-  ).attr("fileSize", Type.int
-  ).attr("fileName", Type.string
-  ).operation("sign")  // Todo: attribute validation
+var AmazonStoreModel = new model("AmazonStore")
+    .virtualAttr("url", Type.string)
+    .attr("fileSize", Type.int)
+    .attr("fileName", Type.string)
+    .operation("sign")  // Todo: attribute validation
   ;
 
 
@@ -55,6 +55,12 @@ StammdatenModel.readFilter(function () {
 //});
 
 
+var mongojs = require('mongojs');
+var db = mongojs('mongodb://127.0.0.1/test');
+StammdatenModel.mongoDB(db);
+
+//StammdatenModel.mongoDB("foo");
+
 module.exports = {
   AmazonStoreModel : AmazonStoreModel,
   StammdatenModel : StammdatenModel,
@@ -64,4 +70,7 @@ module.exports = {
 // TODO: nächste Schritte:
 // - model def einführen
 // - attr type validation (Type.string) könnte ja immer ein Validator sein
-// - arrays (von referenzen)
+// - mongo Implementierung
+// - mich um attrObj (save von subobjekten) kümmern
+// - attrRef und Arrays
+// - filtr beim mongo store
