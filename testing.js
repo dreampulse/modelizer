@@ -4,6 +4,12 @@ var models = require('./model.shared.js');
 var foo = models.StammdatenModel.createObject();
 foo.name = "foo";
 
+//foo.name = "Array Test";
+//foo.createAddressElement();
+//foo.address[0].street = "Home Street";
+//foo.save();
+
+
 models.StammdatenModel.use.all().then(function(o){objs = o;});
 
 //foo.save();

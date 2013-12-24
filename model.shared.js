@@ -23,6 +23,7 @@ var StammdatenModel = new model("Stammdaten")
     .attr("eMail", Type.string)
     .attr("age", Type.int)
     .attrArray("address", AddressModel)
+    .attrObj("file", AmazonStoreModel)
     .operation("resetPassword")
   ;
 
