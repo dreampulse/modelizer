@@ -2,7 +2,7 @@
 
 var models = require('./model.shared.js');
 var foo = models.StammdatenModel.createObject();
-foo.userId = "foo";
+foo.name = "foo";
 
 models.StammdatenModel.use.all().then(function(o){objs = o;});
 

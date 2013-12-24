@@ -14,12 +14,11 @@ var AmazonStoreModel = new model("AmazonStore")
     .virtualAttr("url", Type.string)
     .attr("fileSize", Type.int)
     .attr("fileName", Type.string)
-    .operation("sign")  // Todo: attribute validation
+    .operation("sign")  // Todo: attribute validation für operationen
   ;
 
 
 var StammdatenModel = new model("Stammdaten")
-    .attr("userId", Type.id)
     .attr("name", Type.string)
     .attr("eMail", Type.string)
     .attr("age", Type.int)
