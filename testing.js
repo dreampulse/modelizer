@@ -1,7 +1,10 @@
 // Wie das Modell genutzt wird (von beiden Seiten)
 
+var ObjectId = require('mongojs').ObjectId;
+
 var models = require('./model.shared.js');
 models.StammdatenModel.use.all().then(function(o){objs = o;});
+
 var foo = models.StammdatenModel.createObject();
 foo.name = "foo";
 
