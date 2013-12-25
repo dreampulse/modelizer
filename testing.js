@@ -1,8 +1,15 @@
 // Wie das Modell genutzt wird (von beiden Seiten)
 
 var models = require('./model.shared.js');
+models.StammdatenModel.use.all().then(function(o){objs = o;});
 var foo = models.StammdatenModel.createObject();
 foo.name = "foo";
+
+foo.store.createObject();
+foo.store.ref().fileSize = 0815;
+foo.store.ref().save();
+foo.save();
+
 
 //foo.name = "Array Test";
 //foo.createAddressElement();

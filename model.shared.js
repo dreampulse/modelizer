@@ -23,8 +23,10 @@ var StammdatenModel = new model("Stammdaten")
     .attr("eMail", Type.string)
     .attr("age", Type.int)
     .attrArray("address", AddressModel)
-    .attrObj("file", AmazonStoreModel)
     .operation("resetPassword")
+
+ //   .attrObj("file", AmazonStoreModel)
+    .attrRef("store", AmazonStoreModel)
   ;
 
 var PlanModel = new model("Plan")
@@ -70,7 +72,12 @@ module.exports = {
 // TODO: nächste Schritte:
 // - model def einführen
 // - attr type validation (Type.string) könnte ja immer ein Validator sein
+
 // - mongo Implementierung
-// - mich um attrObj (save von subobjekten) kümmern
-// - attrRef und Arrays
+// - attrRef
+//   - das testen
+//   - load() implementieren
+// - attrRefArrays
 // - filtr beim mongo store
+
+// - der Client braucht ObjectId (steckt im bison modul)
