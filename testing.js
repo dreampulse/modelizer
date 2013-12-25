@@ -8,6 +8,12 @@ models.StammdatenModel.use.all().then(function(o){objs = o;});
 var foo = models.StammdatenModel.createObject();
 foo.name = "foo";
 
+foo.participants.createObject();
+foo.participants.ref[0]().street = "matthias";
+foo.participants.ref[0]().save();
+foo.save();
+
+
 foo.store.createObject();
 foo.store.ref().fileSize = 0815;
 foo.store.ref().save();

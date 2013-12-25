@@ -27,6 +27,8 @@ var StammdatenModel = new model("Stammdaten")
 
  //   .attrObj("file", AmazonStoreModel)
     .attrRef("store", AmazonStoreModel)
+    .attrRefArray("participants", AddressModel) // TODO: problem bei selbstreferenzen (variable ist noch undefined)
+                                                // verschwindet vlt beim entfernen von refModel.mongoDB
   ;
 
 var PlanModel = new model("Plan")
@@ -75,6 +77,7 @@ module.exports = {
 
 // - mongo Implementierung
 // - attrRefArrays
+//   - laden von den ref arrays
 // - filtr beim mongo store
 
 // - der Client braucht ObjectId (steckt im bison modul)
