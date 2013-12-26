@@ -76,10 +76,10 @@ module.exports = {
 // - attr type validation (Type.string) könnte ja immer ein Validator sein
 
 // - mongo Implementierung
-// - attrRefArrays
-//   - speichern als array und nicht als hash... (wie beim normalen arrayAttr
-//   - laden von den ref arrays
 // - filtr beim mongo store
+
+// - überlegen wie das mit dem client Zugriff funktionieren soll
+// - Aufräumen
 
 // - der Client braucht ObjectId (steckt im bison modul)
 
