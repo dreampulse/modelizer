@@ -76,7 +76,8 @@ module.exports = {
 // - attr type validation (Type.string) könnte ja immer ein Validator sein
 
 // - mongo Implementierung
-// - filtr beim mongo store
+// - filter beim mongo store
+// - tests für reference Arrays
 
 // - überlegen wie das mit dem client Zugriff funktionieren soll
 // - Aufräumen

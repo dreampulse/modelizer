@@ -1,6 +1,6 @@
-var assert = require("assert")
+var assert = require("assert");
 
-describe('Model 1', function() {
+describe('ModelIdea', function() {
   var model = require('../lib/model');
 
   var Type = {
@@ -16,6 +16,7 @@ describe('Model 1', function() {
 
   describe('Basic Functions', function(){
     var myObject1;
+    var myObject1_id;
 
     it('start with clean database', function(done) {
       // clean testing database
@@ -44,12 +45,15 @@ describe('Model 1', function() {
             assert(doc.attr1 === "value1");
             assert(doc.attr2 === "value2");
             assert(doc.hasOwnProperty("_id"));
+            myObject1_id = doc._id;
             done();
           });
         })
         .fail(function(err) {
+          assert(false);
           done(err);
-        });
+        })
+        .done();
     });
 
     it('saved object can be found with model search method .all()', function(done) {
@@ -62,9 +66,173 @@ describe('Model 1', function() {
           done();
         })
         .fail(function(err) {
+          assert(false);
           done(err);
+        })
+        .done();
+    });
+
+    it('can be found by using .get() search method', function(done) {
+      MyModel1.use.get(myObject1_id)
+        .then(function(obj) {
+          assert(""+obj._id === ""+myObject1_id);
+          done();
+        })
+        .fail(function(err) {
+          assert(false);
+          done(err);
+        })
+        .done();
+    });
+
+    it('can be found by using .find() to search for an attribute', function(done) {
+      MyModel1.use.find({'attr1':'value1'})
+        .then(function(obj) {
+          assert(obj.length === 1);
+          assert(""+obj[0]._id === ""+myObject1_id);
+          done();
+        })
+        .fail(function(err) {
+          assert(false);
+          done(err);
+        })
+        .done();
+    });
+
+    it('should be possible to delete object', function(done){
+      myObject1.remove()
+        .then(function() {
+          done();
+        })
+        .fail(function(err) {
+          assert(false);
+          done(err);
+        })
+        .done();
+    });
+
+    it('should fail to delete an unsaved object', function(done){
+      myObject1.remove()
+        .then(function() {
+          assert(false);
+          done(false);
+        })
+        .fail(function(err) {
+          done();
+        })
+        .done();
+    });
+
+  });
+
+
+  var MyModel2 = new model("MyModel2").attr("myAttr", Type.string).attrArray("myArray", MyModel1).attrObj("myAttrObj", MyModel1);
+  MyModel2.mongoDB(db);
+
+  describe('Array and Object Attributes', function() {
+    var myObject2;
+
+    it('start with one object', function(done) {
+      myObject2 = MyModel2.createObject();
+      assert(myObject2.myAttr === undefined);
+      assert(myObject2.myArray.length === 0);
+      assert(myObject2.myAttrObj.hasOwnProperty('attr1') && myObject2.myAttrObj.hasOwnProperty('attr2'));
+      done();
+    });
+
+    it('get Object with createMyArrayElement()', function(done) {
+      var el = myObject2.createMyArrayElement();
+      assert(el.hasOwnProperty('attr1') && el.hasOwnProperty('attr2'));
+      assert(myObject2.myArray[0] === el);
+      done();
+    });
+
+  });
+
+  var MyModel3 = new model("MyModel3").attr("myAttr", Type.string).attrRef("reference", MyModel1);
+  MyModel3.mongoDB(db);
+
+  describe('Reference to another Model', function() {
+    var myObject3;
+    var refObj;
+    var refObj_id;
+
+    it('start with clean database and one object', function(done) {
+      db.collection("MyModel3").drop(function(err, res) {
+        myObject3 = MyModel3.createObject();
+        assert(myObject3.myAttr === undefined);
+        assert(typeof myObject3.reference === 'object');
+        done();
+      });
+    });
+
+    it('should be possible to create a referenced object', function(done){
+      refObj = myObject3.reference.createObject();
+      assert(refObj.hasOwnProperty('attr1') && refObj.hasOwnProperty('attr2'));
+      assert(myObject3.reference.ref() === refObj);
+
+      // save the referenced object
+      refObj.save()
+        .then(function(doc) {
+          assert(refObj._reference === undefined, "reference problme");
+          refObj_id = doc._id;
+          done();
+        })
+        .fail(function(err){
+          done(err);
+        }).done();
+    });
+
+    it('should be possible to save an object with a reference inside', function(done) {
+      myObject3.save()
+        .then(function(doc){
+          assert(""+myObject3.reference._reference === ""+refObj_id, "reference hasn't been added");
+          MyModel1.use.get(refObj_id)
+            .then(function(obj) {
+              assert(""+obj._id === ""+myObject3.reference._reference, "the referenced object exists");
+              done();
+            }).done();
+        })
+        .fail(function(err){
+          done(err);
+        }).done();
+    });
+
+    it('should be possible to load a referenced object', function(done){
+      MyModel3.use.get(myObject3._id)
+        .then(function(obj) {
+          assert(obj.reference.ref === undefined, "shouldn' be loaded at that point of time");
+          assert(""+obj.reference._reference == ""+refObj_id, "the reference_id should be loaded correctly");
+
+          obj.reference.load()
+            .then(function(loadedObj) {
+              assert(""+obj.reference.ref()._id === ""+refObj._id, "not the correct referenced object has been loaded");
+              done();
+            }).done();
+
+        }).done();
+    });
+
+    it('should be possible to set the reference to an arbitrary object', function(done) {
+      MyModel1.createObject().save()
+        .then(function(obj) {
+          myObject3.reference.setObject(obj);
+          assert(""+myObject3.reference._reference == ""+obj._id);
+          done();
         });
     });
 
-  })
-})
+    // TODO
+    it('should be possible to delete an referenced object', function(done) {
+      refObj.remove()
+        .then(function() {
+          assert(refObj._id === undefined);
+          assert(myObject3.reference._reference === undefined, "reference from parent hasn't been removed");
+          assert(myObject3.reference.ref === undefined, "referencing function hasn' been removed");
+          done();
+        }).done();
+    });
+
+  });
+
+});
