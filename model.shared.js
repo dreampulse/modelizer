@@ -88,3 +88,4 @@ module.exports = {
 // Aufräumen:
 // - die Attribute eines Objects auch attr nennen!
 // - generell eine Benahmung überlegen
+
