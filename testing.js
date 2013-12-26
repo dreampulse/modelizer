@@ -8,10 +8,12 @@ models.StammdatenModel.use.all().then(function(o){objs = o;});
 var foo = models.StammdatenModel.createObject();
 foo.name = "foo";
 
-foo.participants.createObject();
-foo.participants.ref[0]().street = "matthias";
-foo.participants.ref[0]().save();
-foo.save();
+foo.createParticipantsObject();
+foo.participants[0].ref().street = "Lumpi";
+foo.participants[0].ref().save().then(function() {
+    foo.save();
+  });
+
 
 
 foo.store.createObject();

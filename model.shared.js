@@ -77,7 +77,13 @@ module.exports = {
 
 // - mongo Implementierung
 // - attrRefArrays
+//   - speichern als array und nicht als hash... (wie beim normalen arrayAttr
 //   - laden von den ref arrays
 // - filtr beim mongo store
 
 // - der Client braucht ObjectId (steckt im bison modul)
+
+
+// Aufräumen:
+// - die Attribute eines Objects auch attr nennen!
+// - generell eine Benahmung überlegen
