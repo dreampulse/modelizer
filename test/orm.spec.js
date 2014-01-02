@@ -149,6 +149,7 @@ describe('ModelIdea', function() {
 
   });
 
+
   var MyModel3 = new model("MyModel3").attr("myAttr", Type.string).attrRef("reference", MyModel1);
   MyModel3.mongoDB(db);
 
@@ -201,7 +202,13 @@ describe('ModelIdea', function() {
     it('should be possible to load a referenced object', function(done){
       MyModel3.use.get(myObject3._id)
         .then(function(obj) {
-          assert(obj.reference.ref === undefined, "shouldn' be loaded at that point of time");
+          try {
+            obj.reference.ref();
+            assert(false, "should throw an error");
+          } catch (e) {
+            assert(e instanceof Error);
+          }
+          //assert(obj.reference.ref === undefined, "shouldn' be loaded at that point of time");
           assert(""+obj.reference._reference == ""+refObj_id, "the reference_id should be loaded correctly");
 
           obj.reference.load()
@@ -222,7 +229,7 @@ describe('ModelIdea', function() {
         });
     });
 
-    // TODO
+/*    // TODO
     it('should be possible to delete an referenced object', function(done) {
       refObj.remove()
         .then(function() {
@@ -230,6 +237,64 @@ describe('ModelIdea', function() {
           assert(myObject3.reference._reference === undefined, "reference from parent hasn't been removed");
           assert(myObject3.reference.ref === undefined, "referencing function hasn' been removed");
           done();
+        }).done();
+    });
+*/
+  });
+
+
+  var MyModel4 = new model("MyModel4").attr("myAttr", Type.string).attrRefArray("models", MyModel1);
+  MyModel4.mongoDB(db);
+
+  describe('1..n References (Array References)', function() {
+    var myObject4;
+    var refObj1;
+
+    it('start with clean database and one object', function(done) {
+      db.collection("MyModel3").drop(function(err, res) {
+        myObject4 = MyModel4.createObject();
+        assert(myObject4.myAttr === undefined);
+        assert(typeof myObject4.models === 'object');
+        assert(myObject4.hasOwnProperty('createModelsObject'));
+        done();
+      });
+    });
+
+    it('should be possible to create a referenced object', function(done) {
+      refObj1 = myObject4.createModelsObject();
+      assert(refObj1.hasOwnProperty('attr1') && refObj1.hasOwnProperty('attr2'));
+      assert(myObject4.models.length === 1);
+      assert(myObject4.models[0].ref() === refObj1);
+
+      refObj1.save()
+        .then(function(doc) {
+          done();
+        })
+        .fail(function(err) {
+          done(err);
+        }).done();
+    });
+
+    it('should save the reference array correctly', function(done) {
+      myObject4.save()
+        .then(function(doc){
+          assert(doc === myObject4);
+          assert(""+myObject4.models[0]._reference === ""+refObj1._id);
+
+          return MyModel4.use.get(myObject4._id);
+        })
+        .then(function(doc) {
+          assert(""+doc._id === ""+myObject4._id);
+          doc.models[0].load()
+            .then(function(loadedRefObj1) {
+
+              assert(""+doc.models[0].ref()._id === ""+refObj1._id);
+
+              done();
+            }).done();
+        })
+        .fail(function(err) {
+          done(err);
         }).done();
     });
 
