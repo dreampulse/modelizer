@@ -49,9 +49,9 @@ StammdatenModel.operationImpl("resetPassword", function() {
 });
 
 
-StammdatenModel.readFilter(function () {
-  return true;
-});
+//StammdatenModel.readFilter(function () {
+//  return true;
+//});
 
 
 //StammdatenModel.readFilter(function () {
@@ -59,9 +59,22 @@ StammdatenModel.readFilter(function () {
 //});
 
 
+// init database connection
 var mongojs = require('mongojs');
 var db = mongojs('mongodb://127.0.0.1/test');
 StammdatenModel.mongoDB(db);
+
+
+// init webserver
+var express = require('express');
+var app = express();
+app.use(express.logger());
+app.set('json spaces',2);
+
+StammdatenModel.express(app);
+StammdatenModel.serve();
+
+app.listen(3000);
 
 //StammdatenModel.mongoDB("foo");
 
