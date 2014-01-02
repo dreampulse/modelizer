@@ -300,4 +300,102 @@ describe('ModelIdea', function() {
 
   });
 
+
+  var MyModel5 = new model("MyModel5").attr("attr1", Type.string).attr("attr2", Type.string);
+  MyModel5.mongoDB(db);
+
+  describe('Filters', function() {
+    var obj1, obj2, obj3;
+
+    it('start with clean database and three objects', function(done) {
+      db.collection("MyModel5").drop(function(err, res) {
+        obj1 = MyModel5.createObject();
+        obj1.attr1 = "A";
+        obj1.attr2 = "C";
+
+        obj2 = MyModel5.createObject();
+        obj2.attr1 = "A";
+        obj2.attr2 = "B";
+
+        obj3 = MyModel5.createObject();
+        obj3.attr1 = "C";
+        obj3.attr2 = "B";
+
+        obj1.save()
+          .then(function () {
+            return obj2.save();
+          })
+          .then(function() {
+            return obj3.save();
+          })
+          .then(function() {
+            return MyModel5.useFiltered.all();
+          })
+          .then(function(objs) {
+            assert(objs.length == 3, 'the three objects should have been saved');
+            done();
+          })
+          .fail(function (err) {
+            done(err);
+          });
+      });
+    });
+
+    it('use filtered get for obj1', function(done) {
+      MyModel5.useFiltered.get(""+obj1._id)
+        .then(function(obj) {
+          assert(obj.attr1 === "A" && obj.attr2 === "C");
+          done();
+        }).done();
+    });
+
+    it('filter for attr1 should be A', function(done) {
+      MyModel5.readFilter(function () {
+        return {attr1 : "A"};
+      });
+
+      MyModel5.useFiltered.all()
+        .then(function(objs) {
+          assert(objs.length == 2);
+          assert(objs[0].attr1 === "A" && objs[1].attr1 === "A");
+          done();
+        }).done();
+
+    });
+
+    it('add filter for attr2 should be B', function(done) {
+      MyModel5.readFilter(function () {
+        return {attr2 : "B"};
+      });
+
+      MyModel5.useFiltered.all()
+        .then(function(objs) {
+          assert(objs.length == 1);
+          assert(objs[0].attr1 === "A" && objs[0].attr2 === "B");
+          done();
+        }).done();
+
+    });
+
+    it('use filtered get for obj2', function(done) {
+      MyModel5.useFiltered.get(""+obj2._id)
+        .then(function(obj) {
+          assert(obj.attr1 === "A" && obj.attr2 === "B");
+          done();
+        }).done();
+    });
+
+    it("obj1 shouldn't be found", function(done) {
+      MyModel5.useFiltered.get(""+obj1._id)
+        .then(function(obj) {
+          done("Filter isn't working");
+        })
+        .fail(function() {
+          done();
+        });
+    });
+
+
+  });
+
 });
