@@ -12,7 +12,8 @@ describe('ModelIdea', function() {
 
   var mongojs = require('mongojs');
   var db = mongojs('mongodb://127.0.0.1/testModel1');
-  MyModel1.mongoDB(db);
+  var connector = model.MongoConnector(db);
+  MyModel1.connection(connector);
 
   describe('Basic Functions', function(){
     var myObject1;
@@ -127,7 +128,7 @@ describe('ModelIdea', function() {
 
 
   var MyModel2 = new model("MyModel2").attr("myAttr", Type.string).attrArray("myArray", MyModel1).attrObj("myAttrObj", MyModel1);
-  MyModel2.mongoDB(db);
+  MyModel2.connection(connector);
 
   describe('Array and Object Attributes', function() {
     var myObject2;
@@ -151,7 +152,7 @@ describe('ModelIdea', function() {
 
 
   var MyModel3 = new model("MyModel3").attr("myAttr", Type.string).attrRef("reference", MyModel1);
-  MyModel3.mongoDB(db);
+  MyModel3.connection(connector);
 
   describe('Reference to another Model', function() {
     var myObject3;
@@ -244,7 +245,7 @@ describe('ModelIdea', function() {
 
 
   var MyModel4 = new model("MyModel4").attr("myAttr", Type.string).attrRefArray("models", MyModel1);
-  MyModel4.mongoDB(db);
+  MyModel4.connection(connector);
 
   describe('1..n References (Array References)', function() {
     var myObject4;
@@ -302,7 +303,7 @@ describe('ModelIdea', function() {
 
 
   var MyModel5 = new model("MyModel5").attr("attr1", Type.string).attr("attr2", Type.string);
-  MyModel5.mongoDB(db);
+  MyModel5.connection(connector);
 
   describe('Filters', function() {
     var obj1, obj2, obj3;

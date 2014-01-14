@@ -62,7 +62,8 @@ StammdatenModel.operationImpl("resetPassword", function() {
 // init database connection
 var mongojs = require('mongojs');
 var db = mongojs('mongodb://127.0.0.1/test');
-StammdatenModel.mongoDB(db);
+var connector = model.MongoConnector(db);
+StammdatenModel.connection(connector);
 
 
 // init webserver
@@ -85,11 +86,17 @@ module.exports = {
 };
 
 // TODO: nächste Schritte:
+// eine Unterscheidung Programmieren ob die lib auf dem Server oder Client läuft
+//   - Eine Klasse programmieren, die -> DONE! :-)
+//     findOne, find, save und remove anbietet (überall wo "self.collection" verwendet wird)
+//   - Den MongoDB-Access teil in die Klasse verschieben
+//   - Ein ajax-client Programmieren
+
+
 // - model def einführen
 // - attr type validation (Type.string) könnte ja immer ein Validator sein
 
 // - mongo Implementierung
-// - tests für den filter
 // - express für get id
 
 // - überlegen wie das mit dem client Zugriff funktionieren soll
