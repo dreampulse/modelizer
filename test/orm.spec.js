@@ -106,7 +106,6 @@ describe('ModelIdea', function() {
           done();
         })
         .fail(function(err) {
-          console.log("fail", err);
           assert(false);
           done(err);
         })
