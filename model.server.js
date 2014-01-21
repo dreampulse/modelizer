@@ -53,6 +53,6 @@ StammdatenModel.serve();
 
 app.listen(5000);
 
-console.log("done!");
+console.log("running!");
 
 //StammdatenModel.mongoDB("foo");

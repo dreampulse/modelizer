@@ -49,48 +49,24 @@ StammdatenModel.operationImpl("resetPassword", function() {
 });
 
 
-//StammdatenModel.readFilter(function () {
-//  return true;
-//});
 
+if (typeof window === 'undefined') {  // todo: conditional code (muss besser werden)
+  module.exports = {
+    AmazonStoreModel : AmazonStoreModel,
+    StammdatenModel : StammdatenModel,
+    PlanModel : PlanModel
+  };
+}
 
-//StammdatenModel.readFilter(function () {
-//  return {userId : "foo"};
-//});
-
-
-// init database connection
-var mongojs = require('mongojs');
-var db = mongojs('mongodb://127.0.0.1/test');
-var connector = model.MongoConnector(db);
-StammdatenModel.connection(connector);
-
-
-// init webserver
-var express = require('express');
-var app = express();
-app.use(express.logger());
-app.set('json spaces',2);
-
-StammdatenModel.express(app);
-StammdatenModel.serve();
-
-app.listen(3000);
-
-//StammdatenModel.mongoDB("foo");
-
-module.exports = {
-  AmazonStoreModel : AmazonStoreModel,
-  StammdatenModel : StammdatenModel,
-  PlanModel : PlanModel
-};
 
 // TODO: nächste Schritte:
 // eine Unterscheidung Programmieren ob die lib auf dem Server oder Client läuft
 //   - Eine Klasse programmieren, die -> DONE! :-)
 //     findOne, find, save und remove anbietet (überall wo "self.collection" verwendet wird)
-//   - Den MongoDB-Access teil in die Klasse verschieben
 //   - Ein ajax-client Programmieren
+
+// - Ein loading konzept überlegen (von lodash abschauen)
+
 
 
 // - model def einführen
