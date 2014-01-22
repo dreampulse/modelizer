@@ -10,10 +10,14 @@
 	<script type="text/javascript" src="model.shared.js"></script>
 
     <script type="text/javascript">
-
+    	// client code
+    	var connector = Model.AngularConnector("http://localhost:5000/");
+    	StammdatenModel.connection(connector);
+    	
     </script>    
 
 </head>
+<!--<body ng-app>-->
 <body>
         
 </body>

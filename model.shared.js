@@ -65,6 +65,7 @@ if (typeof window === 'undefined') {  // todo: conditional code (muss besser wer
 //     findOne, find, save und remove anbietet (überall wo "self.collection" verwendet wird)
 //   - Ein ajax-client Programmieren
 
+// - get verwendet string anstatt ObjectID (soll)
 // - Ein loading konzept überlegen (von lodash abschauen)
 
 
