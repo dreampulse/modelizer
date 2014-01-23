@@ -2,7 +2,9 @@
 
 var ObjectId = require('mongojs').ObjectId;
 
+require('./model.server.js');
 var models = require('./model.shared.js');
+
 models.StammdatenModel.use.all().then(function(o){objs = o;});
 
 var foo = models.StammdatenModel.createObject();
