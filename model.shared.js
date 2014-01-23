@@ -26,8 +26,8 @@ var StammdatenModel = new model("Stammdaten")
     .operation("resetPassword")
 
  //   .attrObj("file", AmazonStoreModel)
-    .attrRef("store", AmazonStoreModel)
-    .attrRefArray("participants", AddressModel) // TODO: problem bei selbstreferenzen (variable ist noch undefined)
+//    .attrRef("store", AmazonStoreModel)
+//    .attrRefArray("participants", AddressModel) // TODO: problem bei selbstreferenzen (variable ist noch undefined)
                                                 // verschwindet vlt beim entfernen von refModel.mongoDB
   ;
 
