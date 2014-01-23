@@ -66,8 +66,8 @@ if (typeof window === 'undefined') {  // todo: conditional code (muss besser wer
 //   - Ein ajax-client Programmieren
 
 // - get verwendet string anstatt ObjectID (soll)
+// - überprüfen, wo überall ein string anstatt einer objectid verwendet wird
 // - Ein loading konzept überlegen (von lodash abschauen)
-
 
 
 // - model def einführen
