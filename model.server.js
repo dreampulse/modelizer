@@ -46,6 +46,7 @@ StammdatenModel.connection(connector);
 var express = require('express');
 var app = express();
 app.use(express.logger());
+app.use(express.bodyParser());
 app.set('json spaces',2);
 
 StammdatenModel.express(app);
