@@ -73,6 +73,25 @@ describe('ModelIdea', function() {
         .done();
     });
 
+
+    it('should be possible to save again', function(done) {
+      myObject1.save()
+        .then(function() {
+          return MyModel1.use.all()
+            .then(function(objs){
+              assert(objs.length === 1, "There should still be only one object in the store");
+              done();
+            })
+        })
+        .fail(function(err) {
+          assert(false);
+          done(err);
+        })
+        .done();
+
+    });
+
+
     it('can be found by using .get() search method', function(done) {
       MyModel1.use.get(myObject1_id)
         .then(function(obj) {
