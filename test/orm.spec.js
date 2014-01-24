@@ -88,7 +88,6 @@ describe('ModelIdea', function() {
           done(err);
         })
         .done();
-
     });
 
 

@@ -3,12 +3,16 @@
 var connector = Model.AngularConnector("http://localhost:6123/");
 PersonModel.connection(connector);
 
+
+// http://stackoverflow.com/questions/17544965/unhandled-rejection-reasons-should-be-empty
+Q.stopUnhandledRejectionTracking();  // why does this happen?
+
 describe('Integration Tests', function() {
 
   it('Person Models should be empty', function(done) {
     PersonModel.use.all()
-      .then(function(obj) {
-        if (obj.length != 0) done("PersonModel should be empty");
+      .then(function(objs) {
+        if (objs.length != 0) done("PersonModel should be empty");
         done();
       })
       .fail(function(err) {
@@ -16,7 +20,7 @@ describe('Integration Tests', function() {
       }).done();
   });
 
-  /*
+
   it('Get an invalid model should fail', function(done) {
     PersonModel.use.get("01234")
       .then(function(obj) {
@@ -27,7 +31,7 @@ describe('Integration Tests', function() {
         done();
       }).done();
   });
-  */
+
 
   var person1_id;
   it('should be possible to create a Object', function(done) {
@@ -68,12 +72,34 @@ describe('Integration Tests', function() {
       .done();
   });
 
+
+  it('should be possible to change some values and save again', function(done){
+    person1_obj.name = "Steve Gates";
+    person1_obj.save()
+      .then(function() {
+
+        PersonModel.use.all()
+          .then(function(objs) {
+            if (objs.length != 1) done("There should still be only one object in the store");
+            done();
+          })
+          .fail(function(err) {
+            done('Promise Failed');
+          }).done();
+
+      }).fail(function(err) {
+        done('Failed to save the object');
+      })
+      .done();
+  });
+
+
   it('should be possible to delete an object', function(done){
     person1_obj.remove()
       .then(function() {
         done();
       }).fail(function(err) {
-        done('Failed to delete the object', err);
+        done('Failed to delete the object');
       })
       .done();
   });
