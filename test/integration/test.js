@@ -39,7 +39,7 @@ describe('Integration Tests', function() {
     person1.save()
       .then(function() {
         if (person1._id == undefined) done("didn't get an id from the server!");
-        person1_id = person1._id; // save id for next test
+        person1_id = person1._id; // save id for next tests
         done();
       })
       .fail(function(err) {
@@ -48,10 +48,45 @@ describe('Integration Tests', function() {
       .done();
   });
 
+  var person1_obj;
   it('should be possible to get the created object', function(done) {
 
-//    PersonModel.use.get(person1_id)
-//      .then(function(obj))
+    PersonModel.use.get(person1_id)
+      .then(function(obj) {
+        if (obj._id != person1_id) done("Object has an invalid id");
+        if (
+          obj.name !== "Test User" &&
+          obj.eMail !== "test@test.com" &&
+          obj.age === 99
+          ) done("Test field are invalid");
+
+        person1_obj = obj;  // save object for next tests
+        done();
+      }).fail(function(err) {
+        done('Failed get the object', err);
+      })
+      .done();
+  });
+
+  it('should be possible to delete an object', function(done){
+    person1_obj.remove()
+      .then(function() {
+        done();
+      }).fail(function(err) {
+        done('Failed to delete the object', err);
+      })
+      .done();
+  });
+
+  it('should fail to get the deleted object', function(done) {
+    PersonModel.use.get(person1_id)
+      .then(function(obj) {
+        done("There should be no result");
+      })
+      .fail(function(err) {
+        if (err.message != "Object not found!") done("Unknown error message!");
+        done();
+      }).done();
   });
 
 });
