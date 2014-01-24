@@ -25,6 +25,7 @@ var StammdatenModel = new model("Stammdaten")
     .attrArray("address", AddressModel)
     .operation("resetPassword")
 
+// TODO: funktionier irgendwie nicht :-(
  //   .attrObj("file", AmazonStoreModel)
 //    .attrRef("store", AmazonStoreModel)
 //    .attrRefArray("participants", AddressModel) // TODO: problem bei selbstreferenzen (variable ist noch undefined)
