@@ -10,18 +10,24 @@ var AddressModel = new model("AdressModel")
   .attr("number", Type.int)
 ;
 
+var PersonalSettingModel = new model("PersonalSetting")
+  .attr("storageSize", Type.int)
+  .attr("password", Type.string)
+  .attr('enabled', Type.string)
+;
 
 var PersonModel = new model("Person")
   .attr("name", Type.string)
   .attr("eMail", Type.string)
   .attr("age", Type.int)
   .attrArray("address", AddressModel)
+  .attrObj("settings", PersonalSettingModel)
   .operation("resetPassword")
 ;
 
 
 PersonModel.operationImpl("resetPassword", function() {
-  console.log('reset Passwort Operation called!');
+  console.log('reset password Operation called!');
 });
 
 
@@ -29,6 +35,7 @@ PersonModel.operationImpl("resetPassword", function() {
 if (typeof window === 'undefined') {  // todo: conditional code (muss besser werden)
   module.exports = {
     AddressModel : AddressModel,
+    PersonalSettingModel : PersonalSettingModel,
     PersonModel : PersonModel
   };
 }
