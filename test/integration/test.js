@@ -181,7 +181,61 @@ describe('Integration Tests', function() {
 
   });
 
-  // TODO test references
 
+  describe("References", function() {
+    
+    var bob; 
+    it("should be possible to create an object with a reference", function(done){
+      bob = PersonModel.createObject();
+      bob.name = "Dave Test User";
+      
+      var profile = bob.profile.createObject();
+      profile.vision = "Best Hacker";
+      bob.profile.ref().experience = "a lot";
+
+      // save ref object
+      profile.save()
+        .then(function() {
+          assert(profile._id != undefined, "got no id");
+
+          return bob.save();
+        })
+        .then(function() {
+          assert(bob.profile._reference == bob.profile.ref()._id, "reference id fail");
+          done();
+        })
+        .fail(function(err) {
+          done(err);
+        });
+    });
+
+    it("should be possible to load an object with a reference", function(done){
+      var loaded_bob;
+      PersonModel.use.get(bob._id)
+        .then(function(obj) {
+          loaded_bob = obj;
+          return obj.profile.load();
+        })
+        .then(function() {
+          if (loaded_bob.profile.ref().vision !== "Best Hacker") done("failed to load reference");
+          done();
+        })
+        .fail(function(err) {
+          done(err);
+        });
+    });
+
+    it('delete the object', function(done){
+      bob.remove()
+        .then(function() {
+          done();
+        }).fail(function(err) {
+          done('Failed to delete the object');
+        })
+        .done();
+    })
+  
+  });
+  
 
 });

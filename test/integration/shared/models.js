@@ -5,7 +5,7 @@ var Type = {
   "int" : "int"
 };
 
-var ProfilModel = new model("Profil")
+var ProfileModel = new model("Profile")
   .attr("vision", Type.string)
   .attr("experience", Type.string)
 ;
@@ -27,7 +27,7 @@ var PersonModel = new model("Person")
   .attr("age", Type.int)
   .attrArray("address", AddressModel)
   .attrObj("settings", PersonalSettingModel)
-  .attrRef("profil", ProfilModel)
+  .attrRef("profile", ProfileModel)
   .operation("resetPassword")
 ;
 
@@ -40,7 +40,7 @@ PersonModel.operationImpl("resetPassword", function() {
 
 if (typeof window === 'undefined') {  // todo: conditional code (muss besser werden)
   module.exports = {
-    ProfilModel : ProfilModel,
+    ProfileModel : ProfileModel,
     AddressModel : AddressModel,
     PersonalSettingModel : PersonalSettingModel,
     PersonModel : PersonModel

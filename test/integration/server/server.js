@@ -5,6 +5,7 @@ console.log(__dirname);
 var model = require('../../../lib/model.js');
 
 var PersonModel = require('../shared/models.js').PersonModel;
+var ProfileModel = require('../shared/models.js').ProfileModel;
 
 
 // init database connection
@@ -33,5 +34,10 @@ cleanCollection("Person");
 PersonModel.connection(connector);
 PersonModel.express(app);
 PersonModel.serve();
+
+cleanCollection("Profile");
+ProfileModel.connection(connector);
+ProfileModel.express(app);
+ProfileModel.serve();
 
 
