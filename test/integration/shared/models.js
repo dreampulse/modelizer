@@ -5,6 +5,11 @@ var Type = {
   "int" : "int"
 };
 
+var PostingModel = new model("Posting")
+  .attr("text", Type.string)
+  .attr("date", Type.string)
+;
+
 var ProfileModel = new model("Profile")
   .attr("vision", Type.string)
   .attr("experience", Type.string)
@@ -28,6 +33,7 @@ var PersonModel = new model("Person")
   .attrArray("address", AddressModel)
   .attrObj("settings", PersonalSettingModel)
   .attrRef("profile", ProfileModel)
+  .attrRefArray("postings", PostingModel)
   .operation("resetPassword")
 ;
 
@@ -40,6 +46,7 @@ PersonModel.operationImpl("resetPassword", function() {
 
 if (typeof window === 'undefined') {  // todo: conditional code (muss besser werden)
   module.exports = {
+    PostingModel : PostingModel,
     ProfileModel : ProfileModel,
     AddressModel : AddressModel,
     PersonalSettingModel : PersonalSettingModel,

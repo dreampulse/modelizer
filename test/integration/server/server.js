@@ -6,7 +6,7 @@ var model = require('../../../lib/model.js');
 
 var PersonModel = require('../shared/models.js').PersonModel;
 var ProfileModel = require('../shared/models.js').ProfileModel;
-
+var PostingModel = require('../shared/models.js').PostingModel;
 
 // init database connection
 var mongojs = require('mongojs');
@@ -40,4 +40,8 @@ ProfileModel.connection(connector);
 ProfileModel.express(app);
 ProfileModel.serve();
 
+cleanCollection("Posting");
+PostingModel.connection(connector);
+PostingModel.express(app);
+PostingModel.serve();
 

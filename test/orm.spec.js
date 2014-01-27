@@ -54,7 +54,7 @@ describe('ModelIdea', function() {
           assert(false);
           done(err);
         })
-        .done();
+        //.done();
     });
 
     it('saved object can be found with model search method .all()', function(done) {
@@ -70,7 +70,7 @@ describe('ModelIdea', function() {
           assert(false);
           done(err);
         })
-        .done();
+        //.done();
     });
 
 
@@ -87,7 +87,7 @@ describe('ModelIdea', function() {
           assert(false);
           done(err);
         })
-        .done();
+        //.done();
     });
 
 
@@ -101,7 +101,7 @@ describe('ModelIdea', function() {
           assert(false);
           done(err);
         })
-        .done();
+        //.done();
     });
 
     it('can be found by using .find() to search for an attribute', function(done) {
@@ -115,7 +115,7 @@ describe('ModelIdea', function() {
           assert(false);
           done(err);
         })
-        .done();
+        //.done();
     });
 
     it('should be possible to delete object', function(done){
@@ -127,7 +127,7 @@ describe('ModelIdea', function() {
           assert(false);
           done(err);
         })
-        .done();
+        //.done();
     });
 
     it('should fail to delete an unsaved object', function(done){
@@ -139,7 +139,7 @@ describe('ModelIdea', function() {
         .fail(function(err) {
           done();
         })
-        .done();
+        //.done();
     });
 
   });
@@ -215,7 +215,8 @@ describe('ModelIdea', function() {
         })
         .fail(function(err){
           done(err);
-        }).done();
+        })
+        //.done();
     });
 
     it('should be possible to save an object with a reference inside', function(done) {
@@ -230,7 +231,8 @@ describe('ModelIdea', function() {
         })
         .fail(function(err){
           done(err);
-        }).done();
+        })
+        //.done();
     });
 
     it('should be possible to load a referenced object', function(done){
@@ -251,7 +253,8 @@ describe('ModelIdea', function() {
               done();
             }).done();
 
-        }).done();
+        })
+        //.done();
     });
 
     it('should be possible to set the reference to an arbitrary object', function(done) {
@@ -306,7 +309,8 @@ describe('ModelIdea', function() {
         })
         .fail(function(err) {
           done(err);
-        }).done();
+        })
+        //.done();
     });
 
     it('should save the reference array correctly', function(done) {
@@ -329,7 +333,8 @@ describe('ModelIdea', function() {
         })
         .fail(function(err) {
           done(err);
-        }).done();
+        })
+        //.done();
     });
 
   });
@@ -380,7 +385,8 @@ describe('ModelIdea', function() {
         .then(function(obj) {
           assert(obj.attr1 === "A" && obj.attr2 === "C");
           done();
-        }).done();
+        })
+        //.done();
     });
 
     it('filter for attr1 should be A', function(done) {
@@ -393,7 +399,8 @@ describe('ModelIdea', function() {
           assert(objs.length == 2);
           assert(objs[0].attr1 === "A" && objs[1].attr1 === "A");
           done();
-        }).done();
+        })
+        //.done();
 
     });
 
@@ -407,7 +414,8 @@ describe('ModelIdea', function() {
           assert(objs.length == 1);
           assert(objs[0].attr1 === "A" && objs[0].attr2 === "B");
           done();
-        }).done();
+        })
+        //.done();
 
     });
 
@@ -416,7 +424,8 @@ describe('ModelIdea', function() {
         .then(function(obj) {
           assert(obj.attr1 === "A" && obj.attr2 === "B");
           done();
-        }).done();
+        })
+        //.done();
     });
 
     it("obj1 shouldn't be found", function(done) {
