@@ -441,21 +441,37 @@ describe('ModelIdea', function() {
 
   });
 
-  describe('Filters', function() {
+  describe('Methods and Operations', function() {
     var called = false;
     var myMethod1 = function() {
       called = true;
     };
     var MyModel6 = new model("MyModel6").method("myMethod").methodImpl("myMethod", myMethod1);
-    //MyModel6.connection(connector);
 
-
-    it("should be possible to call an operation", function(done) {
+    it("should be possible to use methods", function(done) {
       var obj6 = MyModel6.createObject();
       obj6.myMethod();
       if (!called) done("Method calling failed");
       else done();
     });
+
+
+    var myOp1 = function(params) {
+      assert(params.testParam == "paramValue", "Error in parameter handling");
+      return "returnValue";
+    }
+    var MyModel7 = new model("MyModel7").operation("myOp").operationImpl("myOp", myOp1);
+    MyModel7.connection(connector);
+
+    it("should be possible to use operations", function(done) {
+      assert(MyModel7.myOp != undefined, "Method not defined");
+      
+      var res = MyModel7.myOp({testParam:"paramValue"});
+      assert(res == "returnValue", "Error in return value handling");
+      
+      done();
+    });
+
   });
 
 });
