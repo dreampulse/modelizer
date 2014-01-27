@@ -441,4 +441,21 @@ describe('ModelIdea', function() {
 
   });
 
+  describe('Filters', function() {
+    var called = false;
+    var myMethod1 = function() {
+      called = true;
+    };
+    var MyModel6 = new model("MyModel6").method("myMethod").methodImpl("myMethod", myMethod1);
+    //MyModel6.connection(connector);
+
+
+    it("should be possible to call an operation", function(done) {
+      var obj6 = MyModel6.createObject();
+      obj6.myMethod();
+      if (!called) done("Method calling failed");
+      else done();
+    });
+  });
+
 });
