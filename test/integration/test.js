@@ -236,6 +236,76 @@ describe('Integration Tests', function() {
     })
   
   });
+
+  describe("1..n References", function() {
+    var max; 
+    var posting1;
+    var posting2;
+    it("should be possible to create an object with an 1..n reference", function(done){
+      max = PersonModel.createObject();
+      max.name = "Max Mustermann";
+      
+      posting1 = max.createPostingsObject();
+      posting1.text = "The News";
+
+      posting2 = max.createPostingsObject();
+      max.postings[1].ref().text = "More news";
+
+      // save all
+      posting1.save()  // save posting 1
+        .then(function() {
+          return max.postings[1].ref().save();  // save posting 2
+        })
+        .then(function() {
+          return max.save();  // save parent object
+        })
+        .then(function() {
+          // everything has been saved
+          done();
+        })
+        .fail(function(err) {
+          done(err);
+        });
+    });
+
+    it("should be possible to load an object with an 1..n reference", function(done) {
+      var loaded_max;
+      PersonModel.use.get(max._id)
+        .then(function(obj) {
+          loaded_max = obj;
+          assert(obj.postings.length == 2, "wrong number of references");
+          return loaded_max.postings[0].load();
+          done();
+        })
+        .then(function(posting1) { // loaded posting1
+          assert(posting1.text == "The News");
+
+          return loaded_max.postings[1].load();
+        })
+        .then(function(posting2) { // loaded posting2
+          assert(loaded_max.postings[1].ref().text == "More news");
+
+          done();
+        })
+        .fail(function(err) {
+          done(err);
+        }); 
+    });
+
+    it('delete the objects', function(done){
+      max.remove()
+        .then(function() {
+          return posting1.remove();
+        }).then(function(){
+          return posting2.remove();
+        }).then(function(){
+          done(); // deleted all
+        }).fail(function(err) {
+          done('Failed to delete the objects');
+        });
+    })
+
+  });
   
 
 });
