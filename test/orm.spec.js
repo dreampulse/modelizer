@@ -186,6 +186,21 @@ describe('ModelIdea', function() {
       });
     });
 
+
+    it('should be possible to create and save an object with empty reference', function(done) {
+      var testObj = MyModel3.createObject();
+      testObj.save()
+        .then(function(doc) {
+          //TODO: messen, dass ref leer ist
+          assert(testObj.reference.ref === undefined, "reference problme");
+          done();
+        })
+        .fail(function(err){
+          done(err);
+        })
+    });
+
+
     it('should be possible to create a referenced object', function(done){
       refObj = myObject3.reference.createObject();
       assert(refObj.hasOwnProperty('attr1') && refObj.hasOwnProperty('attr2'));
