@@ -13,6 +13,7 @@ var ContentModel = require('../shared/models.js').ContentModel;
 var mongojs = require('mongojs');
 var db = mongojs('mongodb://127.0.0.1/test');
 var connector = model.MongoConnector(db);
+var ObjectId = require('mongojs').ObjectId;
 
 // init webserver
 var express = require('express');
@@ -69,6 +70,14 @@ ContentModel.connection(connector);
 ContentModel.express(app);
 ContentModel.serve();
 
+
+ContentModel.readFilter(function (req) {
+  //console.log("req.session.auth", req.session.auth);
+  //console.log("req.session.user_id", req.session.user_id);
+  return {_id : ObjectId(req.session.user_id)};
+});
+
+
 ContentModel.operationImpl("register", function(params, req) {
   var newContent = ContentModel.createObject();
   newContent.name = params.name;
@@ -78,12 +87,17 @@ ContentModel.operationImpl("register", function(params, req) {
 });
 
 ContentModel.operationImpl("login", function(params, req) {
-  console.log("params", params);
-  console.log("req", req.session);
-  console.log("req.session.name", req.session.name);
-  req.session.name = params.name;
-  req.session.password = params.password;
-  //TODO: check ob das richtig ist
+
+  return ContentModel.use.find({name:params.name})
+    .then(function(objs) {
+      if (objs.length != 1) throw new Error("wrong search results");
+
+      if (objs[0].password == params.password) {
+        // auth successfull
+        req.session.auth = true;
+        req.session.user_id = objs[0]._id;
+      }
+    })
 });
 
 

@@ -322,9 +322,9 @@ describe('Integration Tests', function() {
   });
 
   describe("Filters", function() {
-    it('register a user', function(done){
+    it('register a user A', function(done){
       ContentModel.register({
-          name : "Test User",
+          name : "Test User A",
           password : "geheim"
         })
         .then(function(res){
@@ -336,12 +336,39 @@ describe('Integration Tests', function() {
         });
     });
 
-    it('login', function(done){
-      ContentModel.login({
-        name : "Test User",
+    it('register a user B', function(done){
+      ContentModel.register({
+        name : "Test User B",
         password : "geheim"
       })
         .then(function(res){
+          done();
+        })
+        .fail(function(err) {
+          done(err);
+        });
+    });
+
+    it('login', function(done){
+      ContentModel.login({
+        name : "Test User A",
+        password : "geheim"
+      })
+        .then(function(res){
+          done();
+        })
+        .fail(function(err) {
+          done(err);
+        });
+    });
+
+    it('shout only be possible to access own object', function(done){
+      ContentModel.use.all()
+        .then(function(objs){
+          //console.log(objs);
+          if (objs.length != 1) done("Error in read filters");
+          if (objs[0].name !== "Test User A") done("Wrong user");
+
           done();
         })
         .fail(function(err) {

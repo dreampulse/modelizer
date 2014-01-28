@@ -457,7 +457,6 @@ describe('ModelIdea', function() {
 
 
     var myOp1 = function(params, req) {
-      console.log(req);
       assert(req === null, "HTTP-Request should be 'null' on local use");
       assert(params.testParam == "paramValue", "Error in parameter handling");
       return "returnValue";
