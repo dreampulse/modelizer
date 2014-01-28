@@ -466,10 +466,14 @@ describe('ModelIdea', function() {
     it("should be possible to use operations", function(done) {
       assert(MyModel7.myOp != undefined, "Method not defined");
       
-      var res = MyModel7.myOp({testParam:"paramValue"});
-      assert(res == "returnValue", "Error in return value handling");
-      
-      done();
+      MyModel7.myOp({testParam:"paramValue"}).then(function(res) {
+        assert(res == "returnValue", "Error in return value handling");
+        done();
+      })
+      .fail(function(err) {
+        done(err);
+      });
+
     });
 
   });
