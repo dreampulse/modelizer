@@ -34,7 +34,7 @@ var PersonModel = new model("Person")
   .attrObj("settings", PersonalSettingModel)
   .attrRef("profile", ProfileModel)
   .attrRefArray("postings", PostingModel)
-  .operation("testOp")
+  .operation("testOp")  // for implementation see server.js
 ;
 
 

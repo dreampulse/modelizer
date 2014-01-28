@@ -48,7 +48,8 @@ PostingModel.serve();
 
 // Server productive code
 
-PersonModel.operationImpl("testOp", function(param) {
-  if (param.param1 != "testParam") throw new Error("invalid operation param");
+PersonModel.operationImpl("testOp", function(params, req) {
+  if (req == null || req == undefined) throw new Error("Missing HTTP-Header");
+  if (params.param1 != "testParam") throw new Error("invalid operation param");
   return {result:"someStuff"};
 });
