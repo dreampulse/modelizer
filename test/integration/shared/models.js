@@ -34,14 +34,8 @@ var PersonModel = new model("Person")
   .attrObj("settings", PersonalSettingModel)
   .attrRef("profile", ProfileModel)
   .attrRefArray("postings", PostingModel)
-  .operation("resetPassword")
+  .operation("testOp")
 ;
-
-
-PersonModel.operationImpl("resetPassword", function() {
-  console.log('reset password Operation called!');
-});
-
 
 
 if (typeof window === 'undefined') {  // todo: conditional code (muss besser werden)

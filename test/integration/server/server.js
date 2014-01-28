@@ -45,3 +45,10 @@ PostingModel.connection(connector);
 PostingModel.express(app);
 PostingModel.serve();
 
+
+// Server productive code
+
+PersonModel.operationImpl("testOp", function(param) {
+  if (param.param1 != "testParam") throw new Error("invalid operation param");
+  return {result:"someStuff"};
+});

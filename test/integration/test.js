@@ -306,6 +306,18 @@ describe('Integration Tests', function() {
     })
 
   });
-  
+
+  describe("Operations", function() {
+    it('should be possible to call an operation', function(done){
+      PersonModel.testOp({param1:"testParam"})
+        .then(function(res){
+          if (res.result != "someStuff") done("invalid result");
+          else done();
+        })
+        .fail(function(err) {
+          done(err);
+        });
+    });
+  });
 
 });
