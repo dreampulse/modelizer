@@ -38,8 +38,19 @@ var PersonModel = new model("Person")
 ;
 
 
+// Testing filters
+var ContentModel = new model("Content")
+  .attr("stuff", Type.string)
+  .attr("username", Type.string)
+  .attr("password", Type.string)
+  .operation("register")
+  .operation("login")
+;
+
+
 if (typeof window === 'undefined') {  // todo: conditional code (muss besser werden)
   module.exports = {
+    ContentModel : ContentModel,
     PostingModel : PostingModel,
     ProfileModel : ProfileModel,
     AddressModel : AddressModel,

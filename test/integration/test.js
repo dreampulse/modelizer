@@ -2,6 +2,7 @@
 
 var connector = Model.AngularConnector("http://localhost:6123/");
 PersonModel.connection(connector);
+ContentModel.connection(connector);
 
 
 // http://stackoverflow.com/questions/17544965/unhandled-rejection-reasons-should-be-empty
@@ -318,6 +319,36 @@ describe('Integration Tests', function() {
           done(err);
         });
     });
+  });
+
+  describe("Filters", function() {
+    it('register a user', function(done){
+      ContentModel.register({
+          name : "Test User",
+          password : "geheim"
+        })
+        .then(function(res){
+          //console.log(res); -> das ergebniss sollte ein object sein (TODO)
+          done();
+        })
+        .fail(function(err) {
+          done(err);
+        });
+    });
+
+    it('login', function(done){
+      ContentModel.login({
+        name : "Test User",
+        password : "geheim"
+      })
+        .then(function(res){
+          done();
+        })
+        .fail(function(err) {
+          done(err);
+        });
+    });
+
   });
 
 });
