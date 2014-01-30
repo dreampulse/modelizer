@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+
+  <!-- External Library -->
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/q.js/1.0.0/q.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js"></script>
+
+  <!-- The Modelizer Library -->
+  <script type="text/javascript" src="model.js"></script>
+
+  <!-- The definitions of our example models -->
+  <script type="text/javascript" src="models.js"></script>
+
+  <script type="text/javascript">
+    // client code
+    var connector = Model.AngularConnector("http://localhost:8080/");
+    UserModel.connection(connector);
+
+  </script>
+
+</head>
+<!--<body ng-app>-->
+<body>
+
+</body>
+</html>
