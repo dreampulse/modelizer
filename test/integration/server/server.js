@@ -78,7 +78,7 @@ ContentModel.readFilter(function (req) {
 });
 
 
-ContentModel.writeFilter(function(req) {
+ContentModel.writeFilter(function(obj, req) {
    return req.session.auth == true;
 });
 
