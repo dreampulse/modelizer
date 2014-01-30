@@ -7,7 +7,7 @@
  */
 
 
-var model = require('../lib/model.js');
+var model = require('../../lib/model.js');
 
 // TODO: remove this
 var Type = {
@@ -17,12 +17,15 @@ var Type = {
 };
 
 
+
+
+// our model
 var UserModel = new model("User")
   .attr("username", Type.string)
   .attr("password", Type.string)
-  .operation("register")
-  .operation("login")
 ;
+
+
 
 
 if (typeof window === 'undefined') {

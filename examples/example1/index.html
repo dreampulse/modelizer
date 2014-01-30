@@ -19,6 +19,14 @@
     var connector = Model.AngularConnector("http://localhost:8080/");
     UserModel.connection(connector);
 
+    // example Usage
+    var user = UserModel.createObject();
+    user.username = "test";
+    user.password = "secret";
+
+    // save data to server
+    user.save().done();
+
   </script>
 
 </head>

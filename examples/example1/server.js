@@ -8,7 +8,7 @@
 
 
 // using the the Modelizer library
-var model = require('../lib/model.js');
+var model = require('../../lib/model.js');
 
 
 // importing our defined models
@@ -42,12 +42,9 @@ app.listen(port);
 // server all static files in this directory (for index.html)
 app.use(express.static(__dirname));
 // serve the Modelizer library
-app.use(express.static(__dirname+"/../lib/"));
+app.use(express.static(__dirname+"/../../lib/"));
 
 console.log("Server setup at Port", port);
-
-
-
 
 
 // say that our model should use express and the database connector
@@ -55,14 +52,5 @@ myModels.UserModel.connection(connector);
 myModels.UserModel.express(app);
 myModels.UserModel.serve();
 
-/*
-myModels.UserModel.readFilter(function(req) {
-  return false;  // deny all read requests
-});
-
-myModels.UserModel.writeFilter(function(req) {
-  return false;  // deny all write requests
-});
-*/
 
 
