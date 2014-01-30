@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">        
+    <title></title>
+    
+    <script src="//cdnjs.cloudflare.com/ajax/libs/q.js/1.0.0/q.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js"></script>
+    <script type="text/javascript" src="lib/model.js"></script>
+	<script type="text/javascript" src="model.shared.js"></script>
+
+    <script type="text/javascript">
+    	// client code
+    	var connector = Model.AngularConnector("http://localhost:5000/");
+    	StammdatenModel.connection(connector);
+    	
+    </script>    
+
+</head>
+<!--<body ng-app>-->
+<body>
+        
+</body>
+</html>
