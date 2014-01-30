@@ -36,13 +36,30 @@
 
     var app = angular.module('App', []);
     app.controller('AppController', function ($scope) {
-      $scope.article = ArticleModel.createObject();
+
+      ArticleModel.use.all()
+        .then(function(objs) {
+          if (objs.length > 0) {
+            console.log("use", objs[0]);
+            $scope.article = objs[0];
+            $scope.$apply();
+          } else {
+            $scope.article = ArticleModel.createObject();
+            $scope.$apply();
+          }
+        }).done()
 
       $scope.addComment = function() {
-        comment = $scope.article.createCommentsElement();
+        var comment = $scope.article.createCommentsElement();
         comment.text = $scope.newComment;
+      };
+
+
+      $scope.save = function() {
+        $scope.article.save();
       }
     });
+
 
   </script>
 
@@ -65,11 +82,15 @@
       <div class="jumbotron">
 
         <div class="row">
+          <button class="btn btn-default" type="button" ng-click="save()">Save</button>
+        </div>
+
+        <div class="row">
           <div class="col-lg-6">
             <div class="input-group">
               <input type="text" class="form-control" ng-model="newComment">
               <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" ng-click="addComment()">Go!</button>
+                <button class="btn btn-default" type="button" ng-click="addComment()">Go!</button>
               </span>
             </div>
          </div>
@@ -77,10 +98,8 @@
 
         <div class="row" ng-repeat="comment in article.comments">
           <div class="col-lg-6">
-            <div class="panel panel-default">
-              <div class="panel-body">
-                {{comment.text}}
-              </div>
+            <div class="input-group">
+              <input type="text" class="form-control" ng-model="comment.text">
             </div>
           </div>
         </div>

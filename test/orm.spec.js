@@ -151,12 +151,29 @@ describe('ModelIdea', function() {
   describe('Array and Object Attributes', function() {
     var myObject2;
 
+    it('start with clean database', function(done) {
+      // clean testing database
+      db.collection("MyModel2").drop(function(err, res) {
+        done();
+      });
+    });
+
+
     it('start with one object', function(done) {
       myObject2 = MyModel2.createObject();
       assert(myObject2.myAttr === undefined);
       assert(myObject2.myArray.length === 0);
       assert(myObject2.myAttrObj.hasOwnProperty('attr1') && myObject2.myAttrObj.hasOwnProperty('attr2'));
-      done();
+
+      myObject2.save()
+        .then(function() {
+          done();
+        })
+        .fail(function(err) {
+          assert(false);
+          done(err);
+        });
+
     });
 
     it('get Object with createMyArrayElement()', function(done) {
@@ -164,6 +181,33 @@ describe('ModelIdea', function() {
       assert(el.hasOwnProperty('attr1') && el.hasOwnProperty('attr2'));
       assert(myObject2.myArray[0] === el);
       done();
+    });
+
+    it('should be possible to createMyArrayElement() from a loaded object', function(done){
+      MyModel2.use.get(myObject2._id)
+        .then(function(obj){
+          var el = obj.createMyArrayElement();
+          el.attr1 = "test";
+          assert(obj.myArray.length == 1);
+          assert(obj.myArray[0].attr1 == "test");
+
+          return obj.save();
+        })
+        .then(function(obj){
+          done();
+        })
+        .done();
+    });
+
+    it('load attrArray', function(done){
+      MyModel2.use.get(myObject2._id)
+        .then(function(obj){
+          assert(obj.myArray.length == 1, "attrArry should have been loaded");
+          assert(obj.myArray[0].attr1 == "test");
+
+          done();
+        })
+        .done();
     });
 
   });
