@@ -7,7 +7,7 @@
  */
 
 
-var model = require('../lib/model.js');
+var model = require('../../lib/model.js');
 
 // TODO: remove this
 var Type = {
@@ -17,6 +17,15 @@ var Type = {
 };
 
 
+///////////////////
+// My Models
+
+
+var ContentModel = new model("Content")
+  .attr("text", Type.string)
+  .attr("owner", Type.ObjectId)
+;
+
 var UserModel = new model("User")
   .attr("username", Type.string)
   .attr("password", Type.string)
@@ -25,10 +34,13 @@ var UserModel = new model("User")
 ;
 
 
+///////////////////
+
 if (typeof window === 'undefined') {
   // we don't run in a browser environment
 
   module.exports = {
+    ContentModel : ContentModel,
     UserModel : UserModel
   };
 }
