@@ -322,6 +322,18 @@ describe('Integration Tests', function() {
   });
 
   describe("Filters", function() {
+    it('should fail to save an object without login', function(done){
+      var obj = ContentModel.createObject();
+      obj.save()
+        .then(function(){
+          done("it should have failed");
+        })
+        .fail(function(err) {
+          if (err.message == 'Access denied!') done();
+          else done("Wrong error!");
+        });
+    });
+
     it('register a user A', function(done){
       ContentModel.register({
           name : "Test User A",
@@ -376,6 +388,18 @@ describe('Integration Tests', function() {
         });
     });
 
+    it('should succeeded to save an object when being logged in', function(done){
+      var obj = ContentModel.createObject();
+      obj.save()
+        .then(function(){
+          done();
+        })
+        .fail(function(err) {
+          done(err);
+        });
+    });
+
+    // TODO: write filters
   });
 
 });

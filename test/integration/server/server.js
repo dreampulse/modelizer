@@ -78,6 +78,10 @@ ContentModel.readFilter(function (req) {
 });
 
 
+ContentModel.writeFilter(function(req) {
+   return req.session.auth == true;
+});
+
 ContentModel.operationImpl("register", function(params, req) {
   var newContent = ContentModel.createObject();
   newContent.name = params.name;
