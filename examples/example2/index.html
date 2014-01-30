@@ -2,11 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Example">
+  <meta name="author" content="Jonathan Häberle">
   <title></title>
 
   <!-- External Library -->
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/q.js/1.0.0/q.min.js"></script>
   <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js"></script>
+
+  <!-- External CSS -->
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+
+  <style type="text/css">
+    body {
+      padding-top: 70px;
+      padding-bottom: 30px;
+    }
+  </style>
 
   <!-- The Modelizer Library -->
   <script type="text/javascript" src="model.js"></script>
@@ -20,11 +35,179 @@
     UserModel.connection(connector);
     ContentModel.connection(connector);
 
+    var app = angular.module('App', []);
+    app.controller('AppController', function ($scope) {
+      $scope.state = 'home';
+      $scope.alert = {};
+      $scope.alert.show = false;
+      $scope.alert.message = "";
+      $scope.user = {};
+
+      $scope.contentModel = ContentModel;
+
+      $scope.login = function() {
+        UserModel.login({
+          username: $scope.user.username,
+          password: $scope.user.password
+        })
+        .then(function(res){
+          $scope.alert.message = "OK";
+          $scope.alert.show = true;
+          $scope.$apply();
+        })
+        .fail(function(err) {
+          $scope.alert.message = "Fail";
+          $scope.alert.show = true;
+          $scope.$apply();
+        });
+      }
+
+      $scope.register = function() {
+        UserModel.register({
+            username: $scope.user.username,
+            password: $scope.user.password
+          })
+          .then(function(res){
+            $scope.alert.message = "OK";
+            $scope.alert.show = true;
+            $scope.$apply();
+          })
+          .fail(function(err) {
+            $scope.alert.message = "Fail";
+            $scope.alert.show = true;
+            $scope.$apply();
+          });
+      }
+
+      $scope.load = function() {
+        ContentModel.use.all()
+          .then(function(objs){
+            $scope.user.content = objs;
+            $scope.$apply();
+          });
+      }
+
+      $scope.addContent = function() {
+        var content = ContentModel.createObject()
+        content.text = $scope.user.newContent;
+        content.save().done();
+      }
+
+    });
+
   </script>
 
 </head>
-<!--<body ng-app>-->
-<body>
+<body ng-app="App">
 
+  <div ng-controller="AppController">
+
+    <!-- Fixed navbar -->
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Modelizer Example</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#" ng-click="state = 'home';">Home</a></li>
+            <li><a href="#" ng-click="state = 'content';">Content</a></li>
+            <li><a href="#" ng-click="state = 'login';">Login</a></li>
+            <li><a href="#" ng-click="state = 'register';">Register</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container theme-showcase">
+
+      <div class="alert alert-warning alert-dismissable" ng-show="alert.show">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true" ng-click="alert.show = false;">&times;</button>
+        {{alert.message}}
+      </div>
+
+      <div class="jumbotron">
+
+        <div ng-switch="state">
+
+          <div ng-switch-when="home">
+            <h1>Hello, Modelizer-Developer!</h1>
+            <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+            <p><a href="#" class="btn btn-primary btn-lg" role="button" ng-click="state = 'login';">Login &raquo;</a></p>
+          </div>
+
+          <div ng-switch-when="content">
+
+
+            <div class="row">
+              <div class="col-xs-6 col-md-4"></div>
+              <div class="col-xs-6 col-md-4">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <input type="text" class="form-control" ng-model="user.newContent">
+                    <span class="input-group-btn">
+                      <button class="btn btn-default" type="button" ng-click="addContent()">Go!</button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xs-6 col-md-4"><a href="#" class="btn btn-primary btn-lg" role="button" ng-click="load()">Load</a></div>
+            </div>
+
+            <div class="row" ng-repeat="item in user.content">
+              <div class="col-xs-6 col-md-4"></div>
+              <div class="col-xs-6 col-md-4">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    {{item.text}}
+                  </div>
+                </div>
+              </div>
+              <div class="col-xs-6 col-md-4"></div>
+            </div>
+
+          </div>
+
+          <div ng-switch-when="login">
+
+            <form role="form">
+              <div class="form-group">
+                <div class="input-group">
+                  <input type="text" class="form-control" ng-model="user.username" placeholder="Username">
+                  <input type="password" class="form-control" ng-model="user.password" placeholder="Password">
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-default" ng-click="login()">Login</button>
+            </form>
+
+          </div>
+
+
+          <div ng-switch-when="register">
+
+            <form role="form">
+              <div class="form-group">
+                <div class="input-group">
+                  <input type="text" class="form-control" ng-model="user.username" placeholder="Username">
+                  <input type="password" class="form-control" ng-model="user.password" placeholder="Password">
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-default" ng-click="register()">Register</button>
+            </form>
+
+          </div>
+
+        </div>
+      </div>
+
+
+      <div class="footer">
+        <p>by Jonathan Häberle</p>
+      </div>
+
+    </div>
+  </div>
 </body>
 </html>
