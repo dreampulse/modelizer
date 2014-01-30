@@ -37,24 +37,27 @@
     var app = angular.module('App', []);
     app.controller('AppController', function ($scope) {
 
+      // Create or get an existing Object from the Server
       ArticleModel.use.all()
         .then(function(objs) {
           if (objs.length > 0) {
-            console.log("use", objs[0]);
+            // use the existing Object
             $scope.article = objs[0];
             $scope.$apply();
           } else {
+            // create a new one
             $scope.article = ArticleModel.createObject();
             $scope.$apply();
           }
         }).done()
 
+      // add a new comment to the article
       $scope.addComment = function() {
         var comment = $scope.article.createCommentsElement();
         comment.text = $scope.newComment;
       };
 
-
+      // save model to the server
       $scope.save = function() {
         $scope.article.save();
       }
