@@ -1,0 +1,46 @@
+{
+  "name": "modelizer",
+  "version": "0.0.1",
+  "description": "An ORM-Mapper with a shared model between client and server for MongoDB",
+  "main": "lib/model.js",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "dependencies": {
+    "mongojs": "~0.9.9",
+    "q": "~0.9.7",
+    "express": "~3.4.8"
+  },
+  "devDependencies": {
+    "karma": "~0.10.9",
+    "karma-chrome-launcher": "~0.1.2",
+    "karma-coffee-preprocessor": "~0.1.2",
+    "karma-firefox-launcher": "~0.1.3",
+    "karma-html2js-preprocessor": "~0.1.0",
+    "karma-jasmine": "~0.1.5",
+    "karma-mocha": "~0.1.1",
+    "karma-phantomjs-launcher": "~0.1.1",
+    "karma-requirejs": "~0.2.1",
+    "karma-script-launcher": "~0.1.0",
+    "mocha": "~1.17.1"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/dreampulse/modelizer.git"
+  },
+  "keywords": [
+    "orm",
+    "mongodb",
+    "angularjs"
+  ],
+  "author": "Jonathan Häberle",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/dreampulse/modelizer/issues"
+  },
+  "homepage": "https://github.com/dreampulse/modelizer"
+}
