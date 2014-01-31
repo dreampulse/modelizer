@@ -14,12 +14,12 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'test/integration/lib/q.js',
-      'test/integration/lib/angular.js',
-      'lib/model.js',
-      'test/integration/shared/models.js',
+      'lib/q.js',
+      'lib/angular.js',
+      '../../lib/model.js',
+      'shared/models.js',
 
-      'test/integration/*.js'
+      'test.js'
     ],
 
 
