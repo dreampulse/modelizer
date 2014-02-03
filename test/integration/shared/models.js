@@ -1,9 +1,6 @@
 var model = require('../../../lib/model.js');
 
-var Type = {
-  "string" : "string",
-  "int" : "int"
-};
+var Type = require('../../../lib/model.js').Types;
 
 var PostingModel = new model("Posting")
   .attr("text", Type.string)
@@ -17,11 +14,11 @@ var ProfileModel = new model("Profile")
 
 var AddressModel = new model("Adress")
   .attr("street", Type.string)
-  .attr("number", Type.int)
+  .attr("number", Type.number)
 ;
 
 var PersonalSettingModel = new model("PersonalSetting")
-  .attr("storageSize", Type.int)
+  .attr("storageSize", Type.number)
   .attr("password", Type.string)
   .attr('enabled', Type.string)
 ;
@@ -29,7 +26,7 @@ var PersonalSettingModel = new model("PersonalSetting")
 var PersonModel = new model("Person")
   .attr("name", Type.string)
   .attr("eMail", Type.string)
-  .attr("age", Type.int)
+  .attr("age", Type.number)
   .attrArray("address", AddressModel)
   .attrObj("settings", PersonalSettingModel)
   .attrRef("profile", ProfileModel)
