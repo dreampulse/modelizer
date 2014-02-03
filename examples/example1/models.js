@@ -8,14 +8,7 @@
 
 
 var model = require('../../lib/model.js');
-
-// TODO: remove this
-var Type = {
-  "string" : "string",
-  "int" : "int",
-  "ObjectId" : "ObjectId"
-};
-
+var Type = model.Attr.Types;
 
 
 
