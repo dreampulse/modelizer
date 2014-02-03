@@ -1,7 +1,7 @@
 var assert = require("assert");
 
 describe('ModelIdea', function() {
-  var model = require('../lib/model');
+  var model = require('../lib/modelizer');
   var Attr = model.Attr;
   var Type = model.Attr.Types;
 

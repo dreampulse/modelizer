@@ -1,6 +1,6 @@
-var model = require('../../../lib/model.js');
+var model = require('../../../lib/modelizer.js');
 
-var Type = require('../../../lib/model.js').Attr.Types;
+var Type = require('../../../lib/modelizer.js').Attr.Types;
 
 var PostingModel = new model("Posting")
   .attr("text", Type.string)

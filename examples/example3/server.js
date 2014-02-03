@@ -8,7 +8,7 @@
 
 
 // using the the Modelizer library
-var model = require('../../lib/model.js');
+var model = require('../../lib/modelizer.js');
 
 
 // importing our defined models

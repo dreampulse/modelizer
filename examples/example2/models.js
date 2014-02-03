@@ -7,7 +7,7 @@
  */
 
 
-var model = require('../../lib/model.js');
+var model = require('../../lib/modelizer.js');
 var Type = model.Attr.Types;
 
 

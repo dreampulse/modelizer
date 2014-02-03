@@ -2,7 +2,7 @@
 
 console.log(__dirname);
 
-var model = require('../../../lib/model.js');
+var model = require('../../../lib/modelizer.js');
 
 var PersonModel = require('../shared/models.js').PersonModel;
 var ProfileModel = require('../shared/models.js').ProfileModel;
