@@ -5,7 +5,7 @@ An Idea how to share a model between client, server and database
 
 ## Usage
 
-Get modelizer with npm (npm install modelizer)
+Get modelizer with npm:  ```npm install modelizer```
 
 Create at least tree files for model, view and the controller (server)
 
@@ -30,7 +30,7 @@ var UserModel = new model("User")
 
 ### Server
 
-- The ```server.js``` file
+- The ```server.js``` file:
 
 ```javascript
 // using the the Modelizer library
@@ -82,6 +82,16 @@ var myModels = require('./models.js');
 
 </head>
 ...
+```
+
+### Explore
+To get hands on the model just open the javascript-debugging-console in your browser. And try this:
+
+```javascript
+  UserModel.use.all()
+    .then(function(objs){
+      console.log(objs);
+    }).done()
 ```
 
 
