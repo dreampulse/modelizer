@@ -521,7 +521,7 @@ describe('ModelIdea', function() {
 
   });
 
-  var MyModel8 = new model("MyModel8").attr("num", Type.number).attr("enum", Type.enum('a', 'b'));
+  var MyModel8 = new model("MyModel8").attr("num", Type.number).attr("enum", Type.enum('a', 'b')).attr("name", Type.string, Attr.default("unnamed"));
   MyModel8.connection(connector);
 
   describe('Type checks and save filters', function() {
@@ -548,6 +548,14 @@ describe('ModelIdea', function() {
       obj.enum = "c";
       obj.save().fail(function (err){
         assert(err.message == "Can't save 'enum' 'c' is not in the enum");
+        done();
+      }).done();
+    });
+
+    it("default attribute should work", function(done) {
+      var obj = MyModel8.createObject();
+      obj.save().then(function (){
+        if (obj.name != "unnamed") done("default attribute failed");
         done();
       }).done();
     });
