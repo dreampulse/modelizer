@@ -6,9 +6,8 @@ An Idea how to share a model between client, server and database
 
 ## Installation
 
-Install [node.js](http://nodejs.org/) and [mongodb](http://www.mongodb.org/downloads). Then:
-
-Get modelizer with npm: 
+Install [node.js](http://nodejs.org/) and [mongodb](http://www.mongodb.org/downloads) and
+get modelizer with npm: 
 
     $ npm install modelizer
 
@@ -17,7 +16,7 @@ Get modelizer with npm:
 Create at least tree files for model, view and the controller (server)
 
 ### Model
-Putting the model to the heart of your application is one of the main concepts for the modelizer.
+Putting the model to the heart of your application is one of the main concepts for modelizer.
 The Model is the central interface between the view and the controller
 
 - The ```models.js``` file for a very simple example model definition
