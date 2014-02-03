@@ -73,8 +73,7 @@ var myModels = require('./models.js');
   
   <!-- This is an example how to use the model from the client / view -->
   <script type="text/javascript">
-    
-    // use the AngularConnector to access the server
+    // Define how to access the model (using AngularConnector to a remote model)
     var connector = Model.AngularConnector("http://localhost:8080/");
     UserModel.connection(connector);   // use the connector for the example Model
 
