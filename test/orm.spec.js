@@ -501,6 +501,7 @@ describe('ModelIdea', function() {
       assert(params.testParam == "paramValue", "Error in parameter handling");
       return "returnValue";
     }
+    
     var MyModel7 = new model("MyModel7").operation("myOp").operationImpl("myOp", myOp1);
     MyModel7.connection(connector);
 
@@ -515,6 +516,22 @@ describe('ModelIdea', function() {
         done(err);
       });
 
+    });
+
+  });
+
+  var MyModel8 = new model("MyModel8").attr("num", Type.number);
+  MyModel8.connection(connector);
+
+  describe('Type checks and save filters', function() {
+
+    it("should not be possible to save wrong types", function(done) {
+      var obj = MyModel8.createObject();
+      obj.num = "not a number";
+      obj.save().fail(function (err){
+        assert(err.message == "Can't save 'num' 'not a number' is not a number");
+        done();
+      }).done();
     });
 
   });
