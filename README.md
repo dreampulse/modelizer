@@ -13,7 +13,7 @@ Create at least tree files for model, view and the controller (server)
 Putting the model to the heart of your application is one of the main concepts for the modelizer.
 The Model is the central interface between the view and the controller
 
-* models.js
+- The ```models.js``` file for a very simple example model definition
 
 ```javascript
 var model = require('modelizer');   // using the the Modelizer library
@@ -30,7 +30,7 @@ var UserModel = new model("User")
 
 ### Server
 
-* server.js
+- The ```server.js``` file
 
 ```javascript
 // using the the Modelizer library
@@ -47,7 +47,7 @@ var myModels = require('./models.js');
 
 ### View
 
-* index.html
+- The ```index.html``` file: 
 
 ```html
 ...
