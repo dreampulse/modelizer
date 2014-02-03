@@ -61,7 +61,7 @@ var myModels = require('./models.js');
   <!-- External Library -->
   <!-- You need to inclue AnguarJS and the Q-Library -->
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/q.js/1.0.0/q.min.js"></script>
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js"></script>
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js"></script>
 
   <!-- The Modelizer Library -->
   <!-- If you use the sampleServer this is the way to load the library -->
@@ -73,7 +73,9 @@ var myModels = require('./models.js');
   
   <!-- This is an example how to use the model from the client / view -->
   <script type="text/javascript">
-    var connector = Model.AngularConnector("http://localhost:8080/");   // use the AngularConnector to access the server
+    
+    // use the AngularConnector to access the server
+    var connector = Model.AngularConnector("http://localhost:8080/");
     UserModel.connection(connector);   // use the connector for the example Model
 
     // example Usage
