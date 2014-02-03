@@ -2,11 +2,7 @@ var assert = require("assert");
 
 describe('ModelIdea', function() {
   var model = require('../lib/model');
-
-  var Type = {
-    "string" : "string",
-    "int" : "int"
-  };
+  var Type = model.Types;
 
   var MyModel1 = new model("MyModel1").attr("attr1", Type.string).attr("attr2", Type.string);
 
