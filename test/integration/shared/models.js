@@ -1,6 +1,6 @@
 var model = require('../../../lib/model.js');
 
-var Type = require('../../../lib/model.js').Types;
+var Type = require('../../../lib/model.js').Attr.Types;
 
 var PostingModel = new model("Posting")
   .attr("text", Type.string)
