@@ -520,7 +520,7 @@ describe('ModelIdea', function() {
 
   });
 
-  var MyModel8 = new model("MyModel8").attr("num", Type.number);
+  var MyModel8 = new model("MyModel8").attr("num", Type.number).attr("enum", Type.enum('a', 'b'));
   MyModel8.connection(connector);
 
   describe('Type checks and save filters', function() {
@@ -530,6 +530,23 @@ describe('ModelIdea', function() {
       obj.num = "not a number";
       obj.save().fail(function (err){
         assert(err.message == "Can't save 'num' 'not a number' is not a number");
+        done();
+      }).done();
+    });
+
+    it("should be possible to use enums", function(done) {
+      var obj = MyModel8.createObject();
+      obj.enum = "b";
+      obj.save().then(function (){
+        done();
+      }).done();
+    });
+
+    it("should handle wrong enums", function(done) {
+      var obj = MyModel8.createObject();
+      obj.enum = "c";
+      obj.save().fail(function (err){
+        assert(err.message == "Can't save 'enum' 'c' is not in the enum");
         done();
       }).done();
     });
