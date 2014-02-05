@@ -562,11 +562,18 @@ describe('ModelIdea', function() {
 
   });
 
+  // todo array of "premetives"
   describe('Define Model in JSON-Notation', function() {
 
     var MyModel9 = new model("MyModel9", {
       aString : Attr(Types.string),
-      aNumber : Attr(Types.number)
+      aNumber : Attr(Types.number),
+      aArray : [{
+        aStringInsideOfTheArray : Attr(Types.string)
+      }],
+      nested: {
+        stuff : Attr(Types.string)
+      }
     });
     MyModel9.connection(connector);
 
@@ -574,7 +581,25 @@ describe('ModelIdea', function() {
       var obj = MyModel9.createObject();
       obj.aString = "foo";
       obj.aNumber = 1.2;
-      obj.save().then(function() { done(); }).done();
+
+      obj.createAArrayElement();
+      obj.aArray[0].aStringInsideOfTheArray = "bar";
+
+      obj.nested.stuff = "stuff";
+
+      obj.save().then(function() {
+        return MyModel9.use.get(obj._id);
+      }).then(function(resObj) {
+        assert(resObj.aString == "foo");
+        assert(resObj.aNumber == 1.2);
+
+        assert(resObj.aArray.length == 1);
+        assert(resObj.aArray[0].aStringInsideOfTheArray == "bar");
+
+        assert(resObj.nested.stuff == "stuff");
+
+        done();
+      }).done();
     });
 
   });
