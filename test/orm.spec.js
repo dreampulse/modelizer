@@ -1,8 +1,12 @@
 var assert = require("assert");
+var Q = require('q');
 
 describe('ModelIdea', function() {
   var model = require('../lib/modelizer');
   var Attr = model.Attr;
+  var Ref = model.Ref;
+  var RefArray = model.RefArray;
+  var Operation = model.Operation;
   var Types = model.Attr.Types;
 
   var MyModel1 = new model("MyModel1").attr("attr1", Types.string).attr("attr2", Types.string);
@@ -565,15 +569,27 @@ describe('ModelIdea', function() {
   // todo array of "premetives"
   describe('Define Model in JSON-Notation', function() {
 
+    var MyModel10 = new model("MyModel10", {
+      stuff : Attr(Types.string, Attr.default("some stuff"))
+    });
+    MyModel10.connection(connector);
+
     var MyModel9 = new model("MyModel9", {
       aString : Attr(Types.string),
       aNumber : Attr(Types.number),
+      
       aArray : [{
         aStringInsideOfTheArray : Attr(Types.string)
       }],
+      
       nested: {
         stuff : Attr(Types.string)
-      }
+      },
+
+      aReference : Ref(MyModel10),
+      aManyReferences : RefArray(MyModel10),
+
+      aOperation : Operation()
     });
     MyModel9.connection(connector);
 
@@ -587,9 +603,25 @@ describe('ModelIdea', function() {
 
       obj.nested.stuff = "stuff";
 
-      obj.save().then(function() {
+      var mm10 = obj.aReference.createObject();
+     
+      var amayObj = obj.createAManyReferencesObject();
+      amayObj.stuff = "more stuff";
+
+      assert(MyModel9["aOperation"] != undefined);
+
+      var resObj;
+      Q().then(function() {
+        return amayObj.save();
+      }).then(function() {
+      //amayObj.save().then(function() {
+        return mm10.save();
+      }).then(function() {
+        return obj.save();
+      }).then(function() {
         return MyModel9.use.get(obj._id);
-      }).then(function(resObj) {
+      }).then(function(o) {
+        resObj = o;
         assert(resObj.aString == "foo");
         assert(resObj.aNumber == 1.2);
 
@@ -597,6 +629,16 @@ describe('ModelIdea', function() {
         assert(resObj.aArray[0].aStringInsideOfTheArray == "bar");
 
         assert(resObj.nested.stuff == "stuff");
+
+        return resObj.aReference.load();
+      }).then(function(loadedObj) {
+        assert(loadedObj.stuff == "some stuff");
+
+        assert(resObj.aManyReferences.length == 1);
+
+        return resObj.aManyReferences[0].load();
+      }).then(function(loadedObj) {
+        assert(resObj.aManyReferences[0].ref().stuff == "more stuff");
 
         done();
       }).done();
