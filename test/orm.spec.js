@@ -3,9 +3,9 @@ var assert = require("assert");
 describe('ModelIdea', function() {
   var model = require('../lib/modelizer');
   var Attr = model.Attr;
-  var Type = model.Attr.Types;
+  var Types = model.Attr.Types;
 
-  var MyModel1 = new model("MyModel1").attr("attr1", Type.string).attr("attr2", Type.string);
+  var MyModel1 = new model("MyModel1").attr("attr1", Types.string).attr("attr2", Types.string);
 
   var mongojs = require('mongojs');
   var db = mongojs('mongodb://127.0.0.1/testModel1');
@@ -142,7 +142,7 @@ describe('ModelIdea', function() {
   });
 
 
-  var MyModel2 = new model("MyModel2").attr("myAttr", Type.string).attrArray("myArray", MyModel1).attrObj("myAttrObj", MyModel1);
+  var MyModel2 = new model("MyModel2").attr("myAttr", Types.string).attrArray("myArray", MyModel1).attrObj("myAttrObj", MyModel1);
   MyModel2.connection(connector);
 
   describe('Array and Object Attributes', function() {
@@ -210,7 +210,7 @@ describe('ModelIdea', function() {
   });
 
 
-  var MyModel3 = new model("MyModel3").attr("myAttr", Type.string).attrRef("reference", MyModel1);
+  var MyModel3 = new model("MyModel3").attr("myAttr", Types.string).attrRef("reference", MyModel1);
   MyModel3.connection(connector);
 
   describe('Reference to another Model', function() {
@@ -321,7 +321,7 @@ describe('ModelIdea', function() {
   });
 
 
-  var MyModel4 = new model("MyModel4").attr("myAttr", Type.string).attrRefArray("models", MyModel1);
+  var MyModel4 = new model("MyModel4").attr("myAttr", Types.string).attrRefArray("models", MyModel1);
   MyModel4.connection(connector);
 
   describe('1..n References (Array References)', function() {
@@ -381,7 +381,7 @@ describe('ModelIdea', function() {
   });
 
 
-  var MyModel5 = new model("MyModel5").attr("attr1", Type.string).attr("attr2", Type.string);
+  var MyModel5 = new model("MyModel5").attr("attr1", Types.string).attr("attr2", Types.string);
   MyModel5.connection(connector);
 
   describe('Filters', function() {
@@ -521,7 +521,7 @@ describe('ModelIdea', function() {
 
   });
 
-  var MyModel8 = new model("MyModel8").attr("num", Type.number).attr("enum", Type.enum('a', 'b')).attr("name", Type.string, Attr.default("unnamed"));
+  var MyModel8 = new model("MyModel8").attr("num", Types.number).attr("enum", Types.enum('a', 'b')).attr("name", Types.string, Attr.default("unnamed"));
   MyModel8.connection(connector);
 
   describe('Type checks and save filters', function() {
@@ -558,6 +558,23 @@ describe('ModelIdea', function() {
         if (obj.name != "unnamed") done("default attribute failed");
         done();
       }).done();
+    });
+
+  });
+
+  describe('Define Model in JSON-Notation', function() {
+
+    var MyModel9 = new model("MyModel9", {
+      aString : Attr(Types.string),
+      aNumber : Attr(Types.number)
+    });
+    MyModel9.connection(connector);
+
+    it('should be possible to define a type', function(done) {
+      var obj = MyModel9.createObject();
+      obj.aString = "foo";
+      obj.aNumber = 1.2;
+      obj.save().then(function() { done(); }).done();
     });
 
   });
