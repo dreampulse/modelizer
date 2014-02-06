@@ -577,6 +577,9 @@ describe('ModelIdea', function() {
     var MyModel9 = new model("MyModel9", {
       aString : Attr(Types.string),
       aNumber : Attr(Types.number),
+      aBoolean : Attr(Types.boolean),
+
+      aArrayAttr :  Attr(Types.array),
       
       aArray : [{
         aStringInsideOfTheArray : Attr(Types.string)
@@ -597,6 +600,9 @@ describe('ModelIdea', function() {
       var obj = MyModel9.createObject();
       obj.aString = "foo";
       obj.aNumber = 1.2;
+      obj.aBoolean = true;
+
+      obj.aArrayAttr = ["foo", "bar"];
 
       obj.createAArrayElement();
       obj.aArray[0].aStringInsideOfTheArray = "bar";
@@ -622,8 +628,12 @@ describe('ModelIdea', function() {
         return MyModel9.use.get(obj._id);
       }).then(function(o) {
         resObj = o;
-        assert(resObj.aString == "foo");
-        assert(resObj.aNumber == 1.2);
+        assert(resObj.aString === "foo");
+        assert(resObj.aNumber === 1.2);
+        assert(resObj.aBoolean === true);
+
+        assert(resObj.aArrayAttr[0] == "foo");
+        assert(resObj.aArrayAttr[1] == "bar");
 
         assert(resObj.aArray.length == 1);
         assert(resObj.aArray[0].aStringInsideOfTheArray == "bar");
