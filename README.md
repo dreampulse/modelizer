@@ -103,6 +103,146 @@ To get hands on the model just open the javascript-debugging-console in your bro
 
 
 
+## Sample
+
+Define a model as shown in the folowing example and save it to ```models.js```
+
+```javascript
+// using the the Modelizer library
+var model = require('modelizer');
+var Attr = model.Attr;
+var Type = model.Attr.Types;
+var Ref = model.Ref;
+
+
+// The "User" model
+var UserModel = new model("User", {
+  email : Attr(Type.string),  // define a string attribute this way
+
+  // to nest and group some attributes use this syntax 
+  profile : {
+    firstName : Attr(Type.string),
+    lastName : Attr(Type.string),
+    company : Attr(Type.string, Attr.default('n/a'))  // set a default value
+  },
+
+  enabled : Attr(Type.boolean),
+
+  billing : {
+    // enumerations
+    interval : Attr(Type.string, Type.enum('monthly', 'annually')),
+    plan : Attr(Type.string, Type.enum('small', 'medium', 'large'))
+  }
+
+});
+
+// The "Project" model
+var ProjectModel = new model("Project", {
+  title : Attr(Type.string),
+
+  // An array of multible values with the folowing schema
+  participants : [{
+    user : Ref(UserModel),  // A reference to the User-Model
+    roles : Attr(Type.array),  // A array with a single value
+    permission : Attr(Type.string, Type.enum('owner', 'participant'))
+  }]
+
+});
+
+// export as a node module
+module.exports = {
+  UserModel : UserModel,
+  ProjectModel : ProjectModel
+};
+
+```
+
+Now take a look how you can use the model. Open a node-shell and init some stuff.
+
+```javascript
+// first load modelizer and the model definition
+var modelizer = require('modelizer');
+var models = require('./models');
+
+
+// init a mongodb database connection
+var mongojs = require('mongojs');
+var db = mongojs('mongodb://127.0.0.1/myExampleDB');
+
+// tell modelizer to use this connection to store the models
+var connector = modelizer.MongoConnector(db);  // get a mongodb database connector
+models.UserModel.connection(connector);
+models.ProjectModel.connection(connector);
+```
+
+You're done now. Let's have some fun with modelizer :-)
+
+```javascript
+// create your fist Object
+> userBob = models.UserModel.createObject();
+
+// now the shell should promt the following result:
+{ email: undefined,
+  enabled: undefined,
+  profile: 
+   { firstName: undefined,
+     lastName: undefined,
+     company: undefined },
+  billing: { interval: undefined, plan: undefined },
+  save: [Function] }
+```
+you can use this object like any other javascript object
+```javascript
+userBob.email = "bob@bobsworld.com";
+userBob.profile.firstName = "Bob";
+userBob.enabled = true;
+```
+when you're ready you can save the mongodb by using the save()-function
+```javascript
+userBob.save();
+```
+
+If you take a look in the database you can see the result
+Connect to your database ```mongo myExampleDB``` and print the document ```db.User.find().pretty()```. The result should look someting like this:
+
+```javascript
+{
+	"email" : "bob@bobsworld.com",
+	"enabled" : true,
+	"profile" : {
+		"firstName" : "Bob",
+		"lastName" : null,
+		"company" : "n/a"
+	},
+	"billing" : {
+		"interval" : null,
+		"plan" : "large"
+	},
+	"_id" : ObjectId("52f38e9e842023178c000001")
+}
+```
+
+You can load the object from the database using the ObjectId.
+Functions to get and search objects are part of the model.
+```javascript
+> models.UserModel.use.get("52f38e9e842023178c000001")
+     .then(function(obj){
+        console.log(obj);
+     });
+```
+The result will be this:
+```javascript
+{ email: "bob@bobsworld.com",
+  enabled: true,
+  profile: { firstName: "Bob", lastName: null, company: "n/a" },
+  billing: { interval: null, plan: "large" },
+  save: [Function],
+  remove: [Function],
+  _id: 52f38e9e842023178c000001 }
+```
+
+
+# Development
 ## Testing
 =========
 - ```mocha```
