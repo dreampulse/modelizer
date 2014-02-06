@@ -1,11 +1,15 @@
 var assert = require("assert");
+var Q = require('q');
 
 describe('ModelIdea', function() {
   var model = require('../lib/modelizer');
   var Attr = model.Attr;
-  var Type = model.Attr.Types;
+  var Ref = model.Ref;
+  var RefArray = model.RefArray;
+  var Operation = model.Operation;
+  var Types = model.Attr.Types;
 
-  var MyModel1 = new model("MyModel1").attr("attr1", Type.string).attr("attr2", Type.string);
+  var MyModel1 = new model("MyModel1").attr("attr1", Types.string).attr("attr2", Types.string);
 
   var mongojs = require('mongojs');
   var db = mongojs('mongodb://127.0.0.1/testModel1');
@@ -142,7 +146,7 @@ describe('ModelIdea', function() {
   });
 
 
-  var MyModel2 = new model("MyModel2").attr("myAttr", Type.string).attrArray("myArray", MyModel1).attrObj("myAttrObj", MyModel1);
+  var MyModel2 = new model("MyModel2").attr("myAttr", Types.string).attrArray("myArray", MyModel1).attrObj("myAttrObj", MyModel1);
   MyModel2.connection(connector);
 
   describe('Array and Object Attributes', function() {
@@ -210,7 +214,7 @@ describe('ModelIdea', function() {
   });
 
 
-  var MyModel3 = new model("MyModel3").attr("myAttr", Type.string).attrRef("reference", MyModel1);
+  var MyModel3 = new model("MyModel3").attr("myAttr", Types.string).attrRef("reference", MyModel1);
   MyModel3.connection(connector);
 
   describe('Reference to another Model', function() {
@@ -321,7 +325,7 @@ describe('ModelIdea', function() {
   });
 
 
-  var MyModel4 = new model("MyModel4").attr("myAttr", Type.string).attrRefArray("models", MyModel1);
+  var MyModel4 = new model("MyModel4").attr("myAttr", Types.string).attrRefArray("models", MyModel1);
   MyModel4.connection(connector);
 
   describe('1..n References (Array References)', function() {
@@ -381,7 +385,7 @@ describe('ModelIdea', function() {
   });
 
 
-  var MyModel5 = new model("MyModel5").attr("attr1", Type.string).attr("attr2", Type.string);
+  var MyModel5 = new model("MyModel5").attr("attr1", Types.string).attr("attr2", Types.string);
   MyModel5.connection(connector);
 
   describe('Filters', function() {
@@ -521,7 +525,7 @@ describe('ModelIdea', function() {
 
   });
 
-  var MyModel8 = new model("MyModel8").attr("num", Type.number).attr("enum", Type.enum('a', 'b')).attr("name", Type.string, Attr.default("unnamed"));
+  var MyModel8 = new model("MyModel8").attr("num", Types.number).attr("enum", Types.enum('a', 'b')).attr("name", Types.string, Attr.default("unnamed"));
   MyModel8.connection(connector);
 
   describe('Type checks and save filters', function() {
@@ -556,6 +560,86 @@ describe('ModelIdea', function() {
       var obj = MyModel8.createObject();
       obj.save().then(function (){
         if (obj.name != "unnamed") done("default attribute failed");
+        done();
+      }).done();
+    });
+
+  });
+
+  // todo array of "premetives"
+  describe('Define Model in JSON-Notation', function() {
+
+    var MyModel10 = new model("MyModel10", {
+      stuff : Attr(Types.string, Attr.default("some stuff"))
+    });
+    MyModel10.connection(connector);
+
+    var MyModel9 = new model("MyModel9", {
+      aString : Attr(Types.string),
+      aNumber : Attr(Types.number),
+      
+      aArray : [{
+        aStringInsideOfTheArray : Attr(Types.string)
+      }],
+      
+      nested: {
+        stuff : Attr(Types.string)
+      },
+
+      aReference : Ref(MyModel10),
+      aManyReferences : RefArray(MyModel10),
+
+      aOperation : Operation()
+    });
+    MyModel9.connection(connector);
+
+    it('should be possible to define a type', function(done) {
+      var obj = MyModel9.createObject();
+      obj.aString = "foo";
+      obj.aNumber = 1.2;
+
+      obj.createAArrayElement();
+      obj.aArray[0].aStringInsideOfTheArray = "bar";
+
+      obj.nested.stuff = "stuff";
+
+      var mm10 = obj.aReference.createObject();
+     
+      var amayObj = obj.createAManyReferencesObject();
+      amayObj.stuff = "more stuff";
+
+      assert(MyModel9["aOperation"] != undefined);
+
+      var resObj;
+      Q().then(function() {
+        return amayObj.save();
+      }).then(function() {
+      //amayObj.save().then(function() {
+        return mm10.save();
+      }).then(function() {
+        return obj.save();
+      }).then(function() {
+        return MyModel9.use.get(obj._id);
+      }).then(function(o) {
+        resObj = o;
+        assert(resObj.aString == "foo");
+        assert(resObj.aNumber == 1.2);
+
+        assert(resObj.aArray.length == 1);
+        assert(resObj.aArray[0].aStringInsideOfTheArray == "bar");
+
+        assert(resObj.nested.stuff == "stuff");
+
+        return resObj.aReference.load();
+      }).then(function(loadedObj) {
+        assert(loadedObj.stuff == "some stuff");
+
+        assert(resObj.aManyReferences.length == 1);
+
+        return resObj.aManyReferences[0].load();
+      }).then(function(loadedObj) {
+        assert(resObj.aManyReferences[0].ref().stuff == "more stuff");
+
         done();
       }).done();
     });

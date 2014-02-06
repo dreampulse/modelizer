@@ -6,9 +6,8 @@ An Idea how to share a model between client, server and database
 
 ## Installation
 
-Install [node.js](http://nodejs.org/) and [mongodb](http://www.mongodb.org/downloads). Then:
-
-Get modelizer with npm: 
+Install [node.js](http://nodejs.org/) and [mongodb](http://www.mongodb.org/downloads) and
+get modelizer with npm: 
 
     $ npm install modelizer
 
@@ -17,7 +16,7 @@ Get modelizer with npm:
 Create at least tree files for model, view and the controller (server)
 
 ### Model
-Putting the model to the heart of your application is one of the main concepts for the modelizer.
+Putting the model to the heart of your application is one of the main concepts for modelizer.
 The Model is the central interface between the view and the controller
 
 - The ```models.js``` file for a very simple example model definition
@@ -62,7 +61,7 @@ var myModels = require('./models.js');
   <!-- External Library -->
   <!-- You need to inclue AnguarJS and the Q-Library -->
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/q.js/1.0.0/q.min.js"></script>
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js"></script>
+  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js"></script>
 
   <!-- The Modelizer Library -->
   <!-- If you use the sampleServer this is the way to load the library -->
@@ -74,7 +73,8 @@ var myModels = require('./models.js');
   
   <!-- This is an example how to use the model from the client / view -->
   <script type="text/javascript">
-    var connector = Model.AngularConnector("http://localhost:8080/");   // use the AngularConnector to access the server
+    // Define how to access the model (using AngularConnector to a remote model)
+    var connector = Model.AngularConnector("http://localhost:8080/");
     UserModel.connection(connector);   // use the connector for the example Model
 
     // example Usage
