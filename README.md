@@ -1,8 +1,12 @@
 # Modelizer
 
-An Idea how to share a model between client, server and database
+**The epic ORM-Mapper you want to use for every Web-Application**
 
+You can access the Model-API direct from your JavaScript-Client and from the Node.js-Server in the same way. Modelizer has an very strong filter based security API, so that you can decide which objects can be accessed in which way from the client. Alongside Modelizer generates a beautiful REST-API.
 
+Modelizer was designed as a very thin layer which can fit seamlessly in every sofware architecture. All examples show how perfect MongoDB, express and AngularJS fits together. 
+
+Currently Modelizer is in Alpha-Stage, so the API could change at any time. If you're interested to support us or need support using Modelizer don't hesitate to write an E-Mail to jonathan.haeberle@gmail.com.
 
 ## Installation
 
@@ -103,9 +107,9 @@ To get hands on the model just open the javascript-debugging-console in your bro
 
 
 
-## Sample
+## Sample Usage
 
-Define a model as shown in the folowing example and save it to ```models.js```
+Define the folowing model and save it to ```models.js```:
 
 ```javascript
 // using the the Modelizer library
@@ -157,7 +161,9 @@ module.exports = {
 
 ```
 
-Now take a look how you can use the model. Open a node-shell and init some stuff.
+Now we take a short look howto use the model.
+Open a node-shell with ```node```.
+First let's initialize some stuff:
 
 ```javascript
 // first load modelizer and the model definition
@@ -175,7 +181,7 @@ models.UserModel.connection(connector);
 models.ProjectModel.connection(connector);
 ```
 
-You're done now. Let's have some fun with modelizer :-)
+Now you are ready to have some fun with modelizer :-)
 
 ```javascript
 // create your fist Object
@@ -191,19 +197,18 @@ You're done now. Let's have some fun with modelizer :-)
   billing: { interval: undefined, plan: undefined },
   save: [Function] }
 ```
-you can use this object like any other javascript object
+You can use this object like any other javascript object.
 ```javascript
 userBob.email = "bob@bobsworld.com";
 userBob.profile.firstName = "Bob";
 userBob.enabled = true;
 ```
-when you're ready you can save the mongodb by using the save()-function
+When you're ready you can save the object to mongodb by using the save()-function:
 ```javascript
 userBob.save();
 ```
 
-If you take a look in the database you can see the result
-Connect to your database ```mongo myExampleDB``` and print the document ```db.User.find().pretty()```. The result should look someting like this:
+Let's take a look inside the database, so that you can see the result. Connect to the database (```mongo myExampleDB```) and print all User-Documents (```db.User.find().pretty()```). The result should look someting like this:
 
 ```javascript
 {
@@ -222,8 +227,7 @@ Connect to your database ```mongo myExampleDB``` and print the document ```db.Us
 }
 ```
 
-You can load the object from the database using the ObjectId.
-Functions to get and search objects are part of the model.
+You can load stored objects from the database using the ObjectId from above.
 ```javascript
 > models.UserModel.use.get("52f38e9e842023178c000001")
      .then(function(obj){
@@ -240,6 +244,9 @@ The result will be this:
   remove: [Function],
   _id: 52f38e9e842023178c000001 }
 ```
+Functions to recive stored objects are part of the model (eg. ```UserModel```). Take a look to the API-Reference for further information.
+You may notice that the API is completly promise based. Modelizer uses ```kriskowal/q```. You can find the API-Documentation [here](http://documentup.com/kriskowal/q/). 
+
 
 
 # Development
