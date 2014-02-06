@@ -17,7 +17,7 @@ get modelizer with npm:
 
 
 ## Usage
-Create at least tree files for model, view and the controller (server)
+Create at least three files for model, view and the controller (server)
 
 ### Model
 Putting the model to the heart of your application is one of the main concepts for modelizer.
@@ -140,23 +140,10 @@ var UserModel = new model("User", {
 
 });
 
-// The "Project" model
-var ProjectModel = new model("Project", {
-  title : Attr(Type.string),
-
-  // An array of multible values with the folowing schema
-  participants : [{
-    user : Ref(UserModel),  // A reference to the User-Model
-    roles : Attr(Type.array),  // A array with a single value
-    permission : Attr(Type.string, Type.enum('owner', 'participant'))
-  }]
-
-});
 
 // export as a node module
 module.exports = {
   UserModel : UserModel,
-  ProjectModel : ProjectModel
 };
 
 ```
