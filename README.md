@@ -2,7 +2,7 @@
 
 **The epic ORM-Mapper you want to use for every Web-Application**
 
-You can access the Model-API direct from your JavaScript-Client and from the Node.js-Server in the same way. Modelizer has an very strong filter based security API, so that you can decide which objects can be accessed in which way from the client. Alongside Modelizer generates a beautiful REST-API.
+You can access the Model-API directly from your JavaScript-Client and from the Node.js-Server in the same way. Modelizer has an very strong filter based security API, so that you can decide which objects can be accessed in which way from the client. Alongside Modelizer generates a beautiful REST-API.
 
 Modelizer was designed as a very thin layer which can fit seamlessly in every sofware architecture. All examples show how perfect MongoDB, express and AngularJS fits together. 
 
