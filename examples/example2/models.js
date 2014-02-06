@@ -14,7 +14,8 @@ var Type = model.Attr.Types;
 ///////////////////
 // My Models
 
-
+// JSON - schema definition
+// statt operation static
 var ContentModel = new model("Content")
   .attr("text", Type.string)
   .attr("owner", Type.ObjectId)
