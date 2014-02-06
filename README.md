@@ -116,7 +116,6 @@ Define the folowing model and save it to ```models.js```:
 var model = require('modelizer');
 var Attr = model.Attr;
 var Type = model.Attr.Types;
-var Ref = model.Ref;
 
 
 // The "User" model
