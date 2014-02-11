@@ -1,8 +1,12 @@
 # Modelizer
 
-An Idea how to share a model between client, server and database
+**The epic ORM-Mapper you want to use for every Web-Application**
 
+You can access the Model-API directly from your JavaScript-Client and from the Node.js-Server in the same way. Modelizer has an very strong filter based security API, so that you can decide which objects can be accessed in which way from the client. Alongside Modelizer generates a beautiful REST-API.
 
+Modelizer was designed as a very thin layer which can fit seamlessly in every sofware architecture. All examples show how perfect MongoDB, express and AngularJS fits together. 
+
+Currently Modelizer is in Alpha-Stage, so the API could change at any time. If you're interested to support us or need support using Modelizer don't hesitate to write an E-Mail to jonathan.haeberle@gmail.com.
 
 ## Installation
 
@@ -13,7 +17,7 @@ get modelizer with npm:
 
 
 ## Usage
-Create at least tree files for model, view and the controller (server)
+Create at least three files for model, view and the controller (server)
 
 ### Model
 Putting the model to the heart of your application is one of the main concepts for modelizer.
@@ -103,6 +107,135 @@ To get hands on the model just open the javascript-debugging-console in your bro
 
 
 
+## Sample Usage
+
+Define the folowing model and save it to ```models.js```:
+
+```javascript
+// using the the Modelizer library
+var model = require('modelizer');
+var Attr = model.Attr;
+var Type = model.Attr.Types;
+
+
+// The "User" model
+var UserModel = new model("User", {
+  email : Attr(Type.string),  // define a string attribute this way
+
+  // to nest and group some attributes use this syntax 
+  profile : {
+    firstName : Attr(Type.string),
+    lastName : Attr(Type.string),
+    company : Attr(Type.string, Attr.default('n/a'))  // set a default value
+  },
+
+  enabled : Attr(Type.boolean),
+
+  billing : {
+    // enumerations
+    interval : Attr(Type.string, Type.enum('monthly', 'annually')),
+    plan : Attr(Type.string, Type.enum('small', 'medium', 'large'))
+  }
+
+});
+
+
+// export as a node module
+module.exports = {
+  UserModel : UserModel,
+};
+
+```
+
+Now we take a short look howto use the model.
+Open a node-shell with ```node```.
+First let's initialize some stuff:
+
+```javascript
+// first load modelizer and the model definition
+var modelizer = require('modelizer');
+var models = require('./models');
+
+
+// init a mongodb database connection
+var mongojs = require('mongojs');
+var db = mongojs('mongodb://127.0.0.1/myExampleDB');
+
+// tell modelizer to use this connection to store the models
+var connector = modelizer.MongoConnector(db);  // get a mongodb database connector
+models.UserModel.connection(connector);
+models.ProjectModel.connection(connector);
+```
+
+Now you are ready to have some fun with modelizer :-)
+
+```javascript
+// create your fist Object
+> userBob = models.UserModel.createObject();
+
+// now the shell should promt the following result:
+{ email: undefined,
+  enabled: undefined,
+  profile: 
+   { firstName: undefined,
+     lastName: undefined,
+     company: undefined },
+  billing: { interval: undefined, plan: undefined },
+  save: [Function] }
+```
+You can use this object like any other javascript object.
+```javascript
+userBob.email = "bob@bobsworld.com";
+userBob.profile.firstName = "Bob";
+userBob.enabled = true;
+```
+When you're ready you can save the object to mongodb by using the save()-function:
+```javascript
+userBob.save();
+```
+
+Let's take a look inside the database, so that you can see the result. Connect to the database (```mongo myExampleDB```) and print all User-Documents (```db.User.find().pretty()```). The result should look someting like this:
+
+```javascript
+{
+	"email" : "bob@bobsworld.com",
+	"enabled" : true,
+	"profile" : {
+		"firstName" : "Bob",
+		"lastName" : null,
+		"company" : "n/a"
+	},
+	"billing" : {
+		"interval" : null,
+		"plan" : "large"
+	},
+	"_id" : ObjectId("52f38e9e842023178c000001")
+}
+```
+
+You can load stored objects from the database using the ObjectId from above.
+```javascript
+> models.UserModel.use.get("52f38e9e842023178c000001")
+     .then(function(obj){
+        console.log(obj);
+     });
+```
+The result will be this:
+```javascript
+{ email: "bob@bobsworld.com",
+  enabled: true,
+  profile: { firstName: "Bob", lastName: null, company: "n/a" },
+  billing: { interval: null, plan: "large" },
+  save: [Function],
+  remove: [Function],
+  _id: 52f38e9e842023178c000001 }
+```
+Functions to recive stored objects are part of the model (eg. ```UserModel```). Take a look to the API-Reference for further information.
+You may notice that the API is completly promise based. Modelizer uses ```kriskowal/q```. You can find the API-Documentation [here](http://documentup.com/kriskowal/q/). 
+
+
+
+# Development
 ## Testing
 =========
 - ```mocha```
