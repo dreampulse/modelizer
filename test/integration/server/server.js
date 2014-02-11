@@ -105,4 +105,10 @@ ContentModel.operationImpl("login", function(params, req) {
 });
 
 
+// logout
+ContentModel.operationImpl("logout", function(params, req) {
+  delete req.session.auth;
+  delete req.session.user_id;
+});
+
 

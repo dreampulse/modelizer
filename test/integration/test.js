@@ -399,6 +399,16 @@ describe('Integration Tests', function() {
         });
     });
 
+    it('logout', function(done){
+      ContentModel.logout()
+        .then(function(){
+          done();
+        })
+        .fail(function(err) {
+          done(err);
+        });
+    });
+
     // TODO: write filters
   });
 

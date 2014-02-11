@@ -42,6 +42,7 @@ var ContentModel = new model("Content")
   .attr("password", Type.string)
   .operation("register")
   .operation("login")
+  .operation("logout")
 ;
 
 
