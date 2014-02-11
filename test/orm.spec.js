@@ -604,8 +604,9 @@ describe('ModelIdea', function() {
 
       obj.aArrayAttr = ["foo", "bar"];
 
-      obj.createAArrayElement();
-      obj.aArray[0].aStringInsideOfTheArray = "bar";
+      var aArrayEl = obj.createAArrayElement();
+      aArrayEl.aStringInsideOfTheArray = "bar";
+      //obj.aArray[0].aStringInsideOfTheArray = "bar";
 
       obj.nested.stuff = "stuff";
 
