@@ -321,6 +321,36 @@ describe('Integration Tests', function() {
     });
   });
 
+  describe("Operations", function() {
+    it('should be possible to search for objects using find()', function(done){
+      var p1 = PersonModel.createObject();
+      p1.name = "Person 1";
+
+      var p2 = PersonModel.createObject();
+      p2.name = "Person 2";
+
+      Q()
+        .then(function() {
+          return p1.save();
+        })
+        .then(function() {
+          return p2.save();
+        })
+        .then(function() {
+          return PersonModel.use.find({name:"Person 2"});
+        })
+        .then(function(pers) {
+          assert(pers.length == 1);
+          assert(pers[0].name == "Person 2");
+          done();
+        })
+        .fail(function(err){
+          done(err);
+        });
+    })
+  });
+
+
   describe("Filters", function() {
     it('should fail to save an object without login', function(done){
       var obj = ContentModel.createObject();
