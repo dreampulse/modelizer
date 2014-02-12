@@ -7,6 +7,7 @@ describe('ModelIdea', function() {
   var Ref = model.Ref;
   var RefArray = model.RefArray;
   var Operation = model.Operation;
+  var Factory = model.Factory;
   var Types = model.Attr.Types;
 
   var MyModel1 = new model("MyModel1").attr("attr1", Types.string).attr("attr2", Types.string);
@@ -592,7 +593,9 @@ describe('ModelIdea', function() {
       aReference : Ref(MyModel10),
       aManyReferences : RefArray(MyModel10),
 
-      aOperation : Operation()
+      aOperation : Operation(),
+
+      aFactory : Factory()
     });
     MyModel9.connection(connector);
 
@@ -616,6 +619,8 @@ describe('ModelIdea', function() {
       amayObj.stuff = "more stuff";
 
       assert(MyModel9["aOperation"] != undefined);
+      assert(MyModel9["aFactory"] != undefined);
+
 
       var resObj;
       Q().then(function() {
