@@ -62,6 +62,9 @@ PersonModel.operationImpl("testOp", function(params, req) {
   return {result:"someStuff"};
 });
 
+PersonModel.factoryImpl("getSpecialObject", function(params, req) {
+  return PersonModel.use.find({age:18});  // return all object with a age of 18
+});
 
 /// Filter Testing
 

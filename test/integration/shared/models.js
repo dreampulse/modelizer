@@ -32,6 +32,7 @@ var PersonModel = new model("Person")
   .attrRef("profile", ProfileModel)
   .attrRefArray("postings", PostingModel)
   .operation("testOp")  // for implementation see server.js
+  .factory("getSpecialObject")
 ;
 
 

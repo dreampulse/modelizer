@@ -321,7 +321,36 @@ describe('Integration Tests', function() {
     });
   });
 
-  describe("Operations", function() {
+  describe("Factories", function() {
+    it('should be possible to use factories', function(done){
+      Q()
+        .then(function() {
+          var p1 = PersonModel.createObject();
+          p1.name = "Max";
+          p1.age = 18;
+          return p1.save();
+        })
+        .then(function() {
+          var p2 = PersonModel.createObject();
+          p2.name = "Moritz";
+          p2.age = 19;
+          return p2.save();
+        })
+        .then(function() {
+          return PersonModel.getSpecialObject();
+        })
+        .then(function(obj) {
+          //console.log(obj);
+          if (typeof obj[0].save != 'function') done("Factory hasn't restored the object");
+          done();
+        })
+        .fail(function(err) {
+          done(err);
+        });
+    });
+  });
+
+  describe("Find", function() {
     it('should be possible to search for objects using find()', function(done){
       var p1 = PersonModel.createObject();
       p1.name = "Person 1";
