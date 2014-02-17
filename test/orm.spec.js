@@ -162,7 +162,7 @@ describe('ModelIdea', function() {
 
     it('start with one object', function(done) {
       myObject2 = MyModel2.createObject();
-      assert(myObject2.myAttr === undefined);
+      assert(myObject2.myAttr === null);
       assert(myObject2.myArray.length === 0);
       assert(myObject2.myAttrObj.hasOwnProperty('attr1') && myObject2.myAttrObj.hasOwnProperty('attr2'));
 
@@ -225,7 +225,7 @@ describe('ModelIdea', function() {
     it('start with clean database and one object', function(done) {
       db.collection("MyModel3").drop(function(err, res) {
         myObject3 = MyModel3.createObject();
-        assert(myObject3.myAttr === undefined);
+        assert(myObject3.myAttr === null);
         assert(typeof myObject3.reference === 'object');
         done();
       });
@@ -335,7 +335,7 @@ describe('ModelIdea', function() {
     it('start with clean database and one object', function(done) {
       db.collection("MyModel3").drop(function(err, res) {
         myObject4 = MyModel4.createObject();
-        assert(myObject4.myAttr === undefined);
+        assert(myObject4.myAttr === null);
         assert(typeof myObject4.models === 'object');
         assert(myObject4.hasOwnProperty('createModelsObject'));
         done();
