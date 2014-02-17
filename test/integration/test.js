@@ -40,9 +40,8 @@ describe('Integration Tests', function() {
       person1.name = "Test User";
       person1.eMail = "test@test.com";
       person1.age = 99;
-
       person1.save()
-        .then(function() {
+        .then(function(resObj) {
           if (person1._id == undefined) done("didn't get an id from the server!");
           person1_id = person1._id; // save id for next tests
           done();
@@ -77,18 +76,13 @@ describe('Integration Tests', function() {
       person1_obj.name = "Steve Gates";
       person1_obj.save()
         .then(function() {
-
-          PersonModel.use.all()
-            .then(function(objs) {
-              if (objs.length != 1) done("There should still be only one object in the store");
-              done();
-            })
-            .fail(function(err) {
-              done('Promise Failed');
-            }).done();
-
+          return PersonModel.use.all()
+        })
+        .then(function(objs) {
+          if (objs.length != 1) return done("There should still be only one object in the store");
+          done();
         }).fail(function(err) {
-          done('Failed to save the object');
+          done(err);
         })
         .done();
     });

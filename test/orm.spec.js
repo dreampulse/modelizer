@@ -171,9 +171,9 @@ describe('ModelIdea', function() {
           done();
         })
         .fail(function(err) {
-          assert(false);
           done(err);
-        });
+        })
+        .done();
 
     });
 
@@ -665,9 +665,13 @@ describe('ModelIdea', function() {
 
   describe('Only save specified attributes', function() {
 
-    var MyModel10 = new model("MyModel10")
-      .attr("attr1", Types.string)
-    ;
+    var MyModel10 = new model("MyModel10", {
+      attr1 : Attr(Types.string),
+      nested: {
+        stuff : Attr(Types.string),
+        unnamed : Attr(Attr.default("unnamed"))
+      }
+    });
     
     MyModel10.connection(connector);
 
@@ -682,11 +686,33 @@ describe('ModelIdea', function() {
         })
         .then(function(myObj) {
           if (myObj.hasOwnProperty("attr2")) {
-            return done("unspecified attribute saveed");
+            return done("unspecified attribute saved");
           }
           done();
         })
         .done();
+    });
+
+    it("attributes in nested objects", function(done) {
+      var obj = MyModel10.createObject();
+      obj.nested.stuff = "huuh";
+      obj.nested.more = "ohno";
+
+      obj.save()
+        .then(function(resObj) {
+          return MyModel10.use.get(obj._id);
+        })
+        .then(function(myObj) {
+          if (myObj.nested.hasOwnProperty("more")) {
+            return done("unspecified attribute saved");
+          }
+          if (myObj.nested.unnamed != "unnamed") {
+            return done("attr filter don't work for nested obj")
+          }
+          done();
+        })
+        .done();
+
     });
 
   });
