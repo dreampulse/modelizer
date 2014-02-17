@@ -635,6 +635,7 @@ describe('ModelIdea', function() {
         return MyModel9.use.get(obj._id);
       }).then(function(o) {
         resObj = o;
+  
         assert(resObj.aString === "foo");
         assert(resObj.aNumber === 1.2);
         assert(resObj.aBoolean === true);
