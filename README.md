@@ -2,11 +2,11 @@
 
 **The epic ORM-Mapper you want to use for every Web-Application**
 
-You can access the Model-API directly from your JavaScript-Client and from the Node.js-Server in the same way. Modelizer has an very strong filter based security API, so that you can decide which objects can be accessed in which way from the client. Alongside Modelizer generates a beautiful REST-API.
+You can access the Model-API directly from your JavaScript-Client and from the Node.js-Server in the same way. Modelizer has a very strong filter based security API, so that you can decide which objects can be accessed in which way from the client. Alongside Modelizer generates a beautiful REST-API.
 
-Modelizer was designed as a very thin layer which can fit seamlessly in every sofware architecture. All examples show how perfect MongoDB, express and AngularJS fits together. 
+Modelizer was designed as a very thin layer which can fit seamlessly in your  software architecture. All examples show how perfect MongoDB, express and AngularJS fits together. 
 
-Currently Modelizer is in Alpha-Stage, so the API could change at any time. If you're interested to support us or need support using Modelizer don't hesitate to write an E-Mail to jonathan.haeberle@gmail.com.
+Currently Modelizer is in Alpha-Stage, so the API could change at any time. If you're interested to support us or need support using Modelizer doesn’t  hesitate to write an E-Mail.
 
 ## Installation
 
@@ -147,7 +147,7 @@ module.exports = {
 
 ```
 
-Now we take a short look howto use the model.
+Now we take a short look how to use the model.
 Open a node-shell with ```node```.
 First let's initialize some stuff:
 
@@ -194,7 +194,7 @@ When you're ready you can save the object to mongodb by using the save()-functio
 userBob.save();
 ```
 
-Let's take a look inside the database, so that you can see the result. Connect to the database (```mongo myExampleDB```) and print all User-Documents (```db.User.find().pretty()```). The result should look someting like this:
+Let's take a look inside the database, so that you can see the result. Connect to the database (```mongo myExampleDB```) and print all User-Documents (```db.User.find().pretty()```). The result should look something like this:
 
 ```javascript
 {
@@ -230,12 +230,15 @@ The result will be this:
   remove: [Function],
   _id: 52f38e9e842023178c000001 }
 ```
-Functions to recive stored objects are part of the model (eg. ```UserModel```). Take a look to the API-Reference for further information.
-You may notice that the API is completly promise based. Modelizer uses ```kriskowal/q```. You can find the API-Documentation [here](http://documentup.com/kriskowal/q/). 
+Functions to receive stored objects are part of the model (eg. ```UserModel```). Take a look to the API-Reference for further information.
+You may notice that the API is completely promise based. Modelizer uses ```kriskowal/q```. You can find the API-Documentation [here](http://documentup.com/kriskowal/q/). 
 
 
 
 # Development
+
+TODO
+
 ## Testing
 =========
 - ```mocha```
