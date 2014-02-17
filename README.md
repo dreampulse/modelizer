@@ -1,6 +1,6 @@
 # Modelizer
 
-**The epic ORM-Mapper you want to use for every Web-Application directly from your Browser-Code**
+**The epic ORM-Mapper you want to use for every serious Web-Application. You can access the API directly from your Browser-Code.**
 
 You can access the Model-API directly from your JavaScript-Client and from the Node.js-Server in the same way. Modelizer has a very strong filter based security API, so that you can decide which objects can be accessed in which way from the client. Alongside Modelizer generates a beautiful REST-API.
 
