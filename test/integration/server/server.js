@@ -87,10 +87,11 @@ ContentModel.writeFilter(function(obj, req) {
 
 ContentModel.operationImpl("register", function(params, req) {
   var newContent = ContentModel.createObject();
+  
   newContent.name = params.name;
   newContent.password = params.password;
+  console.log("register", newContent);
   return newContent.save();
-  //todo: operations die Modelizer objekte zurückliefern
 });
 
 ContentModel.operationImpl("login", function(params, req) {

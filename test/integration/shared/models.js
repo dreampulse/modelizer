@@ -39,7 +39,7 @@ var PersonModel = new model("Person")
 // Testing filters
 var ContentModel = new model("Content")
   .attr("stuff", Type.string)
-  .attr("username", Type.string)
+  .attr("name", Type.string)
   .attr("password", Type.string)
   .operation("register")
   .operation("login")

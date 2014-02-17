@@ -379,7 +379,6 @@ describe('Integration Tests', function() {
     })
   });
 
-
   describe("Filters", function() {
     it('should fail to save an object without login', function(done){
       var obj = ContentModel.createObject();
@@ -399,7 +398,6 @@ describe('Integration Tests', function() {
           password : "geheim"
         })
         .then(function(res){
-          //console.log(res); -> das ergebniss sollte ein object sein (TODO)
           done();
         })
         .fail(function(err) {

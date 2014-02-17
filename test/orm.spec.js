@@ -56,7 +56,7 @@ describe('ModelIdea', function() {
           assert(false);
           done(err);
         })
-        //.done();
+        .done();
     });
 
     it('saved object can be found with model search method .all()', function(done) {
@@ -72,7 +72,7 @@ describe('ModelIdea', function() {
           assert(false);
           done(err);
         })
-        //.done();
+        .done();
     });
 
 
@@ -86,10 +86,9 @@ describe('ModelIdea', function() {
             })
         })
         .fail(function(err) {
-          assert(false);
           done(err);
         })
-        //.done();
+        .done();
     });
 
 
@@ -322,7 +321,7 @@ describe('ModelIdea', function() {
           done();
         }).done();
     });
-*/
+*/  
   });
 
 
@@ -361,8 +360,7 @@ describe('ModelIdea', function() {
 
     it('should save the reference array correctly', function(done) {
       myObject4.save()
-        .then(function(doc){
-          assert(doc === myObject4);
+        .then(function(obj){
           assert(""+myObject4.models[0]._reference === ""+refObj1._id);
 
           return MyModel4.use.get(myObject4._id);
@@ -560,7 +558,10 @@ describe('ModelIdea', function() {
     it("default attribute should work", function(done) {
       var obj = MyModel8.createObject();
       obj.save().then(function (){
-        if (obj.name != "unnamed") done("default attribute failed");
+        if (obj.name != "unnamed") {
+          done("default attribute failed");
+          return;
+        }
         done();
       }).done();
     });
@@ -658,6 +659,34 @@ describe('ModelIdea', function() {
 
         done();
       }).done();
+    });
+
+  });
+
+  describe('Only save specified attributes', function() {
+
+    var MyModel10 = new model("MyModel10")
+      .attr("attr1", Types.string)
+    ;
+    
+    MyModel10.connection(connector);
+
+    it("flat attributes", function(done) {
+      var obj = MyModel10.createObject();
+      obj.attr1 = "foo";
+      obj.attr2 = "bar";
+
+      obj.save()
+        .then(function(resObj) {
+          return MyModel10.use.get(obj._id);
+        })
+        .then(function(myObj) {
+          if (myObj.hasOwnProperty("attr2")) {
+            return done("unspecified attribute saveed");
+          }
+          done();
+        })
+        .done();
     });
 
   });
