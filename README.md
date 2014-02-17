@@ -234,6 +234,9 @@ Functions to receive stored objects are part of the model (eg. ```UserModel```).
 You may notice that the API is completely promise based. Modelizer uses ```kriskowal/q```. You can find the API-Documentation [here](http://documentup.com/kriskowal/q/). 
 
 
+# API
+
+TODO
 
 # Development
 
