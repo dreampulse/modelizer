@@ -44,6 +44,7 @@ var ContentModel = new model("Content")
   .operation("register")
   .operation("login")
   .operation("logout")
+  .operation("cleanup")
 ;
 
 

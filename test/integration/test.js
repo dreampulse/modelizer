@@ -471,4 +471,14 @@ describe('Integration Tests', function() {
     // TODO: write filters
   });
 
+  describe("Cleanup", function() {
+    it('Cleanup Database', function(done){
+      ContentModel.cleanup()
+        .then(function(){
+          done();
+        })
+        .done();
+    });
+  });
+
 });

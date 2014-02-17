@@ -115,3 +115,12 @@ ContentModel.operationImpl("logout", function(params, req) {
 });
 
 
+ContentModel.operationImpl("cleanup", function(params, req) {
+  console.log("Clean database");
+  
+  cleanCollection("Person");
+  cleanCollection("Profile");
+  cleanCollection("Posting");
+  cleanCollection("Content");
+});
+
