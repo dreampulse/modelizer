@@ -4,11 +4,6 @@ console.log(__dirname);
 
 var model = require('../../../lib/modelizer.js');
 
-var PersonModel = require('../shared/models.js').PersonModel;
-var ProfileModel = require('../shared/models.js').ProfileModel;
-var PostingModel = require('../shared/models.js').PostingModel;
-var ContentModel = require('../shared/models.js').ContentModel;
-
 // init database connection
 var mongojs = require('mongojs');
 var db = mongojs('mongodb://127.0.0.1/test');
@@ -39,20 +34,21 @@ var cleanCollection = function(name) {
   });
 }
 
+// setup connection and express for all models
+model.globalConnection = connector;
+model.globalExpress = app;
+
 cleanCollection("Person");
-PersonModel.connection(connector);
-PersonModel.express(app);
-PersonModel.serve();
-
 cleanCollection("Profile");
-ProfileModel.connection(connector);
-ProfileModel.express(app);
-ProfileModel.serve();
-
 cleanCollection("Posting");
-PostingModel.connection(connector);
-PostingModel.express(app);
-PostingModel.serve();
+cleanCollection("Content");
+
+var PersonModel = require('../shared/models.js').PersonModel;
+var ProfileModel = require('../shared/models.js').ProfileModel;
+var PostingModel = require('../shared/models.js').PostingModel;
+var ContentModel = require('../shared/models.js').ContentModel;
+
+
 
 // Server productive code
 
@@ -67,12 +63,6 @@ PersonModel.factoryImpl("getSpecialObject", function(params, req) {
 });
 
 /// Filter Testing
-
-cleanCollection("Content");
-ContentModel.connection(connector);
-ContentModel.express(app);
-ContentModel.serve();
-
 
 ContentModel.readFilter(function (req) {
   //console.log("req.session.auth", req.session.auth);
