@@ -82,8 +82,8 @@ var myModels = require('./models.js');
     UserModel.connection(connector);   // use the connector for the example Model
 
     // example Usage
-    var user = UserModel.createObject();   // create a new object
-    user.username = "test";                // and set some values to the attributes
+    var user = UserModel.create();   // create a new object
+    user.username = "test";          // and set some values to the attributes
     user.password = "secret";
 
     // save data to server
@@ -99,7 +99,7 @@ var myModels = require('./models.js');
 To get hands on the model just open the javascript-debugging-console in your browser. And try this:
 
 ```javascript
-  UserModel.use.all()
+  UserModel.all()
     .then(function(objs){
       console.log(objs);
     }).done()
@@ -171,7 +171,7 @@ Now you are ready to have some fun with modelizer :-)
 
 ```javascript
 // create your fist Object
-> userBob = models.UserModel.createObject();
+> userBob = models.UserModel.create();
 
 // now the shell should promt the following result:
 { email: undefined,
@@ -215,7 +215,7 @@ Let's take a look inside the database, so that you can see the result. Connect t
 
 You can load stored objects from the database using the ObjectId from above.
 ```javascript
-> models.UserModel.use.get("52f38e9e842023178c000001")
+> models.UserModel.get("52f38e9e842023178c000001")
      .then(function(obj){
         console.log(obj);
      });
