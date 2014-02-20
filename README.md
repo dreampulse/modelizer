@@ -281,7 +281,7 @@ var EmployeesModel = new model("Employees", {
 ```
 
 An implicit attribute ```_id``` will be added to every model as a primary key to identity a unique object.
-The ```EmployesModel``` will be saved as one document in your mongo-database. You can explicity define the nested objects if you want to reuses them in differend places.
+The ```EmployesModel``` will be saved as one document in your mongo-database. You can explicity define the nested objects if you want to reuses them in differend places, as you can see in the folowing example within ```AdressModel```:
 
 ```javascript
 // The Address Object from above, explicitly defined
@@ -310,7 +310,7 @@ The employee model from the previous chapter still includes everything in one Mo
 
 #### 1:1 Relationships
 
-The folowing example shows how to build a 1:1-Relation between the Address and Employees-Model. Actually the address-attribute now saves internaly a reference-ID to the AdressModel-Object.
+The folowing example shows how to build a 1:1-Relation between the Address and Employees-Model. Actually the address-attribute now saves internaly a reference-ID to the AdressModel-Object. The key-thing here is the ```Ref()``` for buling a directed 1:1-Relationship.
 
 ```javascript
 var Ref = model.Ref;
@@ -359,9 +359,61 @@ var ProjectsModel = new model('Project', {
 
 ```
 
-Internaly participants is an array with reference-IDs to employees.  
+Within the Projects-Model there is now the array  ```participants``` with reference-IDs to employee objects.  
 
 
+### Operation and Factories
+A very sexy feature of modelizer is the possiblity to define operations for a model. An operation is an function on the model-scope, whitch can be called from the browser of the client and is implemented and runs on your server. The operation returns everything you want to your client. You never need to implement a REST-Handler for this again :-)
+
+An example usage for this can be stuff like:
+* login / register
+* or business functions in general
+
+A factory is nearly the same as an operation, but as a result the callier gets one or more objects. In this way you can implement complex search querys or customised result objects.
+
+Example:
+
+```javascript
+var Operation = model.Operation;
+
+// The Model-definiton of an employee 
+var EmployeesModel = new model("Employee", {
+  name  : Attr(Type.string),
+  age   : Attr(Type.number),
+  eMail : Attr(myOwnEMailType),
+
+  // define an operation
+  sendProjectPlanViaMail : Operation(),  // define a business function
+  
+  // define factories
+  getCurrentLoggedinEmployee : Factory(),
+  getEmployeesOfProjects : Factory()
+});
+```
+
+Somewhere in your server you can implement the operations and factories in this way:
+
+```javascript
+// This is the implementation of the 'sendProjectPlanViaMail'-Operation
+// You can implement your business logic here
+EmployeesModel.operationImpl("sendProjectPlanViaMail", function(params, req) {
+  // @params: this are the parameter of the client call
+  // @req:    access the HTTP-Request see [express API](http://expressjs.com/api.html#req.params) for more information
+  //          this is very usefull to access the "session" via req.session
+
+  // [Implement logic here] ...
+
+  return result;  // send arbatray result back to the client
+});
+
+
+// This is an example of a factory implementation
+EmployeesModel.factoryImpl("getEmployeesOfProjects", function(params, req) {
+  assert(params.hasOwnProperty('name'));  // assure that there is a parameter 'name'
+  
+  return EmployeesModel.find({name:params.name});  // do complex query and return resuts to the client ;-)
+});
+```
 
 # Development
 
