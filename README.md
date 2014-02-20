@@ -236,7 +236,70 @@ You may notice that the API is completely promise based. Modelizer uses ```krisk
 
 # API
 
-TODO
+## Defining Models (Schema definition)
+
+Everything in Modelizer starts with a model definition. The folowing example shows how define attributes of your model. 
+
+```javascript
+// Import Modelizer
+var model = require('modelizer');
+
+// The Syntax of how to define a Model
+var [A Reference To My Model] = new model("[The Name Of My Model]", {
+  [Attribute Name] : Attr([Type Of My Attribute]),
+  ...
+});
+
+// Example with all available types
+var EmployeesModel = new model("Employees", {
+  name             : Attr(Type.string),                   // A String like "Tim Jobs"
+  age              : Attr(Type.number),                   // A number like 12 or 12.53
+  payroll          : Attr(Type.boolean),                  // True or false
+  gender           : Attr(Type.enum('male', 'female')),   // Enumeration, ether 'male' or 'female'
+  dateOfEmployment : Attr(Type.date),                     // A default JavaScript Date-Object
+  nickNames        : Attr(Type.array),                    // JS-Array like: ['Timmy', 'Mr-T', 'The King']
+  
+  address : {  // a nested object. (a object as an attribute)
+    street  : Attr(Type.string),
+    eMail   : Attr(myOwnEMailType),                       // You can specify you own types / validatiors
+    country : Attr(Type.string, Attr.default("germany"))  // You can set a default value of a attribute
+  },
+  
+  projects : [{  // an array of nested objects (an array as an attribute)
+    name           : Attr(Type.string), 
+    identificaiton : Attr(),                              // Anything is allowed: Strings, Numbers even JS-Objects
+    budget         : Attr(function (value) {              // Define inline your own validator
+      if (value < 0) throw new Error('Budget has to be positiv');
+      return value;
+    })
+  }}
+});
+```
+
+The ```EmployesModel``` will be saved as one document in your mongo-database. You can explicity define the nested objects if you want to reuses them in differend places.
+
+```javascript
+// The Address Object from above, explicitly defined
+var AddressModel = new model("Address", {
+    street  : Attr(Type.string),
+    eMail   : Attr(myOwnEMailType),                     
+    country : Attr(Type.string, Attr.default("germany"))
+});
+
+// The same employees model like above 
+var EmployeesModel = new model("Employees", {
+  name : Attr(Type.string),
+  age  : Attr(Type.number),
+  // ..
+  
+  address : AddressModel,  // explicitly reference to the Address Model  
+  // ..
+});
+
+```
+
+
+
 
 # Development
 
