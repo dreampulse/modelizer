@@ -238,7 +238,11 @@ You may notice that the API is completely promise based. Modelizer uses ```krisk
 
 ## Defining Models (Schema definition)
 
-Everything in Modelizer starts with a model definition. The folowing example shows how define attributes of your model. 
+Everything in Modelizer starts with a model definition.
+
+### Attributes
+
+The folowing example shows how define attributes of your model. 
 
 ```javascript
 // Import Modelizer
@@ -276,18 +280,19 @@ var EmployeesModel = new model("Employees", {
 });
 ```
 
+An implicit attribute ```_id``` will be added to every model as a primary key to identity a unique object.
 The ```EmployesModel``` will be saved as one document in your mongo-database. You can explicity define the nested objects if you want to reuses them in differend places.
 
 ```javascript
 // The Address Object from above, explicitly defined
 var AddressModel = new model("Address", {
-    street  : Attr(Type.string),
-    eMail   : Attr(myOwnEMailType),                     
-    country : Attr(Type.string, Attr.default("germany"))
+  street  : Attr(Type.string),
+  eMail   : Attr(myOwnEMailType),                     
+  country : Attr(Type.string, Attr.default("germany"))
 });
 
 // The same employees model like above 
-var EmployeesModel = new model("Employees", {
+var EmployeesModel = new model("Employee", {
   name : Attr(Type.string),
   age  : Attr(Type.number),
   // ..
@@ -298,6 +303,63 @@ var EmployeesModel = new model("Employees", {
 
 ```
 
+### References
+
+The employee model from the previous chapter still includes everything in one Mongo-Document. There are many good reasons to build relationships between model-entities.  
+
+
+#### 1:1 Relationships
+
+The folowing example shows how to build a 1:1-Relation between the Address and Employees-Model. Actually the address-attribute now saves internaly a reference-ID to the AdressModel-Object.
+
+```javascript
+var Ref = model.Ref;
+
+// The Model-definition of an Address
+var AddressModel = new model("Address", {
+  street  : Attr(Type.string),
+  eMail   : Attr(myOwnEMailType),                     
+  country : Attr(Type.string, Attr.default("germany"))
+});
+
+// The Model-definiton of an Employee 
+var EmployeesModel = new model("Employee", {
+  name : Attr(Type.string),
+  age  : Attr(Type.number),
+  
+  // Using "Ref()" for a 1:1-Relationship that references to the Address Model 
+  address : Ref(AddressModel),
+});
+
+```
+
+In this way there are two documents saved to mongoDB ```Andress``` and ```Employee```, with employees having a reference to the address-model.
+
+#### 1:N-Relationships
+
+Now let's see how to define a 1:N-Relationship. I'll use the Employees and Projets example from above, defining a 1:N-relationship from projects to employees.
+
+```javascript
+var RefArray = model.RefArray;
+
+// The Model-definiton of an employee 
+var EmployeesModel = new model("Employee", {
+  name : Attr(Type.string),
+  age  : Attr(Type.number),
+});
+
+// The Model-definition of a project
+var ProjectsModel = new model('Project', {
+  name    : Attr(Type.string), 
+  budget  : Attr(Type.number),
+  
+  // Using "RefArray" for an 1:N-Relationship with Many-References to the employee model 
+  participants : RefArray(EmployeesModel) 
+}};
+
+```
+
+Internaly participants is an array with reference-IDs to employees.  
 
 
 
@@ -307,6 +369,9 @@ TODO
 
 ## Testing
 =========
-- ```mocha```
-- ```karma start karma.conf.js```
+
+You can find the unit- and integration tests in the ```test/``` folder. To run the tests use:
+
+* ```mocha```
+* ```karma start test/integration/karma.conf.js```
 
