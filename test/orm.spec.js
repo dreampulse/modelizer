@@ -29,7 +29,7 @@ describe('ModelIdea', function() {
     });
 
     it('should be possible to create an object from the Model', function(){
-      myObject1 = MyModel1.createObject();
+      myObject1 = MyModel1.create();
       myObject1.attr1 = "value1";
       myObject1.attr2 = "value2";
     });
@@ -60,7 +60,7 @@ describe('ModelIdea', function() {
     });
 
     it('saved object can be found with model search method .all()', function(done) {
-      MyModel1.use.all()
+      MyModel1.all()
         .then(function(objs){
           assert(objs.length === 1);
           var doc = objs[0];
@@ -79,7 +79,7 @@ describe('ModelIdea', function() {
     it('should be possible to save again', function(done) {
       myObject1.save()
         .then(function() {
-          return MyModel1.use.all()
+          return MyModel1.all()
             .then(function(objs){
               assert(objs.length === 1, "There should still be only one object in the store");
               done();
@@ -93,7 +93,7 @@ describe('ModelIdea', function() {
 
 
     it('can be found by using .get() search method', function(done) {
-      MyModel1.use.get(myObject1_id)
+      MyModel1.get(myObject1_id)
         .then(function(obj) {
           assert(""+obj._id === ""+myObject1_id);
           done();
@@ -106,7 +106,7 @@ describe('ModelIdea', function() {
     });
 
     it('can be found by using .find() to search for an attribute', function(done) {
-      MyModel1.use.find({'attr1':'value1'})
+      MyModel1.find({'attr1':'value1'})
         .then(function(obj) {
           assert(obj.length === 1);
           assert(""+obj[0]._id === ""+myObject1_id);
@@ -161,7 +161,7 @@ describe('ModelIdea', function() {
 
 
     it('start with one object', function(done) {
-      myObject2 = MyModel2.createObject();
+      myObject2 = MyModel2.create();
       assert(myObject2.myAttr === null);
       assert(myObject2.myArray.length === 0);
       assert(myObject2.myAttrObj.hasOwnProperty('attr1') && myObject2.myAttrObj.hasOwnProperty('attr2'));
@@ -177,17 +177,17 @@ describe('ModelIdea', function() {
 
     });
 
-    it('get Object with createMyArrayElement()', function(done) {
-      var el = myObject2.createMyArrayElement();
+    it('get Object with createMyArray()', function(done) {
+      var el = myObject2.createMyArray();
       assert(el.hasOwnProperty('attr1') && el.hasOwnProperty('attr2'));
       assert(myObject2.myArray[0] === el);
       done();
     });
 
-    it('should be possible to createMyArrayElement() from a loaded object', function(done){
-      MyModel2.use.get(myObject2._id)
+    it('should be possible to createMyArray() from a loaded object', function(done){
+      MyModel2.get(myObject2._id)
         .then(function(obj){
-          var el = obj.createMyArrayElement();
+          var el = obj.createMyArray();
           el.attr1 = "test";
           assert(obj.myArray.length == 1);
           assert(obj.myArray[0].attr1 == "test");
@@ -201,7 +201,7 @@ describe('ModelIdea', function() {
     });
 
     it('load attrArray', function(done){
-      MyModel2.use.get(myObject2._id)
+      MyModel2.get(myObject2._id)
         .then(function(obj){
           assert(obj.myArray.length == 1, "attrArry should have been loaded");
           assert(obj.myArray[0].attr1 == "test");
@@ -224,7 +224,7 @@ describe('ModelIdea', function() {
 
     it('start with clean database and one object', function(done) {
       db.collection("MyModel3").drop(function(err, res) {
-        myObject3 = MyModel3.createObject();
+        myObject3 = MyModel3.create();
         assert(myObject3.myAttr === null);
         assert(typeof myObject3.reference === 'object');
         done();
@@ -233,7 +233,7 @@ describe('ModelIdea', function() {
 
 
     it('should be possible to create and save an object with empty reference', function(done) {
-      var testObj = MyModel3.createObject();
+      var testObj = MyModel3.create();
       testObj.save()
         .then(function(doc) {
           //TODO: messen, dass ref leer ist
@@ -247,7 +247,7 @@ describe('ModelIdea', function() {
 
 
     it('should be possible to create a referenced object', function(done){
-      refObj = myObject3.reference.createObject();
+      refObj = myObject3.reference.create();
       assert(refObj.hasOwnProperty('attr1') && refObj.hasOwnProperty('attr2'));
       assert(myObject3.reference.ref() === refObj);
 
@@ -268,7 +268,7 @@ describe('ModelIdea', function() {
       myObject3.save()
         .then(function(doc){
           assert(""+myObject3.reference._reference === ""+refObj_id, "reference hasn't been added");
-          MyModel1.use.get(refObj_id)
+          MyModel1.get(refObj_id)
             .then(function(obj) {
               assert(""+obj._id === ""+myObject3.reference._reference, "the referenced object exists");
               done();
@@ -281,7 +281,7 @@ describe('ModelIdea', function() {
     });
 
     it('should be possible to load a referenced object', function(done){
-      MyModel3.use.get(myObject3._id)
+      MyModel3.get(myObject3._id)
         .then(function(obj) {
           try {
             obj.reference.ref();
@@ -303,7 +303,7 @@ describe('ModelIdea', function() {
     });
 
     it('should be possible to set the reference to an arbitrary object', function(done) {
-      MyModel1.createObject().save()
+      MyModel1.create().save()
         .then(function(obj) {
           myObject3.reference.setObject(obj);
           assert(""+myObject3.reference._reference == ""+obj._id);
@@ -334,16 +334,16 @@ describe('ModelIdea', function() {
 
     it('start with clean database and one object', function(done) {
       db.collection("MyModel3").drop(function(err, res) {
-        myObject4 = MyModel4.createObject();
+        myObject4 = MyModel4.create();
         assert(myObject4.myAttr === null);
         assert(typeof myObject4.models === 'object');
-        assert(myObject4.hasOwnProperty('createModelsObject'));
+        assert(myObject4.hasOwnProperty('createModels'));
         done();
       });
     });
 
     it('should be possible to create a referenced object', function(done) {
-      refObj1 = myObject4.createModelsObject();
+      refObj1 = myObject4.createModels();
       assert(refObj1.hasOwnProperty('attr1') && refObj1.hasOwnProperty('attr2'));
       assert(myObject4.models.length === 1);
       assert(myObject4.models[0].ref() === refObj1);
@@ -363,7 +363,7 @@ describe('ModelIdea', function() {
         .then(function(obj){
           assert(""+myObject4.models[0]._reference === ""+refObj1._id);
 
-          return MyModel4.use.get(myObject4._id);
+          return MyModel4.get(myObject4._id);
         })
         .then(function(doc) {
           assert(""+doc._id === ""+myObject4._id);
@@ -392,15 +392,15 @@ describe('ModelIdea', function() {
 
     it('start with clean database and three objects', function(done) {
       db.collection("MyModel5").drop(function(err, res) {
-        obj1 = MyModel5.createObject();
+        obj1 = MyModel5.create();
         obj1.attr1 = "A";
         obj1.attr2 = "C";
 
-        obj2 = MyModel5.createObject();
+        obj2 = MyModel5.create();
         obj2.attr1 = "A";
         obj2.attr2 = "B";
 
-        obj3 = MyModel5.createObject();
+        obj3 = MyModel5.create();
         obj3.attr1 = "C";
         obj3.attr2 = "B";
 
@@ -493,7 +493,7 @@ describe('ModelIdea', function() {
     var MyModel6 = new model("MyModel6").method("myMethod").methodImpl("myMethod", myMethod1);
 
     it("should be possible to use methods", function(done) {
-      var obj6 = MyModel6.createObject();
+      var obj6 = MyModel6.create();
       obj6.myMethod();
       if (!called) done("Method calling failed");
       else done();
@@ -530,7 +530,7 @@ describe('ModelIdea', function() {
   describe('Type checks and save filters', function() {
 
     it("should not be possible to save wrong types", function(done) {
-      var obj = MyModel8.createObject();
+      var obj = MyModel8.create();
       obj.num = "not a number";
       obj.save().fail(function (err){
         assert(err.message == "Can't save 'num' 'not a number' is not a number");
@@ -539,7 +539,7 @@ describe('ModelIdea', function() {
     });
 
     it("should be possible to use enums", function(done) {
-      var obj = MyModel8.createObject();
+      var obj = MyModel8.create();
       obj.enum = "b";
       obj.save().then(function (){
         done();
@@ -547,7 +547,7 @@ describe('ModelIdea', function() {
     });
 
     it("should handle wrong enums", function(done) {
-      var obj = MyModel8.createObject();
+      var obj = MyModel8.create();
       obj.enum = "c";
       obj.save().fail(function (err){
         assert(err.message == "Can't save 'enum' 'c' is not in the enum");
@@ -556,7 +556,7 @@ describe('ModelIdea', function() {
     });
 
     it("default attribute should work", function(done) {
-      var obj = MyModel8.createObject();
+      var obj = MyModel8.create();
       obj.save().then(function (){
         if (obj.name != "unnamed") {
           done("default attribute failed");
@@ -567,7 +567,7 @@ describe('ModelIdea', function() {
     });
 
     it("should handle date types", function(done) {
-      var obj = MyModel8.createObject();
+      var obj = MyModel8.create();
       obj.date = "foo";
       obj.save().fail(function (err){
         assert(err.message == "Can't save 'date' 'foo' is not a date");
@@ -611,22 +611,22 @@ describe('ModelIdea', function() {
     MyModel9.connection(connector);
 
     it('should be possible to define a type', function(done) {
-      var obj = MyModel9.createObject();
+      var obj = MyModel9.create();
       obj.aString = "foo";
       obj.aNumber = 1.2;
       obj.aBoolean = true;
 
       obj.aArrayAttr = ["foo", "bar"];
 
-      var aArrayEl = obj.createAArrayElement();
+      var aArrayEl = obj.createAArray();
       aArrayEl.aStringInsideOfTheArray = "bar";
       //obj.aArray[0].aStringInsideOfTheArray = "bar";
 
       obj.nested.stuff = "stuff";
 
-      var mm10 = obj.aReference.createObject();
+      var mm10 = obj.aReference.create();
      
-      var amayObj = obj.createAManyReferencesObject();
+      var amayObj = obj.createAManyReferences();
       amayObj.stuff = "more stuff";
 
       assert(MyModel9["aOperation"] != undefined);
@@ -642,7 +642,7 @@ describe('ModelIdea', function() {
       }).then(function() {
         return obj.save();
       }).then(function() {
-        return MyModel9.use.get(obj._id);
+        return MyModel9.get(obj._id);
       }).then(function(o) {
         resObj = o;
   
@@ -687,13 +687,13 @@ describe('ModelIdea', function() {
     MyModel10.connection(connector);
 
     it("flat attributes", function(done) {
-      var obj = MyModel10.createObject();
+      var obj = MyModel10.create();
       obj.attr1 = "foo";
       obj.attr2 = "bar";
 
       obj.save()
         .then(function(resObj) {
-          return MyModel10.use.get(obj._id);
+          return MyModel10.get(obj._id);
         })
         .then(function(myObj) {
           if (myObj.hasOwnProperty("attr2")) {
@@ -705,13 +705,13 @@ describe('ModelIdea', function() {
     });
 
     it("attributes in nested objects", function(done) {
-      var obj = MyModel10.createObject();
+      var obj = MyModel10.create();
       obj.nested.stuff = "huuh";
       obj.nested.more = "ohno";
 
       obj.save()
         .then(function(resObj) {
-          return MyModel10.use.get(obj._id);
+          return MyModel10.get(obj._id);
         })
         .then(function(myObj) {
           if (myObj.nested.hasOwnProperty("more")) {

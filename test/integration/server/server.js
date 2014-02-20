@@ -59,7 +59,7 @@ PersonModel.operationImpl("testOp", function(params, req) {
 });
 
 PersonModel.factoryImpl("getSpecialObject", function(params, req) {
-  return PersonModel.use.find({age:18});  // return all object with a age of 18
+  return PersonModel.find({age:18});  // return all object with a age of 18
 });
 
 /// Filter Testing
@@ -76,7 +76,7 @@ ContentModel.writeFilter(function(obj, req) {
 });
 
 ContentModel.operationImpl("register", function(params, req) {
-  var newContent = ContentModel.createObject();
+  var newContent = ContentModel.create();
   
   newContent.name = params.name;
   newContent.password = params.password;
@@ -85,7 +85,7 @@ ContentModel.operationImpl("register", function(params, req) {
 
 ContentModel.operationImpl("login", function(params, req) {
 
-  return ContentModel.use.find({name:params.name})
+  return ContentModel.find({name:params.name})
     .then(function(objs) {
       if (objs.length != 1) throw new Error("wrong search results");
 

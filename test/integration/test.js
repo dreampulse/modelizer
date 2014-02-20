@@ -13,7 +13,7 @@ describe('Integration Tests', function() {
   describe('Basic Functions', function() {
 
     it('Person Models should be empty', function(done) {
-      PersonModel.use.all()
+      PersonModel.all()
         .then(function(objs) {
           if (objs.length != 0) done("PersonModel should be empty");
           done();
@@ -24,7 +24,7 @@ describe('Integration Tests', function() {
     });
 
     it('Get an invalid model should fail', function(done) {
-      PersonModel.use.get("01234")
+      PersonModel.get("01234")
         .then(function(obj) {
           done("Promise should fail");
         })
@@ -36,7 +36,7 @@ describe('Integration Tests', function() {
 
     var person1_id;
     it('should be possible to create a Object', function(done) {
-      var person1 = PersonModel.createObject();
+      var person1 = PersonModel.create();
       person1.name = "Test User";
       person1.eMail = "test@test.com";
       person1.age = 99;
@@ -55,7 +55,7 @@ describe('Integration Tests', function() {
     var person1_obj;
     it('should be possible to get the created object', function(done) {
 
-      PersonModel.use.get(person1_id)
+      PersonModel.get(person1_id)
         .then(function(obj) {
           if (obj._id != person1_id) done("Object has an invalid id");
           if (
@@ -76,7 +76,7 @@ describe('Integration Tests', function() {
       person1_obj.name = "Steve Gates";
       person1_obj.save()
         .then(function() {
-          return PersonModel.use.all()
+          return PersonModel.all()
         })
         .then(function(objs) {
           if (objs.length != 1) return done("There should still be only one object in the store");
@@ -98,7 +98,7 @@ describe('Integration Tests', function() {
     });
 
     it('should fail to get the deleted object', function(done) {
-      PersonModel.use.get(person1_id)
+      PersonModel.get(person1_id)
         .then(function(obj) {
           done("There should be no result");
         })
@@ -113,18 +113,18 @@ describe('Integration Tests', function() {
   describe('Array and Object Attributes Functions', function() {
     var dave;
     it('create Object', function(done) {
-      dave = PersonModel.createObject();
+      dave = PersonModel.create();
       dave.name = "Dave Test User";
       dave.eMail = "dave@test.com";
       dave.age = 32;
       dave.settings.storageSize = 34;
       dave.settings.password = "geheim";
 
-      var addr = dave.createAddressElement();
+      var addr = dave.createAddress();
       addr.street = "First Home Town Street";
       addr.number = 1;
 
-      dave.createAddressElement();
+      dave.createAddress();
       dave.address[1].street = "Second Home Town Street"
       dave.address[1].number = 2;
 
@@ -139,7 +139,7 @@ describe('Integration Tests', function() {
     });
 
     it('object should have been created correctly', function(done) {
-      PersonModel.use.all()
+      PersonModel.all()
         .then(function(objs) {
           if (objs.length != 1) done("PersonModel should have only one object");
 
@@ -181,10 +181,10 @@ describe('Integration Tests', function() {
     
     var bob; 
     it("should be possible to create an object with a reference", function(done){
-      bob = PersonModel.createObject();
+      bob = PersonModel.create();
       bob.name = "Dave Test User";
       
-      var profile = bob.profile.createObject();
+      var profile = bob.profile.create();
       profile.vision = "Best Hacker";
       bob.profile.ref().experience = "a lot";
 
@@ -206,7 +206,7 @@ describe('Integration Tests', function() {
 
     it("should be possible to load an object with a reference", function(done){
       var loaded_bob;
-      PersonModel.use.get(bob._id)
+      PersonModel.get(bob._id)
         .then(function(obj) {
           loaded_bob = obj;
           return obj.profile.load();
@@ -237,13 +237,13 @@ describe('Integration Tests', function() {
     var posting1;
     var posting2;
     it("should be possible to create an object with an 1..n reference", function(done){
-      max = PersonModel.createObject();
+      max = PersonModel.create();
       max.name = "Max Mustermann";
       
-      posting1 = max.createPostingsObject();
+      posting1 = max.createPostings();
       posting1.text = "The News";
 
-      posting2 = max.createPostingsObject();
+      posting2 = max.createPostings();
       max.postings[1].ref().text = "More news";
 
       // save all
@@ -265,7 +265,7 @@ describe('Integration Tests', function() {
 
     it("should be possible to load an object with an 1..n reference", function(done) {
       var loaded_max;
-      PersonModel.use.get(max._id)
+      PersonModel.get(max._id)
         .then(function(obj) {
           loaded_max = obj;
           assert(obj.postings.length == 2, "wrong number of references");
@@ -319,13 +319,13 @@ describe('Integration Tests', function() {
     it('should be possible to use factories', function(done){
       Q()
         .then(function() {
-          var p1 = PersonModel.createObject();
+          var p1 = PersonModel.create();
           p1.name = "Max";
           p1.age = 18;
           return p1.save();
         })
         .then(function() {
-          var p2 = PersonModel.createObject();
+          var p2 = PersonModel.create();
           p2.name = "Moritz";
           p2.age = 19;
           return p2.save();
@@ -346,10 +346,10 @@ describe('Integration Tests', function() {
 
   describe("Find", function() {
     it('should be possible to search for objects using find()', function(done){
-      var p1 = PersonModel.createObject();
+      var p1 = PersonModel.create();
       p1.name = "Person 1";
 
-      var p2 = PersonModel.createObject();
+      var p2 = PersonModel.create();
       p2.name = "Person 2";
 
       Q()
@@ -360,7 +360,7 @@ describe('Integration Tests', function() {
           return p2.save();
         })
         .then(function() {
-          return PersonModel.use.find({name:"Person 2"});
+          return PersonModel.find({name:"Person 2"});
         })
         .then(function(pers) {
           assert(pers.length == 1);
@@ -375,7 +375,7 @@ describe('Integration Tests', function() {
 
   describe("Filters", function() {
     it('should fail to save an object without login', function(done){
-      var obj = ContentModel.createObject();
+      var obj = ContentModel.create();
       obj.save()
         .then(function(){
           done("it should have failed");
@@ -426,7 +426,7 @@ describe('Integration Tests', function() {
     });
 
     it('shout only be possible to access own object', function(done){
-      ContentModel.use.all()
+      ContentModel.all()
         .then(function(objs){
           //console.log(objs);
           if (objs.length != 1) done("Error in read filters");
@@ -440,7 +440,7 @@ describe('Integration Tests', function() {
     });
 
     it('should succeeded to save an object when being logged in', function(done){
-      var obj = ContentModel.createObject();
+      var obj = ContentModel.create();
       obj.save()
         .then(function(){
           done();
@@ -466,13 +466,13 @@ describe('Integration Tests', function() {
   describe("handle date types", function() {
     it('after saving date attribute it shout be preserved', function(done){
 
-      var pers = PersonModel.createObject({
+      var pers = PersonModel.create({
         name : "Born today",
         birthday : new Date()
       })
 
       pers.save().then(function() {
-        return PersonModel.use.get(pers._id);
+        return PersonModel.get(pers._id);
       })
       .then(function(pers){
         if (!pers.birthday instanceof Date) done("Isn't a date Object");
