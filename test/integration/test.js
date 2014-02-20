@@ -463,6 +463,25 @@ describe('Integration Tests', function() {
     // TODO: write filters
   });
 
+  describe("handle date types", function() {
+    it('after saving date attribute it shout be preserved', function(done){
+
+      var pers = PersonModel.createObject({
+        name : "Born today",
+        birthday : new Date()
+      })
+
+      pers.save().then(function() {
+        return PersonModel.use.get(pers._id);
+      })
+      .then(function(pers){
+        if (!pers.birthday instanceof Date) done("Isn't a date Object");
+        done();
+      }).done();
+
+    });
+  });
+
   describe("Cleanup", function() {
     it('Cleanup Database', function(done){
       ContentModel.cleanup()

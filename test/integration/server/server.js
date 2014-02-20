@@ -80,7 +80,6 @@ ContentModel.operationImpl("register", function(params, req) {
   
   newContent.name = params.name;
   newContent.password = params.password;
-  console.log("register", newContent);
   return newContent.save();
 });
 

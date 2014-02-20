@@ -524,7 +524,7 @@ describe('ModelIdea', function() {
 
   });
 
-  var MyModel8 = new model("MyModel8").attr("num", Types.number).attr("enum", Types.enum('a', 'b')).attr("name", Types.string, Attr.default("unnamed"));
+  var MyModel8 = new model("MyModel8").attr("num", Types.number).attr("enum", Types.enum('a', 'b')).attr("name", Types.string, Attr.default("unnamed")).attr("date", Types.date);
   MyModel8.connection(connector);
 
   describe('Type checks and save filters', function() {
@@ -565,6 +565,16 @@ describe('ModelIdea', function() {
         done();
       }).done();
     });
+
+    it("should handle date types", function(done) {
+      var obj = MyModel8.createObject();
+      obj.date = "foo";
+      obj.save().fail(function (err){
+        assert(err.message == "Can't save 'date' 'foo' is not a date");
+        done();
+      }).done();
+    });
+
 
   });
 
