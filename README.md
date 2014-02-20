@@ -28,13 +28,13 @@ The Model is the central interface between the view and the controller
 ```javascript
 var model = require('modelizer');   // using the the Modelizer library
 var Type = model.Attr.Types;        // import type definitions
-
+var Attr = model.Attr;
 
 // our example model
-var UserModel = new model("User")
-  .attr("username", Type.string)
-  .attr("password", Type.string)
-;
+var UserModel = new model("User", {
+  username : Attr(Type.string),
+  password : Attr(Type.string)
+});
 ```
 
 
