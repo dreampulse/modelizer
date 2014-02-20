@@ -242,7 +242,7 @@ Everything in Modelizer starts with a model definition.
 
 ### Attributes
 
-The folowing example shows how define attributes of your model. 
+The following example shows how define attributes of your model. 
 
 ```javascript
 // Import Modelizer
@@ -265,15 +265,15 @@ var EmployeesModel = new model("Employees", {
   
   address : {  // a nested object. (a object as an attribute)
     street  : Attr(Type.string),
-    eMail   : Attr(myOwnEMailType),                       // You can specify you own types / validatiors
+    eMail   : Attr(myOwnEMailType),                       // You can specify you own types / validators
     country : Attr(Type.string, Attr.default("germany"))  // You can set a default value of a attribute
   },
   
   projects : [{  // an array of nested objects (an array as an attribute)
     name           : Attr(Type.string), 
-    identificaiton : Attr(),                              // Anything is allowed: Strings, Numbers even JS-Objects
+    identification : Attr(),                              // Anything is allowed: Strings, Numbers even JS-Objects
     budget         : Attr(function (value) {              // Define inline your own validator
-      if (value < 0) throw new Error('Budget has to be positiv');
+      if (value < 0) throw new Error('Budget has to be positive');
       return value;
     })
   }}
@@ -281,7 +281,7 @@ var EmployeesModel = new model("Employees", {
 ```
 
 An implicit attribute ```_id``` will be added to every model as a primary key to identity a unique object.
-The ```EmployesModel``` will be saved as one document in your mongo-database. You can explicity define the nested objects if you want to reuses them in differend places, as you can see in the folowing example within ```AdressModel```:
+The ```EmployesModel``` will be saved as one document in your mongo-database. You can explicitly define the nested objects if you want to reuses them in different places, as you can see in the following example within ```AdressModel```:
 
 ```javascript
 // The Address Object from above, explicitly defined
@@ -310,7 +310,7 @@ The employee model from the previous chapter still includes everything in one Mo
 
 #### 1:1 Relationships
 
-The folowing example shows how to build a 1:1-Relation between the Address and Employees-Model. Actually the address-attribute now saves internaly a reference-ID to the AdressModel-Object. The key-thing here is the ```Ref()``` for buling a directed 1:1-Relationship.
+The following example shows how to build a 1:1-Relation between the Address and Employees-Model. Actually the address-attribute now saves internally a reference-ID to the AdressModel-Object. The key-thing here is the ```Ref()``` for building a directed 1:1-Relationship.
 
 ```javascript
 var Ref = model.Ref;
@@ -337,7 +337,7 @@ In this way there are two documents saved to mongoDB ```Andress``` and ```Employ
 
 #### 1:N-Relationships
 
-Now let's see how to define a 1:N-Relationship. I'll use the Employees and Projets example from above, defining a 1:N-relationship from projects to employees.
+Now let's see how to define a 1:N-Relationship. I'll use the Employees and Projects example from above, defining a 1:N-relationship from projects to employees.
 
 ```javascript
 var RefArray = model.RefArray;
@@ -363,7 +363,7 @@ Within the Projects-Model there is now the array  ```participants``` with refere
 
 
 ### Operation and Factories
-A very sexy feature of modelizer is the possiblity to define operations for a model. An operation is an function on the model-scope, whitch can be called from the browser of the client and is implemented and runs on your server. The operation returns everything you want to your client. You never need to implement a REST-Handler for this again :-)
+A very sexy feature of modelizer is the possibility to define operations for a model. An operation is a function on the model-scope, which can be called from the browser of the client and is implemented and runs on your server. The operation returns everything you want to your client. You never need to implement a REST-Handler for this again :-)
 
 An example usage for this can be stuff like:
 * login / register
@@ -399,11 +399,11 @@ Somewhere in your server you can implement the operations and factories in this 
 EmployeesModel.operationImpl("sendProjectPlanViaMail", function(params, req) {
   // @params: this are the parameter of the client call
   // @req:    access the HTTP-Request see [express API](http://expressjs.com/api.html#req.params) for more information
-  //          this is very usefull to access the "session" via req.session
+  //          this is very useful to access the "session" via req.session
 
   // [Implement logic here] ...
 
-  return result;  // send arbatray result back to the client
+  return result;  // send arbitrary result back to the client
 });
 
 
@@ -411,9 +411,19 @@ EmployeesModel.operationImpl("sendProjectPlanViaMail", function(params, req) {
 EmployeesModel.factoryImpl("getEmployeesOfProjects", function(params, req) {
   assert(params.hasOwnProperty('name'));  // assure that there is a parameter 'name'
   
-  return EmployeesModel.find({name:params.name});  // do complex query and return resuts to the client ;-)
+  return EmployeesModel.find({name:params.name});  // do complex query and return results to the client ;-)
 });
 ```
+
+## Using objects
+
+What are objects...
+
+create
+
+use foo..
+
+TODO
 
 # Development
 
