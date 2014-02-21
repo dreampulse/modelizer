@@ -653,8 +653,8 @@ Now we create an address object. A reference to this object is automatically sav
 // create a new address object
 > var addr = employee.address.create();
 
-> addr.street = "unfashionable end of the western spiral arm";
-> addr.contry = "the galaxy";  // ;-)
+> addr.street  = "unfashionable end of the western spiral arm";
+> addr.country = "the galaxy";  // ;-)
 
 > addr.save().done();  // save it
 ```
@@ -664,11 +664,10 @@ You can now access the address-object via the ```ref()```-function:
 > employee.address.ref()
 { street: 'unfashionable end of the western spiral arm',
   eMail: null,
-  country: 'germany',
+  country: 'the galaxy',
   save: [Function],
   remove: [Function],
-  _id: 5307405b8499298bf7000001,
-  contry: 'the galaxy' }
+  _id: 5307405b8499298bf7000001 }
 ```
 
 When you save the employee object, an ```_reference```-attribute will be stored. Take a look:
