@@ -107,7 +107,7 @@ To get hands on the model just open the javascript-debugging-console in your bro
 
 
 
-## Sample Usage
+## A Quick Tour
 
 Define the folowing model and save it to ```models.js```:
 
@@ -605,13 +605,90 @@ A nestes array is nothing special, you can treat it like any normal JavaScript-A
 obj.project[0].budget = "0 EUR";
 ```
 
-### Using references
+### Using references / (1:1)-Relation
 
-What are objects...
+I assume that you have defined the folowing model:
 
-create
+```javascript
+// The Model-definition of an Address
+var AddressModel = new model("Address", {
+  street  : Attr(Type.string),
+  eMail   : Attr(Type.string),                     
+  country : Attr(Type.string, Attr.default("germany"))
+});
 
-use foo..
+// The Model-definiton of an Employee 
+var EmployeesModel = new model("Employee", {
+  name : Attr(Type.string),
+  age  : Attr(Type.number),
+  
+  address : Ref(AddressModel),  // a reference to the AddressModel
+});
+
+```
+
+Create an objet from the model, so that we can take a look at the functions:
+```javascript
+// create a new employee object
+> var employee = EmployeesModel.create()
+{ name: null,
+  age: null,
+  address: 
+   { create: [Function],
+     setObject: [Function] },
+  save: [Function],
+  remove: [Function] }
+```
+
+References (without an object) provide two functions:
+* ```create()```: to create a new object of the referenced type
+* ```setObject(obj)```: if you already have a object you can use this method to assign the object to this reference
+
+If you have assined a object to the reference there are two additional functions avaiable:
+* ```load()```: to load (or reload) the object from the database 
+* ```ref()```: to obtain the referenced object
+
+Now we create an address object. A reference to this object is automatically saved to the employee-object:
+```javascript
+// create a new address object
+> var addr = employee.address.create();
+
+> addr.street = "unfashionable end of the western spiral arm";
+> addr.contry = "the galaxy";  // ;-)
+
+> addr.save().done();  // save it
+```
+
+You can now access the address-object via the ```ref()```-function:
+```javascript
+> employee.address.ref()
+{ street: 'unfashionable end of the western spiral arm',
+  eMail: null,
+  country: 'germany',
+  save: [Function],
+  remove: [Function],
+  _id: 5307405b8499298bf7000001,
+  contry: 'the galaxy' }
+```
+
+When you save the employee object, an ```_reference```-attribute will be stored. Take a look:
+```javascript
+> employee.save().done()
+> employee
+{ name: null,
+  age: null,
+  address: 
+   { create: [Function],
+     load: [Function],
+     setObject: [Function],
+     ref: [Function],
+     _reference: 5307405b8499298bf7000001 },  // <-- reference-id to an address object
+  save: [Function],
+  remove: [Function],
+  _id: 530741268499298bf7000002 }
+```
+
+### Using array of references / (1:N)-Relation
 
 TODO
 
