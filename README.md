@@ -834,26 +834,96 @@ In every read- and write you can access a session store via ```req.session``` th
 With everything you have now in your hands it sould be very easy to implemet some login-/ register functionality. So let's do it and use this model as an example:
 
 ```javascript
-// The Model-definiton of an employee 
-var EmployeesModel = new model("Employee", {
-  name      : Attr(Type.string),
-  password  : Attr(Type.string),
+// The Model-definiton register and login 
+var EmployeeModel = new model("Employee", {
+  username : Attr(Type.string),
+  password : Attr(Type.string),
   
-  register  : Operation(),  // register a new user
-  login     : Operation()   // perform a login
+  stuff    : Attr(Type.string),
+  
+  register : Operation(),  // register a new user
+  login    : Operation()   // perform a login
+});
+```
+First let's implement a register operation. This operation creates a new employee object and saves it to the database.
+
+```javascript
+// register registers (creates) a new employee
+EmployeeModel.operationImpl("register", function(params, req) {
+  var employee = EmployeeModel.create({
+    username : params.username,
+    password : params.password
+  });
 });
 ```
 
+Second let's implement a login operation. This operations searches for the user and checks if the password is correct. The interesting part is storage of the username in ```req.session.username```.
 
+```javascript
+EmployeeModel.operationImpl("login", function(params, req) {
+  EmployeeModel.findOne( { username : params.username } )  // search for the user in the database
+    .then(function(obj) {
+      if (obj.password == params.password) {     // check if the password is correct
 
+	// store the username in the session
+        req.session.username = obj.username;
+      }
+    })
+});
+```
 
+From now on we can check the current user by reading from the ```req.session.username```-variable. So let's now setup the read- and write filters:
 
+```javascript
+// read filter
+EmployeeModel.readFilter(function (req) {
+  if (!req.session.username) return false;  // if no one has called login() befor, deny acceess
+  
+  return {username : req.session.username };  // only allow the user to read this documents
+});
 
-//use filtered
+// write filter
+EmployeeModel.writeFilter(function (req) {
+  if (!req.session.username) return false;  // if no one has called login() befor, deny acceess
+  
+  return {username : req.session.username };  // only allow the user to read this documents
+});
+
+```
+
+That's it! :-)
+
+From a client you can now login an access your own emplyee informations:
+```javascript
+// if you try to access the employee model without a login, a exception will be thrown
+EmployeeModel.all().done();
+
+Q()
+.then(function() {  // first register
+  return EmployeeModel.register({username:"Jonathan", password:"XXX"});
+})
+.then(function() {  // if sucessfull perform login
+  return EmployeeModel.login({username:"Jonathan", password:"XXX"});
+})
+.then(function() {  // get all employees objects
+  return EmployeeModel.all();  // now it will work
+})
+.then(function(employees) {
+  assert(employees.length == 1);  // i should only get one result (my object)
+  
+  employees.stuff = "...";
+  //...
+});
+```
+
+## Further examples
+
+For more examples take a look in the folder ```examples/```
+
 
 # Development
 
-TODO
+If you want to join our development team or if you have suggestions/feature requests write a mail :-)
 
 ## Testing
 =========
