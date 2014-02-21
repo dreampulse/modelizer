@@ -373,7 +373,7 @@ var EmployeesModel = new model("Employee", {
 
 ```
 
-In this way there are two documents saved to mongoDB ```Andress``` and ```Employee```, with employees having a reference to the address-model.
+In this way there are two documents saved to mongoDB ```Anddress``` and ```Employee```, with employees having a reference to the address-model.
 
 #### 1:N-Relationships
 
@@ -409,7 +409,7 @@ An example usage for this can be stuff like:
 * login / register
 * or business functions in general
 
-A factory is nearly the same as an operation, but as a result the callier gets one or more objects. In this way you can implement complex search querys or customised result objects.
+A factory is nearly the same as an operation, but as a result the caller gets one or more objects. In this way you can implement complex search queries or customized result objects.
 
 Example:
 
@@ -458,11 +458,11 @@ EmployeesModel.factoryImpl("getEmployeesOfProjects", function(params, req) {
 ## Using objects
 
 Now that you know how to create models you although need to know how to create or instantiate a object out of the model.
-You can do this with the ```create()```-function of your model-defintion.
+You can do this with the ```create()```-function of your model-definition.
 
-The object which will be created is a pretty odinary JavaScript-Object. The object will have the attributes you have specifyed at your model-definiton, preinitialized with ```null```. Further more the object has two extra functions: ```save()``` to persistly save the object as a document in your database. And a ```remove()```-function to remove the document from the database (you will still have a local object).
+The object that will be created is a pretty ordinary JavaScript-Object. The object will have the attributes you have specified at your model-definition, preinitialized with ```null```. Further more the object has two extra functions: ```save()``` to presently save the object as a document in your database. And a ```remove()```-function to remove the document from the database (you will still have a local object).
 
-Open an interative node-console and folow this example:
+Open an interactive node-console and follow this example:
 
 ```javascript
 > var model = require('modelizer');  // Import Modelizer
@@ -531,19 +531,19 @@ Now you get a nice exception, trying to save an invalid value. But what is this 
 
 ### Promises
 
-As already mentioned Modelizer is completly promised-based. The reason for this is quite simple: Every interation between the databse, the client and the server takes some time. And to avoid blocking-IO-calls you have to do someting. The default approch in the JavaScript-Word is to use callback-functions, but this sucks. There are a few approaches in the JS-World how to deal with this problem in a better way and one of this are [Promises](http://documentup.com/kriskowal/q/). 
+As already mentioned Modelizer is completely promised-based. The reason for this is quite simple: Every interaction between the database, the client and the server takes some time. And to avoid blocking-IO-calls you have to do something. The default approach in the JavaScript-Word is to use callback-functions, but this sucks. There are a few approaches in the JS-World how to deal with this problem in a better way and one of this are [Promises](http://documentup.com/kriskowal/q/). 
 This is a better way to save the object, because you can react according to the result:
 
 ```javascript
 > obj.save()
-... .then(function(obj) {  // the then function will be called if everythin was successfull
-...   console.log('save was performed successfull');
+... .then(function(obj) {  // the then function will be called if everything was successful
+...   console.log('save was performed successfully');
 ... })
 ... .fail(function(err) {  // the failed will be called if something went wrong
 ...   console.log('save failed', err);
 ... })
 
-// you'll see the folowing result
+// you'll see the following result
   save failed [Error: Can't save 'attr1' '42' is not a string value]
 
 ```
@@ -570,7 +570,7 @@ var EmployeeModel = new model("Employee", {
 });
 ```
 
-Then you can use nesed objects as you would expect:
+Then you can use nested objects as you would expect:
 
 ```javascript
 > obj = EmployeesModel.create();  // create Employee object
@@ -580,7 +580,7 @@ Then you can use nesed objects as you would expect:
 > obj.address.country = "germany";
 ```
 
-Modelizer has a special helper function to create new elements for a nesed object, if it is an array:
+Modelizer has a special helper function to create new elements for a nested object, if it is an array:
 ```javascript
 > obj = EmployeesModel.create();  // create Employee object
 
@@ -593,7 +593,7 @@ Modelizer has a special helper function to create new elements for a nesed objec
 
 The name of this helper method is dynamically created according to the name of the attribute. The name for the method to create a object for a nested array element is always: ```create[name of the attribute]()```, with the first letter of the attribute in upper-case.
 
-A nestes array is nothing special, you can treat it like any normal JavaScript-Array:
+A nested array is nothing specially you can treat it like any normal JavaScript-Array:
 ```javascript
 // push a new element
 > obj.project.push({
@@ -607,7 +607,7 @@ obj.project[0].budget = "0 EUR";
 
 ### Using references / (1:1)-Relation
 
-I assume that you have defined the folowing model:
+I assume that you have defined the following model:
 
 ```javascript
 // The Model-definition of an Address
@@ -644,7 +644,7 @@ References (without an object) provide two functions:
 * ```create()```: to create a new object of the referenced type
 * ```setObject(obj)```: if you already have a object you can use this method to assign the object to this reference
 
-If you have assined a object to the reference there are two additional functions avaiable:
+If you have assigned an object to the reference there are two additional functions avaiable:
 * ```load()```: to load (or reload) the object from the database 
 * ```ref()```: to obtain the referenced object
 
@@ -727,12 +727,12 @@ We have now an empty array of participants. Modelzier has automatically defined 
 > var employee = project.participants[0].ref()  // get the object
 ```
 
-## Find and recive objects
+## Find and receive objects
 
-At this point you know everything about how to create and save objets. In this chapter you'll learn how to find and recive objects from the database/server.
+At this point you know everything about how to create and save objects. In this chapter you'll learn how to find and receive objects from the database/server.
 
 ### Get all objects
-Every model provide a ```all()```-function. With this function you can recvice all objects. The promise will resolve with an array of result objects.
+Every model provide a ```all()```-function. With this function you can recveice all objects. The promise will resolve with an array of result objects.
 
 Example:
 ```javascript
@@ -752,12 +752,12 @@ Example:
 ...   console.log(employee);
 ... })
 ... .fail(function(err) {
-...   console.log("Didn't find that employee, beacuse:", err);
+...   console.log("Didn't find that employee, because:", err);
 ... });
 ```
 
 ### Find objects by an query
-If you want to perform a more complex search you can use ```find(query)```and ```findOne(query)```. The syntax of the search is the [mongoDB-query API](http://docs.mongodb.org/manual/tutorial/query-documents/). The result aren't just documents like in other ORMs (eg. Mongoose). You'll recive true Modelizer-objects :-)
+If you want to perform a more complex search you can use ```find(query)```and ```findOne(query)```. The syntax of the search is the [mongoDB-query API](http://docs.mongodb.org/manual/tutorial/query-documents/). The result aren't just documents like in other ORMs (e.g. Mongoose). You'll receive true Modelizer-objects :-)
 
 Example:
 ```javascript
@@ -775,7 +775,7 @@ Calling those is very obviously:
 > EmployeeModel.sendProjectPlanViaMail().done();
 ```
 
-If you want to pass parameters you have to encapuslate them in an object:
+If you want to pass parameters you have to encapsulate them in an object:
 
 ```javascript
 > EmployeeModel.getEmployeesOfProjects({name:"Project Modelizer"})
@@ -784,9 +784,9 @@ If you want to pass parameters you have to encapuslate them in an object:
 
 ## Security concept (read-/write filters)
 
-Now you are ready to use Modelzier in full splendor. But there is one more thing :-) You don't actually want that everyone can access all you objects from the whole internet. It may even depend on some states if you want to allow a client (a user) to access some parts of you models. How can you achive this? With modelizer this is very easy.
+Now you are ready to use Modelzier in full splendor. But there is one more thing :-) You don't actually want that everyone can access all you objects from the whole internet. It may even depend on some states if you want to allow a client (a user) to access some parts of you models. How can you achieve this? With modelizer this is very easy.
 
-You can define a filter for each model. A read and write request (this happens eg. when you call ```save()``` for an object) has to pass all filters. Every filter can remove objects depending on some state.
+You can define a filter for each model. A read and write request (this happens e.g. when you call ```save()``` for an object) has to pass all filters. Every filter can remove objects depending on some state.
 
 Let's take a look at a simple example:
 ```javascript
@@ -802,7 +802,7 @@ EmployeeModel.writeFilter(function(obj, req) {
 });
 ```
 
-By the way: the default settings is: everyone can read/write anything. And yes I know this in bad idea and I promise I will change this soon! :-)
+By the way, the default setting is: everyone can read/write anything. And yes I know this in bad idea and I promise I will change this soon! :-)
 
 Let's take a look at a slightly more complex example. With a boolean-result you can globally allow or deny the access to all objects of the model. If you want to allow the access to some objects (a subset of all objects) you can use a mongo-query to cut some objects out of the result.
 
@@ -813,7 +813,7 @@ EmployeeModel.readFilter(function (req) {
 });
 ```
 
-This is quite powerfull but this becomes really handy if you construct the result depending on some state. Let's assume that you have variable called 'session.currentUser' set somewhere else. Then your filter could look like this, and allow a user only to access his 'Employee'-object:
+This is quite powerful but this becomes really handy if you construct the result depending on some state. Let's assume that you have variable called 'session.currentUser' set somewhere else. Then your filter could look like this, and allow a user only to access his 'Employee'-object:
 ```javascript
 
 var session;
@@ -826,15 +826,15 @@ EmployeeModel.readFilter(function (req) {
 
 ### Session handling
 
-In every read- and write you can access a session store via ```req.session``` this feature is actually a feature from [express](http://expressjs.com/api.html#cookieSession). You can simply store anything below ```req.session``` and the framework will care for the everythin else. 
+In every read- and write you can access a session store via ```req.session``` this feature is actually a feature from [express](http://expressjs.com/api.html#cookieSession). You can simply store anything below ```req.session``` and the framework will care for everything else. 
 
 
 ### Example register and login implementation
 
-With everything you have now in your hands it sould be very easy to implemet some login-/ register functionality. So let's do it and use this model as an example:
+With everything you have now in your hands it should be very easy to implement some login-/ register functionality. So let's do it and use this model as an example:
 
 ```javascript
-// The Model-definiton register and login 
+// The Model-definition on register and login 
 var EmployeeModel = new model("Employee", {
   username : Attr(Type.string),
   password : Attr(Type.string),
@@ -877,15 +877,14 @@ From now on we can check the current user by reading from the ```req.session.use
 ```javascript
 // read filter
 EmployeeModel.readFilter(function (req) {
-  if (!req.session.username) return false;  // if no one has called login() befor, deny acceess
+  if (!req.session.username) return false;  // if no one has called login() before, deny acceess
   
   return {username : req.session.username };  // only allow the user to read this documents
 });
 
 // write filter
 EmployeeModel.writeFilter(function (req) {
-  if (!req.session.username) return false;  // if no one has called login() befor, deny acceess
-  
+  if (!req.session.username) return false;    // if no one has called login() before, deny acceess
   return {username : req.session.username };  // only allow the user to read this documents
 });
 
@@ -893,7 +892,7 @@ EmployeeModel.writeFilter(function (req) {
 
 That's it! :-)
 
-From a client you can now login an access your own emplyee informations:
+From a client you can now login an access your own employee information:
 ```javascript
 // if you try to access the employee model without a login, a exception will be thrown
 EmployeeModel.all().done();
