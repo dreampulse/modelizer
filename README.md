@@ -303,6 +303,46 @@ var EmployeesModel = new model("Employee", {
 
 ```
 
+#### Validators
+
+The type-definitions from the examples above are actually predefined validators shipped within modelizer. In one attribute-definition you can have an arbitrary number of validators. For example you can define an enumeration of the type 'number' and altougth provide a default value. Take a look at this example:
+
+```javascript
+var MyModel = new model("MyModel", {
+  dice : Attr(Type.number, Attr.enum(1,2,3,4,5,6), Attr.default(6))
+});
+```
+
+If you want to save ```MyModel``` the value of ```dice``` has to pass all three provided filters. First it will be checked if it is a number. Second ```dice``` has to have one of the values in the enumeration. And the last filter sets the value to the number 6 if nothing is set.
+
+You can write your own filters and type definitions pretty easily. You just have to provide a function that gets the value of the attribute and return the value again. If the value isn't the way you want throw an exception.
+
+This is an example filter which assure that the attribute is not null:
+
+```javascript
+// a not null validator
+var notNull = function(value) {
+  if (value == undefined || value == null)
+    throw new Error("it has to be not null!");
+  return value;
+}
+
+// the usage of the validator is pretty easy
+var MyModel = new model("MyModel", {
+  myName : Attr(Type.string, notNull)  // use the not null filter
+});
+
+```
+
+You can although use a filter to change the value before its stored in the database. The following example changes the sting to uppercase. This is the reason you always have to retun the value in a filter.
+```javascript
+var uppercase = function(value) {
+  assert(typeof value == 'string');
+  
+  return value.toUpperCase();  // return the string upper cased
+}
+```
+
 ### References
 
 The employee model from the previous chapter still includes everything in one Mongo-Document. There are many good reasons to build relationships between model-entities.  
