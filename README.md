@@ -451,11 +451,67 @@ EmployeesModel.operationImpl("sendProjectPlanViaMail", function(params, req) {
 EmployeesModel.factoryImpl("getEmployeesOfProjects", function(params, req) {
   assert(params.hasOwnProperty('name'));  // assure that there is a parameter 'name'
   
-  return EmployeesModel.find({name:params.name});  // do complex query and return results to the client ;-)
+  return EmployeesModel.find({name:params.name});  // do complex query ;-)
 });
 ```
 
 ## Using objects
+
+Now that you know how to create models you although need to know how to create or instantiate a object out of the model.
+You can do this with the ```create()```-function of your model-defintion.
+
+The object which will be created is a pretty odinary JavaScript-Object. The object will have the attributes you have specifyed at your model-definiton, preinitialized with ```null```. Further more the object has two extra functions: ```save()``` to persistly save the object as a document in your database. And a ```remove()```-function to remove the document from the database (you will still have a local object).
+
+Open an interative node-console and folow this example:
+
+```javascript
+> var model = require('modelizer');  // Import Modelizer
+> var Attr = model.Attr;             // Import some shortcuts
+> var Type = model.Attr.Types;
+
+// initialze the database connection
+> var mongojs = require('mongojs');
+> var db = mongojs('mongodb://127.0.0.1/test');
+> var connector = model.MongoConnector(db);
+
+
+// This is our model
+> var myModel = new model('MyModel', {
+...   attr1 : Attr(Type.string),
+...   attr2 : Attr(Type.string)
+... });
+
+// tell our model to use the database connection from above
+> myModel.connection(connector);
+
+
+// now create a object out of your model
+> obj = myModel.create();   // <----- this is the way how to create a object
+  { attr1: null,
+    attr2: null,
+    save: [Function],
+    remove: [Function] }
+
+// you can set values to you attributes
+> obj.attr1 = 'A value for attr1';
+> obj.attr2 = 'and more for attr2';
+
+// now store the object to the database
+> obj.save()
+
+// type now 'obj'
+// you have now one more attribute '_id'
+> obj
+{ attr1: 'A value for attr1',
+  attr2: 'and more for attr2',
+  save: [Function],
+  remove: [Function],
+  _id: 5307268e11e70038f7000001 }
+
+```
+
+
+
 
 What are objects...
 
