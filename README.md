@@ -395,7 +395,7 @@ var ProjectsModel = new model('Project', {
   
   // Using "RefArray" for an 1:N-Relationship with Many-References to the employee model 
   participants : RefArray(EmployeesModel) 
-}};
+});
 
 ```
 
@@ -689,7 +689,86 @@ When you save the employee object, an ```_reference```-attribute will be stored.
 
 ### Using array of references / (1:N)-Relation
 
-TODO
+I assume that you have defined the flowing models:
+
+```javascript
+var EmployeesModel = new model("Employee", {
+  name : Attr(Type.string),
+  age  : Attr(Type.number),
+});
+
+var ProjectsModel = new model('Project', {
+  name    : Attr(Type.string), 
+  budget  : Attr(Type.number),
+  
+  participants : RefArray(EmployeesModel)  // <-- a array of references to employee objects 
+});
+```
+
+Now we will create a project object:
+
+```javascript
+> var project = ProjectsModel.create();  // create a new project
+> project
+{ name: null,
+  budget: null,
+  participants: [],
+  createParticipants: [Function],
+  save: [Function],
+  remove: [Function] }
+
+```
+
+We have now an empty array of participants. Modelzier has automatically defined a function to create a new reference (```create[name of the reference]()```). The elements of the 'participants'-array will have the same functions like a 1:1-Reference from above. Take a look at this example:
+
+```javascript
+> var employee = project.createParticipants();  // create new object and reference
+
+> var employee = project.participants[0].ref()  // get the object
+```
+
+## Find and recive objects
+
+At this point you know everything about how to create and save objets. In this chapter you'll learn how to find and recive objects from the database/server.
+
+### Get all objects
+Every model provide a ```all()```-function. With this function you can recvice all objects. The promise will resolve with an array of result objects.
+
+Example:
+```javascript
+> EmployeesModel.all()  // get all objects
+... .then(function(employees) {  // employees will be an array of all Emplyee-objects
+...   console.log(employees);
+... });
+```
+
+### Get an object by id
+To get a certain object us the ```get(id)``` or ```findById(id)``` function. The promise will resolve with the result object or reject (call ```fail()```) if there is not such an object. 
+
+Example:
+```javascript
+> EmployeesModel.get("530741268499298bf7000002")  // get the object with that id
+... .then(function(employee) {  // employees is the Emplyee-objects
+...   console.log(employee);
+... })
+... .fail(function(err) {
+...   console.log("Didn't find that employee, beacuse:", err);
+... });
+```
+
+### Find objects by an query
+If you want to perform a more complex search you can use ```find(query)```and ```findOne(query)```. The syntax of the search is the [mongoDB-query API](http://docs.mongodb.org/manual/tutorial/query-documents/). The result aren't just documents like in other ORMs (eg. Mongoose). You'll recive true Modelizer-objects :-)
+
+Example:
+```javascript
+> EmployeesModel.find({name:"Tim Jobs"})  // the query
+... .then(function(employees) {
+...   console.log(employees)
+... });
+```
+
+### Call an operation or a factory
+
 
 # Development
 
