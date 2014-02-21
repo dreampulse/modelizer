@@ -255,7 +255,7 @@ var [A Reference To My Model] = new model("[The Name Of My Model]", {
 });
 
 // Example with all available types
-var EmployeesModel = new model("Employees", {
+var EmployeeModel = new model("Employee", {
   name             : Attr(Type.string),                   // A String like "Tim Jobs"
   age              : Attr(Type.number),                   // A number like 12 or 12.53
   payroll          : Attr(Type.boolean),                  // True or false
@@ -276,7 +276,7 @@ var EmployeesModel = new model("Employees", {
       if (value < 0) throw new Error('Budget has to be positive');
       return value;
     })
-  }}
+  }]
 });
 ```
 
@@ -292,7 +292,7 @@ var AddressModel = new model("Address", {
 });
 
 // The same employees model like above 
-var EmployeesModel = new model("Employee", {
+var EmployeeModel = new model("Employee", {
   name : Attr(Type.string),
   age  : Attr(Type.number),
   // ..
@@ -510,8 +510,102 @@ Open an interative node-console and folow this example:
 
 ```
 
+### Validators in action
 
+Now let's see what happens if we try to save a not-string-value to ```myModel```:
 
+```javascript
+> obj.attr1 = 42;  // ups, not a string ;)
+
+> obj.save().done();  // save it again and then.... ups ;-)
+/Users/jonathan/Projects/modelizer/node_modules/q/q.js:126
+                    throw e;
+                          ^
+Error: Can't save 'attr1' '42' is not a string value
+    at Object.Model.Attr.Types.string [as 0] (/Users/jonathan/Projects/modelizer/lib/modelizer.js:1247:13)
+    ...
+
+```
+
+Now you get a nice exception, trying to save an invalid value. But what is this ```.done()``` thing? Take a look at the next chapter.
+
+### Promises
+
+As already mentioned Modelizer is completly promised-based. The reason for this is quite simple: Every interation between the databse, the client and the server takes some time. And to avoid blocking-IO-calls you have to do someting. The default approch in the JavaScript-Word is to use callback-functions, but this sucks. There are a few approaches in the JS-World how to deal with this problem in a better way and one of this are [Promises](http://documentup.com/kriskowal/q/). 
+This is a better way to save the object, because you can react according to the result:
+
+```javascript
+> obj.save()
+... .then(function(obj) {  // the then function will be called if everythin was successfull
+...   console.log('save was performed successfull');
+... })
+... .fail(function(err) {  // the failed will be called if something went wrong
+...   console.log('save failed', err);
+... })
+
+// you'll see the folowing result
+  save failed [Error: Can't save 'attr1' '42' is not a string value]
+
+```
+
+### Using nested- and array of nested objects
+
+Assuming that you have defined the EmployeesModel from above:
+
+```javascript
+var EmployeeModel = new model("Employee", {
+  name : Attr(Type.string),
+  // ...
+  address : {  // a nested object. (a object as an attribute)
+    street  : Attr(Type.string),
+    eMail   : Attr(Type.string),                       
+    country : Attr(Type.string)
+  },
+  
+  projects : [{  // an array of nested objects (an array as an attribute)
+    name           : Attr(Type.string), 
+    identification : Attr(Type.string),
+    budget         : Attr(Type.string)
+  }]
+});
+```
+
+Then you can use nesed objects as you would expect:
+
+```javascript
+> obj = EmployeesModel.create();  // create Employee object
+
+// set values of nesed objects
+> obj.address.street = "My street";
+> obj.address.country = "germany";
+```
+
+Modelizer has a special helper function to create new elements for a nesed object, if it is an array:
+```javascript
+> obj = EmployeesModel.create();  // create Employee object
+
+> var project = obj.createProjects();  // create a new project
+
+// access the attributes of the nested object
+> project.name = "write documentation for modelizer";
+> project.budget = "zero";
+```
+
+The name of this helper method is dynamically created according to the name of the attribute. The name for the method to create a object for a nested array element is always: ```create[name of the attribute]()```, with the first letter of the attribute in upper-case.
+
+A nestes array is nothing special, you can treat it like any normal JavaScript-Array:
+```javascript
+// push a new element
+> obj.project.push({
+...   name   : 'big project',
+...   budget : '10000 EUR'
+... });
+
+// change a value
+obj.project[0].budget = "0 EUR";
+```
+
+### Using references
 
 What are objects...
 
