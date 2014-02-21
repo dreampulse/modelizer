@@ -769,6 +769,87 @@ Example:
 
 ### Call an operation or a factory
 
+Calling those is very obviously:
+
+```javascript
+> EmployeeModel.sendProjectPlanViaMail().done();
+```
+
+If you want to pass parameters you have to encapuslate them in an object:
+
+```javascript
+> EmployeeModel.getEmployeesOfProjects({name:"Project Modelizer"})
+... .then(function(employees) { ... });
+```
+
+## Security concept (read-/write filters)
+
+Now you are ready to use Modelzier in full splendor. But there is one more thing :-) You don't actually want that everyone can access all you objects from the whole internet. It may even depend on some states if you want to allow a client (a user) to access some parts of you models. How can you achive this? With modelizer this is very easy.
+
+You can define a filter for each model. A read and write request (this happens eg. when you call ```save()``` for an object) has to pass all filters. Every filter can remove objects depending on some state.
+
+Let's take a look at a simple example:
+```javascript
+// add a filter to the Employee model
+// every read request has to pass the filter
+EmployeeModel.readFilter(function (req) {
+  return true;  // this means: filter has passed -> everyone can read anything
+});
+
+// add a write filter to the Employee model
+EmployeeModel.writeFilter(function(obj, req) {
+   return false;  // this means: passing filter faild -> no one can write anything
+});
+```
+
+By the way: the default settings is: everyone can read/write anything. And yes I know this in bad idea and I promise I will change this soon! :-)
+
+Let's take a look at a slightly more complex example. With a boolean-result you can globally allow or deny the access to all objects of the model. If you want to allow the access to some objects (a subset of all objects) you can use a mongo-query to cut some objects out of the result.
+
+```javascript
+EmployeeModel.readFilter(function (req) {
+  // this means: everyone can read only employees with budget below 10000
+  return {"projects.budget" : { "$lt": 10000 } };
+});
+```
+
+This is quite powerfull but this becomes really handy if you construct the result depending on some state. Let's assume that you have variable called 'session.currentUser' set somewhere else. Then your filter could look like this, and allow a user only to access his 'Employee'-object:
+```javascript
+
+var session;
+//..
+
+EmployeeModel.readFilter(function (req) {
+  return {"name" : session.currentUser };  // select a subset of objects (eg. the objects with {name: "John", ..})
+});
+```
+
+### Session handling
+
+In every read- and write you can access a session store via ```req.session``` this feature is actually a feature from [express](http://expressjs.com/api.html#cookieSession). You can simply store anything below ```req.session``` and the framework will care for the everythin else. 
+
+
+### Example register and login implementation
+
+With everything you have now in your hands it sould be very easy to implemet some login-/ register functionality. So let's do it and use this model as an example:
+
+```javascript
+// The Model-definiton of an employee 
+var EmployeesModel = new model("Employee", {
+  name      : Attr(Type.string),
+  password  : Attr(Type.string),
+  
+  register  : Operation(),  // register a new user
+  login     : Operation()   // perform a login
+});
+```
+
+
+
+
+
+
+//use filtered
 
 # Development
 
