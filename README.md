@@ -45,6 +45,10 @@ var UserModel = new model("User", {
 
 ### Server
 
+The server exposes the model.js to the client for simple JavaScript file inclusion:
+```
+<script type="text/javascript" src="models.js"></script>
+```
 - The ```server.js``` file:
 
 ```javascript
@@ -59,6 +63,8 @@ model.runSampleServer(__dirname, 8080, 'mongodb://127.0.0.1/example');
 // importing our model definitions
 var myModels = require('./models.js');
 ```
+
+
 
 ### View
 
