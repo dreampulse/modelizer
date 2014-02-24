@@ -796,7 +796,7 @@ If you want to pass parameters you have to encapsulate them in an object:
 
 ## Security concept (read-/write filters)
 
-Now you are ready to use Modelzier in full splendor. But there is one more thing :-) You don't actually want that everyone can access all you objects from the whole internet. It may even depend on some states if you want to allow a client (a user) to access some parts of you models. How can you achieve this? With modelizer this is very easy.
+Now you are ready to use Modelzier in full splendor. But there is one more thing :-) You don't actually want that everyone can access all your objects from the whole internet. It may even depend on some states if you want to allow a client (a user) to access some parts of you models. How can you achieve this? With modelizer this is very easy.
 
 You can define a filter for each model. A read and write request (this happens e.g. when you call ```save()``` for an object) has to pass all filters. Every filter can remove objects depending on some state.
 
