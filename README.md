@@ -292,7 +292,7 @@ var EmployeeModel = new model("Employee", {
 ```
 
 An implicit attribute ```_id``` will be added to every model as a primary key to identity a unique object.
-The ```EmployesModel``` will be saved as one document in your mongo-database. You can explicitly define the nested objects if you want to reuses them in different places, as you can see in the following example within ```AdressModel```:
+The ```EmployesModel``` will be saved as one document in your mongo-database. You can explicitly define the nested objects if you want to reuse them in different places, as you can see in the following example within ```AdressModel```:
 
 ```javascript
 // The Address Object from above, explicitly defined
