@@ -345,7 +345,7 @@ var MyModel = new model("MyModel", {
 
 ```
 
-You can although use a filter to change the value before its stored in the database. The following example changes the sting to uppercase. This is the reason you always have to retun the value in a filter.
+You can although use a filter to change the value before its stored in the database. The following example changes the string to uppercase. This is the reason you always have to retun the value in a filter.
 ```javascript
 var uppercase = function(value) {
   assert(typeof value == 'string');
