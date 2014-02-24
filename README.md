@@ -418,7 +418,7 @@ A very sexy feature of modelizer is the possibility to define operations for a m
 
 An example usage for this can be stuff like:
 * login / register
-* or business functions in general
+* or business logic functions in general
 
 A factory is nearly the same as an operation, but as a result the caller gets one or more objects. In this way you can implement complex search queries or customized result objects.
 
