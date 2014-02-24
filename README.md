@@ -45,7 +45,7 @@ var UserModel = new model("User", {
 
 ### Server
 
-The server exposes the model.js to the client for simple JavaScript file inclusion:
+The server exposes the model.js to the client via simple JavaScript file inclusion:
 ```
 <script type="text/javascript" src="models.js"></script>
 ```
