@@ -2,11 +2,11 @@
 
 **The epic ORM-Mapper you want to use for every serious Web-Application. You can access the API directly from your Browser-Code.**
 
-You can access the Model-API directly from your JavaScript-Client and from the Node.js-Server in the same way. Modelizer has a very strong filter based security API, so that you can decide which objects can be accessed in which way from the client. Alongside Modelizer generates a beautiful REST-API.
+You can access the Model-API directly from your JavaScript-Client and from the Node.js-Server in the same way. Modelizer has a very strong filter-based security-API, so you can decide which objects can be accessed in which way from the client. Alongside Modelizer generates a beautiful REST-API.
 
-Modelizer was designed as a very thin layer which can fit seamlessly in your  software architecture. All examples show how perfect MongoDB, express and AngularJS fits together. 
+Modelizer was designed as a very thin layer which fits seamlessly in your software architecture. It only depends on MongoDB, you can chosse the the middleware and frontend technoloy you like best. For the examples we use MongoDB, express, and AngularJS (MEAN-Stack).
 
-Currently Modelizer is in Alpha-Stage, so the API could change at any time. If you're interested to support us or need support using Modelizer doesn’t  hesitate to write an E-Mail.
+Currently, Modelizer is in Alpha-Stage, so the API could change at any time. If you're interested to support us or need support using Modelizer don't hesitate to write an E-Mail (modelizer@dreampulse.de).
 
 ## Installation
 
@@ -20,8 +20,8 @@ get modelizer with npm:
 Create at least three files for model, view and the controller (server)
 
 ### Model
-Putting the model to the heart of your application is one of the main concepts for modelizer.
-The Model is the central interface between the view and the controller
+Putting the model at the heart of your application is one of the main concepts for modelizer.
+With Modelizer the data-model becomes the central interface between the view and the controller.
 
 - The ```models.js``` file for a very simple example model definition
 
@@ -47,7 +47,7 @@ var UserModel = new model("User", {
 var model = require('modelizer');
 
 // Setup a express server at port 8080,
-// Serving all files at __dirname
+// Serving all files at __dirname (current working directory)
 // and connect to the example database at localhost
 model.runSampleServer(__dirname, 8080, 'mongodb://127.0.0.1/example');
 
@@ -170,10 +170,10 @@ models.ProjectModel.connection(connector);
 Now you are ready to have some fun with modelizer :-)
 
 ```javascript
-// create your fist Object
+// create your first Object
 > userBob = models.UserModel.create();
 
-// now the shell should promt the following result:
+// now the shell should print out the following result:
 { email: undefined,
   enabled: undefined,
   profile: 
@@ -415,6 +415,7 @@ Example:
 
 ```javascript
 var Operation = model.Operation;
+var Factory = model.Factory;
 
 // The Model-definiton of an employee 
 var EmployeesModel = new model("Employee", {
@@ -423,7 +424,7 @@ var EmployeesModel = new model("Employee", {
   eMail : Attr(myOwnEMailType),
 
   // define an operation
-  sendProjectPlanViaMail : Operation(),  // define a business function
+  assotiateWithDifferentDepartment : Operation(),  // define a business function
   
   // define factories
   getCurrentLoggedinEmployee : Factory(),
@@ -434,9 +435,9 @@ var EmployeesModel = new model("Employee", {
 Somewhere in your server you can implement the operations and factories in this way:
 
 ```javascript
-// This is the implementation of the 'sendProjectPlanViaMail'-Operation
+// This is the implementation of the 'assotiateWithDifferentDepartment'-Operation
 // You can implement your business logic here
-EmployeesModel.operationImpl("sendProjectPlanViaMail", function(params, req) {
+EmployeesModel.operationImpl("assotiateWithDifferentDepartment", function(params, req) {
   // @params: this are the parameter of the client call
   // @req:    access the HTTP-Request see [express API](http://expressjs.com/api.html#req.params) for more information
   //          this is very useful to access the "session" via req.session
@@ -457,7 +458,7 @@ EmployeesModel.factoryImpl("getEmployeesOfProjects", function(params, req) {
 
 ## Using objects
 
-Now that you know how to create models you although need to know how to create or instantiate a object out of the model.
+Now that you know how to create models you although need to know how to create or instantiate an object from this model.
 You can do this with the ```create()```-function of your model-definition.
 
 The object that will be created is a pretty ordinary JavaScript-Object. The object will have the attributes you have specified at your model-definition, preinitialized with ```null```. Further more the object has two extra functions: ```save()``` to presently save the object as a document in your database. And a ```remove()```-function to remove the document from the database (you will still have a local object).
@@ -527,7 +528,7 @@ Error: Can't save 'attr1' '42' is not a string value
 
 ```
 
-Now you get a nice exception, trying to save an invalid value. But what is this ```.done()``` thing? Take a look at the next chapter.
+Now you get a nice exception when trying to save an invalid value. But what is this ```.done()``` thing? Take a look at the next chapter.
 
 ### Promises
 
