@@ -1,6 +1,12 @@
 'use strict';
 
-console.log(__dirname);
+console.log('running at', __dirname);
+
+// process uncaught Exceptions
+process.on('uncaughtException', function(err) {
+  console.log('Caught exception', err);
+});
+
 
 var model = require('../../../lib/modelizer.js');
 

@@ -569,7 +569,9 @@ describe('ModelIdea', function() {
     it("should handle date types", function(done) {
       var obj = MyModel8.create();
       obj.date = "foo";
-      obj.save().fail(function (err){
+      obj.save().then(function (){
+        done("Wrong date type accepted");
+      }).fail(function (err){
         assert(err.message == "Can't save 'date' 'foo' is not a date");
         done();
       }).done();
