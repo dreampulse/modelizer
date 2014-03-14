@@ -2,9 +2,12 @@
 
 **The epic ORM-Mapper you want to use for every serious Web-Application. You can access the API directly from your Browser-Code.**
 
-* Write your model code only once and access the SAME model on the client and the server (nodejs)
-* Auto-generated REST-API
-* Security via simple filters
+## Highlights
+
+* Write your data-model code only once and access the SAME model on the client and the server
+* Node.js technology
+* Auto-generated REST-API and ajax-calls
+* Filter-based Security
 * Promise based API (Promises/A+)
 
 You can access the Model-API directly from your JavaScript-Client and from the Node.js-Server in the same way. Modelizer has a very strong filter-based security-API, so you can decide which objects can be accessed in which way from the client. Alongside Modelizer generates a beautiful REST-API.
