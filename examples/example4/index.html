@@ -38,7 +38,7 @@
     app.controller('AppController', function ($scope) {
 
       // Create or get an existing Object from the Server
-      ArticleModel.use.all()
+      ArticleModel.all()
         .then(function(objs) {
           if (objs.length > 0) {
             // use the existing Object
@@ -46,14 +46,14 @@
             $scope.$apply();
           } else {
             // create a new one
-            $scope.article = ArticleModel.createObject();
+            $scope.article = ArticleModel.create();
             $scope.$apply();
           }
         }).done()
 
       // add a new comment to the article
       $scope.addComment = function() {
-        var comment = $scope.article.createCommentsElement();
+        var comment = $scope.article.createComments();
         comment.text = $scope.newComment;
       };
 
