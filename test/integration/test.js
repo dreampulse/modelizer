@@ -19,7 +19,7 @@ describe('Integration Tests', function() {
           done();
         })
         .fail(function(err) {
-          done('Promise Failed');
+          done('Promise Failed', err);
         }).done();
     });
 

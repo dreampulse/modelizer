@@ -412,7 +412,7 @@ describe('ModelIdea', function() {
             return obj3.save();
           })
           .then(function() {
-            return MyModel5.useFiltered.all();
+            return MyModel5.filtered_all();
           })
           .then(function(objs) {
             assert(objs.length == 3, 'the three objects should have been saved');
@@ -425,7 +425,7 @@ describe('ModelIdea', function() {
     });
 
     it('use filtered get for obj1', function(done) {
-      MyModel5.useFiltered.get(""+obj1._id)
+      MyModel5.filtered_get(""+obj1._id)
         .then(function(obj) {
           assert(obj.attr1 === "A" && obj.attr2 === "C");
           done();
@@ -438,7 +438,7 @@ describe('ModelIdea', function() {
         return {attr1 : "A"};
       });
 
-      MyModel5.useFiltered.all()
+      MyModel5.filtered_all()
         .then(function(objs) {
           assert(objs.length == 2);
           assert(objs[0].attr1 === "A" && objs[1].attr1 === "A");
@@ -453,7 +453,7 @@ describe('ModelIdea', function() {
         return {attr2 : "B"};
       });
 
-      MyModel5.useFiltered.all()
+      MyModel5.filtered_all()
         .then(function(objs) {
           assert(objs.length == 1);
           assert(objs[0].attr1 === "A" && objs[0].attr2 === "B");
@@ -464,7 +464,7 @@ describe('ModelIdea', function() {
     });
 
     it('use filtered get for obj2', function(done) {
-      MyModel5.useFiltered.get(""+obj2._id)
+      MyModel5.filtered_get(""+obj2._id)
         .then(function(obj) {
           assert(obj.attr1 === "A" && obj.attr2 === "B");
           done();
@@ -473,7 +473,7 @@ describe('ModelIdea', function() {
     });
 
     it("obj1 shouldn't be found", function(done) {
-      MyModel5.useFiltered.get(""+obj1._id)
+      MyModel5.filtered_get(""+obj1._id)
         .then(function(obj) {
           done("Filter isn't working");
         })
