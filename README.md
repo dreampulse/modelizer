@@ -797,6 +797,13 @@ If you want to pass parameters you have to encapsulate them in an object:
 ... .then(function(employees) { ... });
 ```
 
+## Functions for collections
+
+When you have a reference to a set of Modelizer-Objects (you get them via ```all()``` or ```find(query)```) you have two additional functions avaiable:
+* ```create()``` : create a new instance and add the object to the collection
+* ```save()``` : save all object at once
+
+
 ## Security concept (read-/write filters)
 
 Now you are ready to use Modelzier in full splendor. But there is one more thing :-) You don't actually want that everyone can access all your objects from the whole internet. It may even depend on some states if you want to allow a client (a user) to access some parts of you models. How can you achieve this? With modelizer this is very easy.
