@@ -21,6 +21,14 @@
       padding-top: 70px;
       padding-bottom: 30px;
     }
+
+    .row {
+      margin: 1em;
+    }
+    
+    textarea:focus, input:focus{
+      outline: 0;
+    }
   </style>
 
   <!-- The Modelizer Library -->
@@ -33,27 +41,23 @@
   <script type="text/javascript">
     // client code
     var connector = Model.AngularConnector("http://localhost:8080/");
-    ArticleModel.connection(connector);
+    EntryModel.connection(connector);
 
     var app = angular.module('App', []);
     app.controller('AppController', function ($scope) {
-      ArticleModel.angular($scope);
+      EntryModel.angular($scope);
+    
+      $scope.entries = EntryModel.$all();
 
-      $scope.newComment = "";
-
-      //$scope.articles = ArticleModel.$all();
-      //$scope.article = ArticleModel.$get("52ea615df32d411644000001");
-      ArticleModel.$get($scope, "article", "52ea615df32d411644000001");
 
       // add a new comment to the article
-      $scope.addComment = function() {
-        var comment = $scope.article.createComments();
-        comment.text = $scope.newComment;
+      $scope.add = function() {
+        $scope.entries.create();
       };
 
       // save model to the server
       $scope.save = function() {
-        $scope.article.save();
+        $scope.entries.save();
       }
     });
 
@@ -75,37 +79,25 @@
 
     <div class="container theme-showcase">
 
-
-      <div class="jumbotron">
-
-        <div class="row">
+      <div class="row">
+        <div class=".col-md-6 .col-md-offset-3">
+          <button class="btn btn-default" type="button" ng-click="add()">Add +</button>
           <button class="btn btn-default" type="button" ng-click="save()">Save</button>
         </div>
+      </div>
 
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="input-group">
-              <input type="text" class="form-control" ng-model="newComment">
-              <span class="input-group-btn">
-                <button class="btn btn-default" type="button" ng-click="addComment()">Go!</button>
-              </span>
-            </div>
-         </div>
-        </div>
 
-        <div class="row" ng-repeat="comment in article.comments">
-          <div class="col-lg-6">
-            <div class="input-group">
-              <input type="text" class="form-control" ng-model="comment.text">
-            </div>
+      <div class="row" ng-repeat="entry in entries">
+        <div class=".col-md-6 .col-md-offset-3">
+          <div class="input-group">
+            <input type="text" class="form-control" ng-model="entry.text">
           </div>
         </div>
-
-
       </div>
 
 
     </div>
+
   </div>
 </body>
 </html>
