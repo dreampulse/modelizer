@@ -1,7 +1,7 @@
 var assert = require("assert");
 var Q = require('q');
 
-describe('ModelIdea', function() {
+describe('Modelizer', function() {
   var model = require('../lib/modelizer');
   var Attr = model.Attr;
   var Ref = model.Ref;
@@ -726,6 +726,13 @@ describe('ModelIdea', function() {
         })
         .done();
 
+    });
+
+    it("attribute validation should work", function(done) {
+      var obj = MyModel10.create();
+      obj.attr1 = 42;
+      if (obj.validate("attr1") != "'42' is not a string value") done("Error in validation");
+      done();
     });
 
   });
