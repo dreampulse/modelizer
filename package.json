@@ -1,6 +1,6 @@
 {
   "name": "modelizer",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "An ORM-Mapper with a shared model between client and server for MongoDB",
   "main": "lib/modelizer.js",
   "directories": {
@@ -43,5 +43,5 @@
   "bugs": {
     "url": "https://github.com/dreampulse/modelizer/issues"
   },
-  "homepage": "https://github.com/dreampulse/modelizer"
+  "homepage": "http://modelizer.org"
 }
