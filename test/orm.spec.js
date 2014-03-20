@@ -743,7 +743,10 @@ describe('Modelizer', function() {
       nested: {
         stuff : Attr(Types.string),
         unnamed : Attr(Attr.default("unnamed"))
-      }
+      },
+      array : [{
+          foobar : Attr(Types.string)
+       }]
     });
 
     MyModel11.connection(connector);
@@ -776,6 +779,24 @@ describe('Modelizer', function() {
         })
         .fail(function(err) {
           if (err.message != "Attribute 'attr1' not provided in your object (model 'MyModel11')") {
+            done("Wrong error message");
+          } else {
+            done();
+          }
+        });
+    });
+
+    it("should detect missing arrays", function(done) {
+      var obj =  MyModel11.create();
+      obj.nested = { stuff : "foo", unnamed: "bar" };
+      delete obj.array;
+
+      obj.save()
+        .then(function(res) {
+          done("shouldn't allow save");
+        })
+        .fail(function(err) {
+          if (err.message != "Array 'array' is not correctly provided in your object (model 'MyModel11')") {
             done("Wrong error message");
           } else {
             done();
