@@ -737,4 +737,52 @@ describe('Modelizer', function() {
 
   });
 
+  describe('Bad Modelizer Usage', function() {
+    var MyModel11 = new model("MyModel11", {
+      attr1 : Attr(Types.string),
+      nested: {
+        stuff : Attr(Types.string),
+        unnamed : Attr(Attr.default("unnamed"))
+      }
+    });
+
+    MyModel11.connection(connector);
+
+    it("should detect overwriting attribute with strange values", function(done) {
+      var obj =  MyModel11.create();
+      obj.nested = undefined;
+
+      obj.save()
+        .then(function(res) {
+          done("shouldn't allow save");
+        })
+        .fail(function(err) {
+          if (err.message != "Object attribute 'nested' not provided in your object (model 'MyModel11')") {
+            done("Wrong error message");
+          } else {
+            done();
+          }
+        });
+    });
+
+    it("should detect missing attributes", function(done) {
+      var obj =  MyModel11.create();
+      obj.nested = { stuff : "foo", unnamed: "bar" };
+      delete obj.attr1;
+
+      obj.save()
+        .then(function(res) {
+          done("shouldn't allow save");
+        })
+        .fail(function(err) {
+          if (err.message != "Attribute 'attr1' not provided in your object (model 'MyModel11')") {
+            done("Wrong error message");
+          } else {
+            done();
+          }
+        });
+    });
+
+  });
+
 });
