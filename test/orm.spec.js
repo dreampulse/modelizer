@@ -325,7 +325,10 @@ describe('Modelizer', function() {
   });
 
 
-  var MyModel4 = new model("MyModel4").attr("myAttr", Types.string).attrRefArray("models", MyModel1);
+  var MyModel4 = new model("MyModel4")
+    .attr("myAttr", Types.string)
+    .attrRefArray("models", MyModel1);
+
   MyModel4.connection(connector);
 
   describe('1..n References (Array References)', function() {
@@ -379,6 +382,18 @@ describe('Modelizer', function() {
           done(err);
         })
         //.done();
+    });
+
+    it('should provide feature: "iterate over arrayRefs"', function(done) {
+      assert (myObject4.models.hasOwnProperty("iterate"), 'iteration feature missing');
+      myObject4.models.iterate(function (model1) {
+        assert(model1.hasOwnProperty('attr1') && model1.hasOwnProperty('attr2'));
+        return model1;
+      })
+      .then(function(models) {
+        assert(models.length == 1);
+        done();
+      });
     });
 
   });
