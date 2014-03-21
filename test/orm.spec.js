@@ -396,6 +396,24 @@ describe('Modelizer', function() {
       });
     });
 
+    it('should provide feature: "create arrayRefs"', function(done) {
+      assert (myObject4.models.hasOwnProperty("create"), 'create feature missing');
+      var obj2 = myObject4.models.create();
+      assert(obj2.hasOwnProperty('attr1') && obj2.hasOwnProperty('attr2'));
+
+      obj2.save()
+        .then(function(o) {
+          return myObject4.save();
+        })
+        .then(function(o) {
+          return myObject4.models[1].load();
+        })
+        .then(function(model) {
+          assert(model.hasOwnProperty('attr1') && model.hasOwnProperty('attr2'));
+          done();
+        }).done();
+    });
+
   });
 
 
