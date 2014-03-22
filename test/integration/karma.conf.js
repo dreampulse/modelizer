@@ -14,9 +14,9 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'lib/q.js',
+      //'lib/q.js',
       'lib/angular.js',
-      '../../lib/modelizer.js',
+      '../../lib/browser/modelizer.js',
       'shared/models.js',
 
       'test.js'

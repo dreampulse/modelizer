@@ -1,9 +1,19 @@
 'use strict';
 
-var connector = Model.AngularConnector("http://localhost:6123/");
+var Q = require("q");
+
+var connector = model.AngularConnector("http://localhost:6123/");
 PersonModel.connection(connector);
 ContentModel.connection(connector);
 
+
+var assert = function (condition, message) {
+  if (!condition) {
+    console.log('Assertion failed', message);
+    console.trace();
+    throw new Error(message || "Assertion failed");
+  }
+};
 
 // http://stackoverflow.com/questions/17544965/unhandled-rejection-reasons-should-be-empty
 Q.stopUnhandledRejectionTracking();  // why does this happen?

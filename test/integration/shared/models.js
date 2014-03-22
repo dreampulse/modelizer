@@ -1,6 +1,12 @@
-var model = require('../../../lib/modelizer.js');
 
-var Type = require('../../../lib/modelizer.js').Attr.Types;
+if (typeof window === 'undefined') {
+  var modelizer = require('../../../lib/modelizer.js');
+} else {
+  var modelizer = require('modelizer');
+}
+
+var model = modelizer;
+var Type = modelizer.Attr.Types;
 
 var PostingModel = new model("Posting")
   .attr("text", Type.string)

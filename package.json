@@ -22,7 +22,8 @@
     "karma-phantomjs-launcher": "~0.1.1",
     "karma-requirejs": "~0.2.1",
     "karma-script-launcher": "~0.1.0",
-    "mocha": "~1.17.1"
+    "mocha": "~1.17.1",
+    "browserify": "~3.33.0"
   },
   "scripts": {
     "test": "mocha"
