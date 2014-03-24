@@ -2,7 +2,9 @@
 
 var Q = require("q");
 
-var connector = model.AngularConnector("http://localhost:6123/");
+//var connector = model.AngularConnector("http://localhost:6123/");
+var connector = model.ClientConnector("localhost", "6123");
+
 PersonModel.connection(connector);
 ContentModel.connection(connector);
 
