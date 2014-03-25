@@ -72,7 +72,7 @@ PersonModel.factoryImpl("getSpecialObject", function(params, req) {
 
 ContentModel.readFilter(function (req) {
   //console.log("req.session.auth", req.session.auth);
-  //console.log("req.session.user_id", req.session.user_id);
+  console.log("req.session.user_id", req.session.user_id);
   return {_id : ObjectId(req.session.user_id)};
 });
 
@@ -90,15 +90,14 @@ ContentModel.operationImpl("register", function(params, req) {
 });
 
 ContentModel.operationImpl("login", function(params, req) {
-
   return ContentModel.find({name:params.name})
     .then(function(objs) {
       if (objs.length != 1) throw new Error("wrong search results");
-
       if (objs[0].password == params.password) {
         // auth successfull
         req.session.auth = true;
         req.session.user_id = objs[0]._id;
+        console.log("save id", req.session.user_id);
       }
     })
 });

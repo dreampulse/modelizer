@@ -2,12 +2,17 @@
 
 var Q = require("q");
 
+var modelizer = require("../../lib/modelizer-client");
+var models = require("./shared/models");
+
 //var connector = model.AngularConnector("http://localhost:6123/");
-var connector = model.ClientConnector("localhost", "6123");
+var connector = modelizer.ClientConnector("localhost", "6123");
+
+var PersonModel = models.PersonModel;
+var ContentModel = models.ContentModel;
 
 PersonModel.connection(connector);
 ContentModel.connection(connector);
-
 
 var assert = function (condition, message) {
   if (!condition) {
@@ -18,7 +23,7 @@ var assert = function (condition, message) {
 };
 
 // http://stackoverflow.com/questions/17544965/unhandled-rejection-reasons-should-be-empty
-Q.stopUnhandledRejectionTracking();  // why does this happen?
+//Q.stopUnhandledRejectionTracking();  // why does this happen?
 
 describe('Integration Tests', function() {
 
@@ -437,7 +442,7 @@ describe('Integration Tests', function() {
         });
     });
 
-    it('shout only be possible to access own object', function(done){
+    it('should only be possible to access own object', function(done){
       ContentModel.all()
         .then(function(objs){
           //console.log(objs);
