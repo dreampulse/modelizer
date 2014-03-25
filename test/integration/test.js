@@ -2,14 +2,20 @@
 
 var Q = require("q");
 
-var modelizer = require("../../lib/modelizer-client");
-var models = require("./shared/models");
+if (typeof window === 'undefined') {  // running in node-environment
+  var modelizer = require("../../lib/modelizer-client");
+  var models = require("./shared/models");
+  var PersonModel = models.PersonModel;
+  var ContentModel = models.ContentModel;
+
+} else {
+  // http://stackoverflow.com/questions/17544965/unhandled-rejection-reasons-should-be-empty
+  Q.stopUnhandledRejectionTracking();  // why does this happen?
+
+}
 
 //var connector = model.AngularConnector("http://localhost:6123/");
 var connector = modelizer.ClientConnector("localhost", "6123");
-
-var PersonModel = models.PersonModel;
-var ContentModel = models.ContentModel;
 
 PersonModel.connection(connector);
 ContentModel.connection(connector);
@@ -22,8 +28,6 @@ var assert = function (condition, message) {
   }
 };
 
-// http://stackoverflow.com/questions/17544965/unhandled-rejection-reasons-should-be-empty
-//Q.stopUnhandledRejectionTracking();  // why does this happen?
 
 describe('Integration Tests', function() {
 
