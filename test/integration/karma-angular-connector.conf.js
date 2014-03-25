@@ -16,7 +16,7 @@ module.exports = function(config) {
     files: [
       //'lib/q.js',
       'lib/angular.js',
-      '../../browser-dist/modelizer.js',
+      '../../browser-dist/modelizer-angular.js',
       'shared/models.js',
 
       'test.js'

@@ -14,8 +14,11 @@ if (typeof window === 'undefined') {  // running in node-environment
 
 }
 
-//var connector = model.AngularConnector("http://localhost:6123/");
-var connector = modelizer.ClientConnector("localhost", "6123");
+if (typeof angular !== 'undefined') {
+  var connector = model.AngularConnector("http://localhost:6123/");
+} else {
+  var connector = modelizer.ClientConnector("localhost", "6123");
+}
 
 PersonModel.connection(connector);
 ContentModel.connection(connector);
