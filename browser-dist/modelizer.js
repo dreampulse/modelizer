@@ -410,7 +410,13 @@ Model.prototype._addStore = function(obj) {
 
     // apply attribute filters (eg. for type check..)
     for (var i in model.attrs) {
-      check(obj.hasOwnProperty(model.attrs[i].name), "Attribute '"+ model.attrs[i].name +"' not provided in your object (model '"+model.modelName+"')");
+
+      if (!obj.hasOwnProperty(model.attrs[i].name)) {  // check for error in usage!
+        console.log("Warning: Attribute '"+ model.attrs[i].name +"' not provided in your object (model '"+model.modelName+"')");
+        console.log("  Attribute will be set to null! Use '"+model.modelName+".create()' to avoid this problem!");
+        obj[model.attrs[i].name] = null;
+      }
+      //check(obj.hasOwnProperty(model.attrs[i].name), "Attribute '"+ model.attrs[i].name +"' not provided in your object (model '"+model.modelName+"')");
 
       doc[model.attrs[i].name] = obj[model.attrs[i].name];  // copy attribute
 

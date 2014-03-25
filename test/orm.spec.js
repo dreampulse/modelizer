@@ -801,7 +801,7 @@ describe('Modelizer', function() {
         });
     });
 
-    it("should detect missing attributes", function(done) {
+/*    it("should detect missing attributes", function(done) {
       var obj =  MyModel11.create();
       obj.nested = { stuff : "foo", unnamed: "bar" };
       delete obj.attr1;
@@ -818,6 +818,7 @@ describe('Modelizer', function() {
           }
         });
     });
+*/
 
     it("should detect missing arrays", function(done) {
       var obj =  MyModel11.create();
