@@ -853,6 +853,7 @@ describe('Modelizer', function() {
 
   });
 
+  /*
   describe('Object Store', function() {
     var MyModel = new model("MyModel", {
       attr1 : Attr(Types.string),
@@ -893,5 +894,6 @@ describe('Modelizer', function() {
     });
 
   });
+  */
 
 });

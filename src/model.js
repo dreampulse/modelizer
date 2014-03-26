@@ -324,6 +324,8 @@ Model.prototype.reference = function(refModel, parentModel) {
       });
   };
 
+  this.load = this.loadQ;
+
   // set an existing object to the reference
   // TODO: type check -> geht garnicht so einfach (object müsste wissen zu welchem modell es gehört)
   this.setObject = function(obj) {
@@ -384,6 +386,8 @@ Model.prototype.arrayReference = function(refModel, parentModel) {
         return refObj;
       });
   };
+
+  this.load = this.loadQ;
 
 };
 
@@ -540,7 +544,10 @@ Model.prototype._addStore = function(obj) {
 
         return obj;
       });
-  }
+  };
+
+  obj.save = obj.saveQ;  // compatibility
+
 
   obj.removeQ = function() {
     var deferred = Q.defer();
@@ -563,6 +570,8 @@ Model.prototype._addStore = function(obj) {
       });
 
   };
+
+  obj.remove = obj.removeQ;  // compatibility
 
   obj.validate = function(attr) {
     try {
@@ -852,6 +861,9 @@ Model.prototype.allQ = function(initObj) {
   return this.findQ({}, initObj);
 };
 
+Model.prototype.all = Model.prototype.allQ;
+
+
 Model.prototype.saveQ = function(obj) {
   var deferred = Q.defer();
   assert(this.collection != undefined, "connection no set for " + this.modelName);
@@ -866,6 +878,8 @@ Model.prototype.saveQ = function(obj) {
 
   return deferred.promise;
 };
+
+Model.prototype.save = Model.prototype.saveQ;
 
 Model.prototype.removeQ = function(id) {
   var deferred = Q.defer();
@@ -898,9 +912,14 @@ Model.prototype.removeQ = function(id) {
   return deferred.promise;
 };
 
+Model.prototype.remove = Model.prototype.removeQ;
+
+
 Model.prototype.callOpQ = function(operationName, params, HTMLrequest) {
   return this.collection.callOperation(operationName, params, HTMLrequest);
 };
+
+Model.prototype.callOp = Model.prototype.callOpQ;
 
 // serialize doc
 Model.prototype._transform = function(model, doc, method) {
