@@ -37,7 +37,7 @@ describe('Integration Tests', function() {
   describe('Basic Functions', function() {
 
     it('Person Models should be empty', function(done) {
-      PersonModel.all()
+      PersonModel.allQ()
         .then(function(objs) {
           if (objs.length != 0) done("PersonModel should be empty");
           done();
@@ -48,7 +48,7 @@ describe('Integration Tests', function() {
     });
 
     it('Get an invalid model should fail', function(done) {
-      PersonModel.get("01234")
+      PersonModel.getQ("01234")
         .then(function(obj) {
           done("Promise should fail");
         })
@@ -64,7 +64,7 @@ describe('Integration Tests', function() {
       person1.name = "Test User";
       person1.eMail = "test@test.com";
       person1.age = 99;
-      person1.save()
+      person1.saveQ()
         .then(function(resObj) {
           if (person1._id == undefined) done("didn't get an id from the server!");
           person1_id = person1._id; // save id for next tests
@@ -79,7 +79,7 @@ describe('Integration Tests', function() {
     var person1_obj;
     it('should be possible to get the created object', function(done) {
 
-      PersonModel.get(person1_id)
+      PersonModel.getQ(person1_id)
         .then(function(obj) {
           if (obj._id != person1_id) done("Object has an invalid id");
           if (
@@ -98,9 +98,9 @@ describe('Integration Tests', function() {
 
     it('should be possible to change some values and save again', function(done){
       person1_obj.name = "Steve Gates";
-      person1_obj.save()
+      person1_obj.saveQ()
         .then(function() {
-          return PersonModel.all()
+          return PersonModel.allQ()
         })
         .then(function(objs) {
           if (objs.length != 1) return done("There should still be only one object in the store");
@@ -112,7 +112,7 @@ describe('Integration Tests', function() {
     });
 
     it('should be possible to delete an object', function(done){
-      person1_obj.remove()
+      person1_obj.removeQ()
         .then(function() {
           done();
         }).fail(function(err) {
@@ -122,7 +122,7 @@ describe('Integration Tests', function() {
     });
 
     it('should fail to get the deleted object', function(done) {
-      PersonModel.get(person1_id)
+      PersonModel.getQ(person1_id)
         .then(function(obj) {
           done("There should be no result");
         })
@@ -152,7 +152,7 @@ describe('Integration Tests', function() {
       dave.address[1].street = "Second Home Town Street"
       dave.address[1].number = 2;
 
-      dave.save()
+      dave.saveQ()
         .then(function() {
           if (dave._id == undefined) done("didn't get an id from the server!");
           done();
@@ -163,7 +163,7 @@ describe('Integration Tests', function() {
     });
 
     it('object should have been created correctly', function(done) {
-      PersonModel.all()
+      PersonModel.allQ()
         .then(function(objs) {
           if (objs.length != 1) done("PersonModel should have only one object");
 
@@ -189,7 +189,7 @@ describe('Integration Tests', function() {
     });
 
     it('delete the object', function(done){
-      dave.remove()
+      dave.removeQ()
         .then(function() {
           done();
         }).fail(function(err) {
@@ -213,11 +213,11 @@ describe('Integration Tests', function() {
       bob.profile.ref().experience = "a lot";
 
       // save ref object
-      profile.save()
+      profile.saveQ()
         .then(function() {
           assert(profile._id != undefined, "got no id");
 
-          return bob.save();
+          return bob.saveQ();
         })
         .then(function() {
           assert(bob.profile._reference == bob.profile.ref()._id, "reference id fail");
@@ -230,10 +230,10 @@ describe('Integration Tests', function() {
 
     it("should be possible to load an object with a reference", function(done){
       var loaded_bob;
-      PersonModel.get(bob._id)
+      PersonModel.getQ(bob._id)
         .then(function(obj) {
           loaded_bob = obj;
-          return obj.profile.load();
+          return obj.profile.loadQ();
         })
         .then(function() {
           if (loaded_bob.profile.ref().vision !== "Best Hacker") done("failed to load reference");
@@ -245,7 +245,7 @@ describe('Integration Tests', function() {
     });
 
     it('delete the object', function(done){
-      bob.remove()
+      bob.removeQ()
         .then(function() {
           done();
         }).fail(function(err) {
@@ -271,12 +271,12 @@ describe('Integration Tests', function() {
       max.postings[1].ref().text = "More news";
 
       // save all
-      posting1.save()  // save posting 1
+      posting1.saveQ()  // save posting 1
         .then(function() {
-          return max.postings[1].ref().save();  // save posting 2
+          return max.postings[1].ref().saveQ();  // save posting 2
         })
         .then(function() {
-          return max.save();  // save parent object
+          return max.saveQ();  // save parent object
         })
         .then(function() {
           // everything has been saved
@@ -289,17 +289,17 @@ describe('Integration Tests', function() {
 
     it("should be possible to load an object with an 1..n reference", function(done) {
       var loaded_max;
-      PersonModel.get(max._id)
+      PersonModel.getQ(max._id)
         .then(function(obj) {
           loaded_max = obj;
           assert(obj.postings.length == 2, "wrong number of references");
-          return loaded_max.postings[0].load();
+          return loaded_max.postings[0].loadQ();
           done();
         })
         .then(function(posting1) { // loaded posting1
           assert(posting1.text == "The News");
 
-          return loaded_max.postings[1].load();
+          return loaded_max.postings[1].loadQ();
         })
         .then(function(posting2) { // loaded posting2
           assert(loaded_max.postings[1].ref().text == "More news");
@@ -312,11 +312,11 @@ describe('Integration Tests', function() {
     });
 
     it('delete the objects', function(done){
-      max.remove()
+      max.removeQ()
         .then(function() {
-          return posting1.remove();
+          return posting1.removeQ();
         }).then(function(){
-          return posting2.remove();
+          return posting2.removeQ();
         }).then(function(){
           done(); // deleted all
         }).fail(function(err) {
@@ -346,20 +346,20 @@ describe('Integration Tests', function() {
           var p1 = PersonModel.create();
           p1.name = "Max";
           p1.age = 18;
-          return p1.save();
+          return p1.saveQ();
         })
         .then(function() {
           var p2 = PersonModel.create();
           p2.name = "Moritz";
           p2.age = 19;
-          return p2.save();
+          return p2.saveQ();
         })
         .then(function() {
           return PersonModel.getSpecialObject();
         })
         .then(function(obj) {
           //console.log(obj);
-          if (typeof obj[0].save != 'function') done("Factory hasn't restored the object");
+          if (typeof obj[0].saveQ != 'function') done("Factory hasn't restored the object");
           done();
         })
         .fail(function(err) {
@@ -378,13 +378,13 @@ describe('Integration Tests', function() {
 
       Q()
         .then(function() {
-          return p1.save();
+          return p1.saveQ();
         })
         .then(function() {
-          return p2.save();
+          return p2.saveQ();
         })
         .then(function() {
-          return PersonModel.find({name:"Person 2"});
+          return PersonModel.findQ({name:"Person 2"});
         })
         .then(function(pers) {
           assert(pers.length == 1);
@@ -400,7 +400,7 @@ describe('Integration Tests', function() {
   describe("Filters", function() {
     it('should fail to save an object without login', function(done){
       var obj = ContentModel.create();
-      obj.save()
+      obj.saveQ()
         .then(function(){
           done("it should have failed");
         })
@@ -450,7 +450,7 @@ describe('Integration Tests', function() {
     });
 
     it('should only be possible to access own object', function(done){
-      ContentModel.all()
+      ContentModel.allQ()
         .then(function(objs){
           //console.log(objs);
           if (objs.length != 1) done("Error in read filters");
@@ -465,7 +465,7 @@ describe('Integration Tests', function() {
 
     it('should succeeded to save an object when being logged in', function(done){
       var obj = ContentModel.create();
-      obj.save()
+      obj.saveQ()
         .then(function(){
           done();
         })
@@ -495,8 +495,8 @@ describe('Integration Tests', function() {
         birthday : new Date()
       })
 
-      pers.save().then(function() {
-        return PersonModel.get(pers._id);
+      pers.saveQ().then(function() {
+        return PersonModel.getQ(pers._id);
       })
       .then(function(pers){
         if (!pers.birthday instanceof Date) done("Isn't a date Object");

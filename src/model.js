@@ -11,6 +11,7 @@ var check = require('./microlibs').check;
 var isEmptyObject = require('./microlibs').isEmptyObject;
 
 var Q = require('q');
+//var _ = require('lodash');
 
 
 //////////////////////////
@@ -102,6 +103,77 @@ var Model = function(modelName, schema) {
 
 
 
+/*
+///////
+// Der Store
+
+
+/// Problem: ich will eigentlich Mengen abonieren
+// das geht aber nicht so einfach
+// couchdb anschauen...
+
+// alle objekte werden hier gecached
+// TODO: an remove denken -> geht nicht in js
+Model.prototype.store = (function(){
+  var store = {};  // private store
+
+  var watchers = {};
+
+
+  var all = [];
+  var find = {};  // set of array with this results
+  // änderungen können dann per websocket immer rein kommen
+  // ist eigentlich ein abo an mengen...
+
+  // todo use getters & setters
+  return {
+    set : function(obj) {
+      assert(typeof obj === 'object', 'obj has to be an object');
+      assert(obj.hasOwnProperty("_id"), 'obj has no id');
+
+      // assume ObjectID right now!
+      var id = obj._id.toString();
+      if (store.hasOwnProperty(id)) {  // this object already exists
+
+        for (var i in obj) {  // copy values
+          store[id][i] = obj[i];
+        }
+
+        if (watchers.hasOwnProperty(id)) {  // call watcher
+          watchers[id](obj);
+        }
+
+      } else {
+        assert(false, "actually no problem, but get() shoud be called before set() - in this case ;-)");
+        store[id] = new Object();
+      }
+    },
+    get : function(id) {  // implements a get or create
+
+      //assert(typeof id === 'string', 'id has to be a string');
+      id = id.toString();
+
+      if (store.hasOwnProperty(id)) {  // there is that object
+        return store[id];
+      } else {  // create a new object
+        store[id] = new Object();
+        return store[id];
+      }
+    },
+    all : function() {
+
+      return all;
+    },
+    addWatcher : function(id, callback) {
+      //assert(typeof id === 'string', 'id has to be a string');
+      id = id.toString();
+
+      watchers[id] = callback;  // todo können auch mehere sein
+    }
+  }
+})();
+*/
+
 // "Subclasses"
 
 
@@ -180,7 +252,7 @@ Model.prototype.operation = function(operationName) {
   this.operations[operationName] = operationName;
   this[operationName] = function(params) {
     assert(this.collection != undefined, "Use a connectior!");
-    return this.callOp(operationName, params, null);
+    return this.callOpQ(operationName, params, null);
   };
 
   return this;
@@ -197,7 +269,7 @@ Model.prototype.operationImpl = function(operationName, fnImpl) {
 Model.prototype.factory = function(factoryName) {
   this.factorys[factoryName] = factoryName;
   this[factoryName] = function(params) {
-    return this.callOp(factoryName, params, null);
+    return this.callOpQ(factoryName, params, null);
   };
 
   return this;
@@ -234,7 +306,7 @@ Model.prototype.reference = function(refModel, parentModel) {
 
   // load object
   // todo: soll erst verfügbar sein, wenns auch was zum laden gibt
-  this.load = function() {
+  this.loadQ = function() {
     var loadScope = this;
 
     var deferred = Q.defer();
@@ -243,7 +315,7 @@ Model.prototype.reference = function(refModel, parentModel) {
       return deferred.promise;
     }
 
-    return refModel.get(this._reference)
+    return refModel.getQ(this._reference)
       .then(function(obj) {
         var refObj = obj;
         loadScope.ref = function() { return refObj; }  // definition von der .ref()-Methode
@@ -251,6 +323,8 @@ Model.prototype.reference = function(refModel, parentModel) {
         return refObj;
       });
   };
+
+  this.load = this.loadQ;
 
   // set an existing object to the reference
   // TODO: type check -> geht garnicht so einfach (object müsste wissen zu welchem modell es gehört)
@@ -276,7 +350,7 @@ Model.prototype.arrayReferenceRoot = function(refModel, obj, arrayName) {
     var loadPromises = [];
     for (var i=0; i<theArryRef.length; i++) {
       loadPromises.push(
-        theArryRef[i].load()
+        theArryRef[i].loadQ()
           .then(function (el) {
             return callback(el);  
           })
@@ -296,7 +370,7 @@ Model.prototype.arrayReferenceRoot = function(refModel, obj, arrayName) {
 Model.prototype.arrayReference = function(refModel, parentModel) {
   refModel.connection(parentModel.connector);  // mongodb connection an child modell durchreichen
 
-  this.load = function() {   //TODO: ist ja genau das selbe Load wie beim reference!!
+  this.loadQ = function() {   //TODO: ist ja genau das selbe Load wie beim reference!!
     var loadScope = this;
 
     var deferred = Q.defer();
@@ -305,13 +379,15 @@ Model.prototype.arrayReference = function(refModel, parentModel) {
       return deferred.promise;
     }
 
-    return refModel.get(this._reference)
+    return refModel.getQ(this._reference)
       .then(function(obj) {
         var refObj = obj;
         loadScope.ref = function() { return refObj; }  // definition von der .ref()-Methode
         return refObj;
       });
   };
+
+  this.load = this.loadQ;
 
 };
 
@@ -447,7 +523,7 @@ Model.prototype._addStore = function(obj) {
   }
 
   // The Save-function for a object instance
-  obj.save = function() {
+  obj.saveQ = function() {
     var deferred = Q.defer();
 
     try {
@@ -459,7 +535,7 @@ Model.prototype._addStore = function(obj) {
 
     // transform the object to a document
     // and apply attribute filters
-    return self.save(doc)  // store the document
+    return self.saveQ(doc)  // store the document
       .then(function(resDoc) {
         // Achtung: client gibt hier ein string zurück
         if (resDoc != 1) {  // doc is 1 if an insert was performed
@@ -468,9 +544,12 @@ Model.prototype._addStore = function(obj) {
 
         return obj;
       });
-  }
+  };
 
-  obj.remove = function() {
+  obj.save = obj.saveQ;  // compatibility
+
+
+  obj.removeQ = function() {
     var deferred = Q.defer();
 
     if (obj._id === undefined) {
@@ -478,7 +557,7 @@ Model.prototype._addStore = function(obj) {
       return deferred.promise;
     }
 
-    return self.remove(obj._id)
+    return self.removeQ(obj._id)
       .then(function() {
         delete obj._id;
 
@@ -491,6 +570,8 @@ Model.prototype._addStore = function(obj) {
       });
 
   };
+
+  obj.remove = obj.removeQ;  // compatibility
 
   obj.validate = function(attr) {
     try {
@@ -535,9 +616,9 @@ Model.prototype.createCollection = function() {
     coll.push(el);
   };
 
-  coll.save = function() {
+  coll.saveQ = function() {
     for (var i=0; i<coll.length; i++) {
-      coll[i].save().done();
+      coll[i].saveQ().done();
     }
   }
 
@@ -692,12 +773,26 @@ Model.prototype.loadFromDoc = function(doc, initObj) {
 };
 
 
-// using of the model with mongo db
-Model.prototype.findById = function(id, initObj) {
-  return this.get(id, initObj);
-}
+/*
+Model.prototype.get = function(id) {
+  var self = this;
 
-Model.prototype.get = function(id, initObj) {
+  this.getQ(id)
+    .then(function(obj) {
+      self.store.set(obj);
+    })
+    .fail(function(err) {
+      if (err.message == "Object not found!") {
+        self.store.del(id);
+      }
+ console.log("get() fail", err);
+    });
+
+  return this.store.get(id);  // todo: was tun wenns id nicht gibt -> fail
+};
+*/
+
+Model.prototype.getQ = function(id, initObj) {
   var self = this;
   var deferred = Q.defer();
 
@@ -718,7 +813,7 @@ Model.prototype.get = function(id, initObj) {
   return deferred.promise;
 };
 
-Model.prototype.findOne = function(search, initObj) {
+Model.prototype.findOneQ = function(search, initObj) {
   var self = this;
   var deferred = Q.defer();
 
@@ -739,7 +834,7 @@ Model.prototype.findOne = function(search, initObj) {
   return deferred.promise;
 };
 
-Model.prototype.find = function(search, initObj) {
+Model.prototype.findQ = function(search, initObj) {
   var self = this;
   var deferred = Q.defer();
 
@@ -761,11 +856,15 @@ Model.prototype.find = function(search, initObj) {
   return deferred.promise;
 };
 
-Model.prototype.all = function(initObj) {
-  return this.find({}, initObj);
+
+Model.prototype.allQ = function(initObj) {
+  return this.findQ({}, initObj);
 };
 
-Model.prototype.save = function(obj) {
+Model.prototype.all = Model.prototype.allQ;
+
+
+Model.prototype.saveQ = function(obj) {
   var deferred = Q.defer();
   assert(this.collection != undefined, "connection no set for " + this.modelName);
 
@@ -780,7 +879,9 @@ Model.prototype.save = function(obj) {
   return deferred.promise;
 };
 
-Model.prototype.remove = function(id) {
+Model.prototype.save = Model.prototype.saveQ;
+
+Model.prototype.removeQ = function(id) {
   var deferred = Q.defer();
   this.collection.remove({_id:id}, true, function(err, result) {
     if (result.status == "OK") {  // success from a client call
@@ -811,9 +912,14 @@ Model.prototype.remove = function(id) {
   return deferred.promise;
 };
 
-Model.prototype.callOp = function(operationName, params, HTMLrequest) {
+Model.prototype.remove = Model.prototype.removeQ;
+
+
+Model.prototype.callOpQ = function(operationName, params, HTMLrequest) {
   return this.collection.callOperation(operationName, params, HTMLrequest);
 };
+
+Model.prototype.callOp = Model.prototype.callOpQ;
 
 // serialize doc
 Model.prototype._transform = function(model, doc, method) {

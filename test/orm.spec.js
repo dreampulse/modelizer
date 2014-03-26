@@ -13,6 +13,7 @@ describe('Modelizer', function() {
   var MyModel1 = new model("MyModel1").attr("attr1", Types.string).attr("attr2", Types.string);
 
   var mongojs = require('mongojs');
+  var ObjectId = mongojs.ObjectId;
   var db = mongojs('mongodb://127.0.0.1/testModel1');
   var connector = model.MongoConnector(db);
   MyModel1.connection(connector);
@@ -37,12 +38,12 @@ describe('Modelizer', function() {
     it('the object should have correct attributes and the save/remove-method', function(){
       assert(myObject1.attr1 === "value1");
       assert(myObject1.attr2 === "value2");
-      assert(myObject1.hasOwnProperty('save'));
-      assert(myObject1.hasOwnProperty('remove'));
+      assert(myObject1.hasOwnProperty('saveQ'));
+      assert(myObject1.hasOwnProperty('removeQ'));
     });
 
     it('saved object correctly saved to database', function(done) {
-      myObject1.save()
+      myObject1.saveQ()
         .then(function() {
           db.collection("MyModel1").findOne(function(err, doc) {
             assert(doc.attr1 === "value1");
@@ -60,7 +61,7 @@ describe('Modelizer', function() {
     });
 
     it('saved object can be found with model search method .all()', function(done) {
-      MyModel1.all()
+      MyModel1.allQ()
         .then(function(objs){
           assert(objs.length === 1);
           var doc = objs[0];
@@ -77,9 +78,9 @@ describe('Modelizer', function() {
 
 
     it('should be possible to save again', function(done) {
-      myObject1.save()
+      myObject1.saveQ()
         .then(function() {
-          return MyModel1.all()
+          return MyModel1.allQ()
             .then(function(objs){
               assert(objs.length === 1, "There should still be only one object in the store");
               done();
@@ -93,7 +94,7 @@ describe('Modelizer', function() {
 
 
     it('can be found by using .get() search method', function(done) {
-      MyModel1.get(myObject1_id)
+      MyModel1.getQ(myObject1_id)
         .then(function(obj) {
           assert(""+obj._id === ""+myObject1_id);
           done();
@@ -106,7 +107,7 @@ describe('Modelizer', function() {
     });
 
     it('can be found by using .find() to search for an attribute', function(done) {
-      MyModel1.find({'attr1':'value1'})
+      MyModel1.findQ({'attr1':'value1'})
         .then(function(obj) {
           assert(obj.length === 1);
           assert(""+obj[0]._id === ""+myObject1_id);
@@ -120,7 +121,7 @@ describe('Modelizer', function() {
     });
 
     it('should be possible to delete object', function(done){
-      myObject1.remove()
+      myObject1.removeQ()
         .then(function() {
           done();
         })
@@ -132,7 +133,7 @@ describe('Modelizer', function() {
     });
 
     it('should fail to delete an unsaved object', function(done){
-      myObject1.remove()
+      myObject1.removeQ()
         .then(function() {
           assert(false);
           done(false);
@@ -166,7 +167,7 @@ describe('Modelizer', function() {
       assert(myObject2.myArray.length === 0);
       assert(myObject2.myAttrObj.hasOwnProperty('attr1') && myObject2.myAttrObj.hasOwnProperty('attr2'));
 
-      myObject2.save()
+      myObject2.saveQ()
         .then(function() {
           done();
         })
@@ -185,14 +186,14 @@ describe('Modelizer', function() {
     });
 
     it('should be possible to createMyArray() from a loaded object', function(done){
-      MyModel2.get(myObject2._id)
+      MyModel2.getQ(myObject2._id)
         .then(function(obj){
           var el = obj.createMyArray();
           el.attr1 = "test";
           assert(obj.myArray.length == 1);
           assert(obj.myArray[0].attr1 == "test");
 
-          return obj.save();
+          return obj.saveQ();
         })
         .then(function(obj){
           done();
@@ -201,7 +202,7 @@ describe('Modelizer', function() {
     });
 
     it('load attrArray', function(done){
-      MyModel2.get(myObject2._id)
+      MyModel2.getQ(myObject2._id)
         .then(function(obj){
           assert(obj.myArray.length == 1, "attrArry should have been loaded");
           assert(obj.myArray[0].attr1 == "test");
@@ -234,7 +235,7 @@ describe('Modelizer', function() {
 
     it('should be possible to create and save an object with empty reference', function(done) {
       var testObj = MyModel3.create();
-      testObj.save()
+      testObj.saveQ()
         .then(function(doc) {
           //TODO: messen, dass ref leer ist
           assert(testObj.reference.ref === undefined, "reference problme");
@@ -252,7 +253,7 @@ describe('Modelizer', function() {
       assert(myObject3.reference.ref() === refObj);
 
       // save the referenced object
-      refObj.save()
+      refObj.saveQ()
         .then(function(doc) {
           assert(refObj._reference === undefined, "reference problme");
           refObj_id = doc._id;
@@ -265,10 +266,10 @@ describe('Modelizer', function() {
     });
 
     it('should be possible to save an object with a reference inside', function(done) {
-      myObject3.save()
+      myObject3.saveQ()
         .then(function(doc){
           assert(""+myObject3.reference._reference === ""+refObj_id, "reference hasn't been added");
-          MyModel1.get(refObj_id)
+          MyModel1.getQ(refObj_id)
             .then(function(obj) {
               assert(""+obj._id === ""+myObject3.reference._reference, "the referenced object exists");
               done();
@@ -281,7 +282,7 @@ describe('Modelizer', function() {
     });
 
     it('should be possible to load a referenced object', function(done){
-      MyModel3.get(myObject3._id)
+      MyModel3.getQ(myObject3._id)
         .then(function(obj) {
           try {
             obj.reference.ref();
@@ -292,18 +293,18 @@ describe('Modelizer', function() {
           //assert(obj.reference.ref === undefined, "shouldn' be loaded at that point of time");
           assert(""+obj.reference._reference == ""+refObj_id, "the reference_id should be loaded correctly");
 
-          obj.reference.load()
+          obj.reference.loadQ()
             .then(function(loadedObj) {
               assert(""+obj.reference.ref()._id === ""+refObj._id, "not the correct referenced object has been loaded");
               done();
             }).done();
 
         })
-        //.done();
+        .done();
     });
 
     it('should be possible to set the reference to an arbitrary object', function(done) {
-      MyModel1.create().save()
+      MyModel1.create().saveQ()
         .then(function(obj) {
           myObject3.reference.setObject(obj);
           assert(""+myObject3.reference._reference == ""+obj._id);
@@ -351,7 +352,7 @@ describe('Modelizer', function() {
       assert(myObject4.models.length === 1);
       assert(myObject4.models[0].ref() === refObj1);
 
-      refObj1.save()
+      refObj1.saveQ()
         .then(function(doc) {
           done();
         })
@@ -362,15 +363,15 @@ describe('Modelizer', function() {
     });
 
     it('should save the reference array correctly', function(done) {
-      myObject4.save()
+      myObject4.saveQ()
         .then(function(obj){
           assert(""+myObject4.models[0]._reference === ""+refObj1._id);
 
-          return MyModel4.get(myObject4._id);
+          return MyModel4.getQ(myObject4._id);
         })
         .then(function(doc) {
           assert(""+doc._id === ""+myObject4._id);
-          doc.models[0].load()
+          doc.models[0].loadQ()
             .then(function(loadedRefObj1) {
 
               assert(""+doc.models[0].ref()._id === ""+refObj1._id);
@@ -401,12 +402,12 @@ describe('Modelizer', function() {
       var obj2 = myObject4.models.create();
       assert(obj2.hasOwnProperty('attr1') && obj2.hasOwnProperty('attr2'));
 
-      obj2.save()
+      obj2.saveQ()
         .then(function(o) {
-          return myObject4.save();
+          return myObject4.saveQ();
         })
         .then(function(o) {
-          return myObject4.models[1].load();
+          return myObject4.models[1].loadQ();
         })
         .then(function(model) {
           assert(model.hasOwnProperty('attr1') && model.hasOwnProperty('attr2'));
@@ -437,15 +438,15 @@ describe('Modelizer', function() {
         obj3.attr1 = "C";
         obj3.attr2 = "B";
 
-        obj1.save()
+        obj1.saveQ()
           .then(function () {
-            return obj2.save();
+            return obj2.saveQ();
           })
           .then(function() {
-            return obj3.save();
+            return obj3.saveQ();
           })
           .then(function() {
-            return MyModel5.filtered_all();
+            return MyModel5.filtered_allQ();
           })
           .then(function(objs) {
             assert(objs.length == 3, 'the three objects should have been saved');
@@ -458,7 +459,7 @@ describe('Modelizer', function() {
     });
 
     it('use filtered get for obj1', function(done) {
-      MyModel5.filtered_get(""+obj1._id)
+      MyModel5.filtered_getQ(""+obj1._id)
         .then(function(obj) {
           assert(obj.attr1 === "A" && obj.attr2 === "C");
           done();
@@ -471,7 +472,7 @@ describe('Modelizer', function() {
         return {attr1 : "A"};
       });
 
-      MyModel5.filtered_all()
+      MyModel5.filtered_allQ()
         .then(function(objs) {
           assert(objs.length == 2);
           assert(objs[0].attr1 === "A" && objs[1].attr1 === "A");
@@ -486,7 +487,7 @@ describe('Modelizer', function() {
         return {attr2 : "B"};
       });
 
-      MyModel5.filtered_all()
+      MyModel5.filtered_allQ()
         .then(function(objs) {
           assert(objs.length == 1);
           assert(objs[0].attr1 === "A" && objs[0].attr2 === "B");
@@ -497,7 +498,7 @@ describe('Modelizer', function() {
     });
 
     it('use filtered get for obj2', function(done) {
-      MyModel5.filtered_get(""+obj2._id)
+      MyModel5.filtered_getQ(""+obj2._id)
         .then(function(obj) {
           assert(obj.attr1 === "A" && obj.attr2 === "B");
           done();
@@ -506,7 +507,7 @@ describe('Modelizer', function() {
     });
 
     it("obj1 shouldn't be found", function(done) {
-      MyModel5.filtered_get(""+obj1._id)
+      MyModel5.filtered_getQ(""+obj1._id)
         .then(function(obj) {
           done("Filter isn't working");
         })
@@ -565,7 +566,7 @@ describe('Modelizer', function() {
     it("should not be possible to save wrong types", function(done) {
       var obj = MyModel8.create();
       obj.num = "not a number";
-      obj.save().fail(function (err){
+      obj.saveQ().fail(function (err){
         assert(err.message == "Can't save 'num' 'not a number' is not a number");
         done();
       }).done();
@@ -574,7 +575,7 @@ describe('Modelizer', function() {
     it("should be possible to use enums", function(done) {
       var obj = MyModel8.create();
       obj.enum = "b";
-      obj.save().then(function (){
+      obj.saveQ().then(function (){
         done();
       }).done();
     });
@@ -582,7 +583,7 @@ describe('Modelizer', function() {
     it("should handle wrong enums", function(done) {
       var obj = MyModel8.create();
       obj.enum = "c";
-      obj.save().fail(function (err){
+      obj.saveQ().fail(function (err){
         assert(err.message == "Can't save 'enum' 'c' is not in the enum");
         done();
       }).done();
@@ -590,7 +591,7 @@ describe('Modelizer', function() {
 
     it("default attribute should work", function(done) {
       var obj = MyModel8.create();
-      obj.save().then(function (){
+      obj.saveQ().then(function (){
         if (obj.name != "unnamed") {
           done("default attribute failed");
           return;
@@ -602,7 +603,7 @@ describe('Modelizer', function() {
     it("should handle date types", function(done) {
       var obj = MyModel8.create();
       obj.date = "foo";
-      obj.save().then(function (){
+      obj.saveQ().then(function (){
         done("Wrong date type accepted");
       }).fail(function (err){
         assert(err.message == "Can't save 'date' 'foo' is not a date");
@@ -670,14 +671,14 @@ describe('Modelizer', function() {
 
       var resObj;
       Q().then(function() {
-        return amayObj.save();
+        return amayObj.saveQ();
       }).then(function() {
       //amayObj.save().then(function() {
-        return mm10.save();
+        return mm10.saveQ();
       }).then(function() {
-        return obj.save();
+        return obj.saveQ();
       }).then(function() {
-        return MyModel9.get(obj._id);
+        return MyModel9.getQ(obj._id);
       }).then(function(o) {
         resObj = o;
   
@@ -693,13 +694,13 @@ describe('Modelizer', function() {
 
         assert(resObj.nested.stuff == "stuff");
 
-        return resObj.aReference.load();
+        return resObj.aReference.loadQ();
       }).then(function(loadedObj) {
         assert(loadedObj.stuff == "some stuff");
 
         assert(resObj.aManyReferences.length == 1);
 
-        return resObj.aManyReferences[0].load();
+        return resObj.aManyReferences[0].loadQ();
       }).then(function(loadedObj) {
         assert(resObj.aManyReferences[0].ref().stuff == "more stuff");
 
@@ -726,9 +727,9 @@ describe('Modelizer', function() {
       obj.attr1 = "foo";
       obj.attr2 = "bar";
 
-      obj.save()
+      obj.saveQ()
         .then(function(resObj) {
-          return MyModel10.get(obj._id);
+          return MyModel10.getQ(obj._id);
         })
         .then(function(myObj) {
           if (myObj.hasOwnProperty("attr2")) {
@@ -744,9 +745,9 @@ describe('Modelizer', function() {
       obj.nested.stuff = "huuh";
       obj.nested.more = "ohno";
 
-      obj.save()
+      obj.saveQ()
         .then(function(resObj) {
-          return MyModel10.get(obj._id);
+          return MyModel10.getQ(obj._id);
         })
         .then(function(myObj) {
           if (myObj.nested.hasOwnProperty("more")) {
@@ -788,7 +789,7 @@ describe('Modelizer', function() {
       var obj =  MyModel11.create();
       obj.nested = undefined;
 
-      obj.save()
+      obj.saveQ()
         .then(function(res) {
           done("shouldn't allow save");
         })
@@ -806,7 +807,7 @@ describe('Modelizer', function() {
       obj.nested = { stuff : "foo", unnamed: "bar" };
       delete obj.attr1;
 
-      obj.save()
+      obj.saveQ()
         .then(function(res) {
           done("shouldn't allow save");
         })
@@ -825,7 +826,7 @@ describe('Modelizer', function() {
       obj.nested = { stuff : "foo", unnamed: "bar" };
       delete obj.array;
 
-      obj.save()
+      obj.saveQ()
         .then(function(res) {
           done("shouldn't allow save");
         })
@@ -838,6 +839,61 @@ describe('Modelizer', function() {
         });
     });
 
+    it("should fail to get non existing Object", function(done) {
+      MyModel11.getQ(ObjectId("123456789012345678901234"))
+        .then(function(obj) {
+          console.log("obj", obj);
+          done("it should fail");
+        })
+        .fail(function(err) {
+          assert(err.message === "Object not found!")
+          done();
+        });
+    });
+
   });
+
+  /*
+  describe('Object Store', function() {
+    var MyModel = new model("MyModel", {
+      attr1 : Attr(Types.string),
+      nested: {
+        stuff : Attr(Types.string),
+        unnamed : Attr(Attr.default("unnamed"))
+      },
+      array : [{
+        foobar : Attr(Types.string)
+      }]
+    });
+
+    MyModel.connection(connector);
+
+
+    it("get() should work", function(done) {
+      var obj1 = MyModel.create();
+      obj1.attr1 = "foo";
+
+      obj1.saveQ().then(function(obj1_saved) {
+
+        var obj1_got = undefined;
+
+        MyModel.store.addWatcher(obj1_saved._id ,function(o) {
+          assert(obj1_got.attr1 === obj1.attr1);
+          assert(o.attr1 === obj1.attr1);
+
+          done();
+        });
+
+        obj1_got = MyModel.get(obj1_saved._id);
+      })
+
+    });
+
+    it("get(id) with previous valid id should be removed", function(done) {
+      MyModel.get(ObjectId("123456789012345678901234"));
+    });
+
+  });
+  */
 
 });

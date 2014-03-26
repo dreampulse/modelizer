@@ -38,21 +38,21 @@ Model.MongoConnector = function (databaseConnection) {
       return deferred.promise;
     };
 
-    // findOne overwrite - workaround for Bug #10
+/*    // findOne overwrite - workaround for Bug #10
     collection.findOne = function (search, callback) {
       collection.find(search, function (err, docs) {
         if (err) {
           callback(err, docs);
           return;
         }
-        if (docs.lengh < 1) {
+        if (docs.length < 1) {
           callback(err, null);
           return;
         }
         callback(err, docs[0]);
       });
     };
-
+*/
     return collection;  // the collection for this model
   }
 };
@@ -84,7 +84,7 @@ Model.prototype.serve = function () {
   // REST - GET all
   this.app.get('/' + this.modelName + '/all', function (req, res) {
     res.setHeader('Content-Type', 'application/json');
-    self.filtered_all(req)
+    self.filtered_allQ(req)
       .then(function (docs) {
         // pack data for transport
         for (var i = 0; i < docs.length; i++) {
@@ -106,7 +106,7 @@ Model.prototype.serve = function () {
   // REST - GET find
   this.app.post('/' + this.modelName + '/find', function (req, res) {
     res.setHeader('Content-Type', 'application/json');
-    self.filtered_find(req.body, req)
+    self.filtered_findQ(req.body, req)
       .then(function (docs) {
         // pack data for transport
         for (var i = 0; i < docs.length; i++) {
@@ -124,7 +124,7 @@ Model.prototype.serve = function () {
   // REST - GET id
   this.app.get('/' + this.modelName + '/:id', function (req, res) {
     res.setHeader('Content-Type', 'application/json');
-    self.filtered_get(req.params.id, req)
+    self.filtered_getQ(req.params.id, req)
       .then(function (doc) {
         // pack data for transport
         self._transform(self, doc, "pack");
@@ -156,7 +156,7 @@ Model.prototype.serve = function () {
     // unpack data for storage
     self._transform(self, req.body, "unpack");
 
-    self.filtered_save(req.body, req)
+    self.filtered_saveQ(req.body, req)
       .then(function (doc) {
         res.send(JSON.stringify(doc, null, 2));
       })
@@ -169,7 +169,7 @@ Model.prototype.serve = function () {
   // REST - remove doc
   this.app.del('/' + this.modelName + '/:id', function (req, res) {
     res.setHeader('Content-Type', 'application/json');
-    self.filtered_remove(req.params.id, req)
+    self.filtered_removeQ(req.params.id, req)
       .then(function () {
         res.send(200, {status:"OK"});
       })
@@ -184,7 +184,7 @@ Model.prototype.serve = function () {
   this.app.put('/' + this.modelName + '/:op', function (req, res) {
     res.setHeader('Content-Type', 'application/json');
     assert(req.body != undefined, "No body in request!");
-    self.filtered_callOp(req.params.op, req.body, req)
+    self.filtered_callOpQ(req.params.op, req.body, req)
       .then(function (result) {
         if (typeof result != 'object') {
           result = {"result":result};
@@ -203,7 +203,7 @@ Model.prototype.serve = function () {
 
 
 // use default get
-Model.prototype.filtered_get = function (id_str, req) {
+Model.prototype.filtered_getQ = function (id_str, req) {
   var ObjectId = require('mongojs').ObjectId;
   var id;
 
@@ -215,7 +215,7 @@ Model.prototype.filtered_get = function (id_str, req) {
     return deferred.promise;
   }
 
-  return this.filtered_find({_id: id}, req)
+  return this.filtered_findQ({_id: id}, req)
     .then(function (docs) {
       if (docs.length != 1) {
         var deferred = Q.defer();
@@ -228,7 +228,7 @@ Model.prototype.filtered_get = function (id_str, req) {
 };
 
 
-Model.prototype.filtered_find = function (search, req) {
+Model.prototype.filtered_findQ = function (search, req) {
   var filter = this._getReadFilter(req);
 
   if (filter === false) {  // deny all
@@ -247,16 +247,16 @@ Model.prototype.filtered_find = function (search, req) {
 
   // weiterrichen an die eigentliche Suche
   //console.log(search);
-  return this.find(search);
+  return this.findQ(search);
 };
 
 
-Model.prototype.filtered_all = function (req) {
-  return this.filtered_find({}, req);
+Model.prototype.filtered_allQ = function (req) {
+  return this.filtered_findQ({}, req);
 };
 
 
-Model.prototype.filtered_save = function (obj, req) {
+Model.prototype.filtered_saveQ = function (obj, req) {
   // TODO: ich übergebe da eigentlich ein doc kein obj!!
 
   var filter = this._getWriteFilter(obj, req);
@@ -278,12 +278,12 @@ Model.prototype.filtered_save = function (obj, req) {
 
 
   // weiterrichen an den Aufruf
-  return this.save(obj);
+  return this.saveQ(obj);
 
 };
 
 
-Model.prototype.filtered_remove = function (id_str, req) {
+Model.prototype.filtered_removeQ = function (id_str, req) {
   var self = this;
   var deferred = Q.defer();
 
@@ -296,7 +296,7 @@ Model.prototype.filtered_remove = function (id_str, req) {
     return deferred.promise;
   }
 
-  return self.get(id)
+  return self.getQ(id)
     .then(function (obj) {
       var filter = self._getWriteFilter(obj, req);
 
@@ -308,15 +308,15 @@ Model.prototype.filtered_remove = function (id_str, req) {
       }
 
       // weiterrichen an den Aufruf
-      return self.remove(id);
+      return self.removeQ(id);
     })
 };
 
 
-Model.prototype.filtered_callOp = function (operationName, params, HTMLrequest) {
+Model.prototype.filtered_callOpQ = function (operationName, params, HTMLrequest) {
   // todo security
   // todo: assure that operationName is in this.operations (security)
-  return this.callOp(operationName, params, HTMLrequest);
+  return this.callOpQ(operationName, params, HTMLrequest);
 };
 
 

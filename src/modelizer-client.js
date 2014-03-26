@@ -2,7 +2,7 @@
  *  The Client implementation of Modelizer
  *
  *  run:
- *  browserify modelizer-client.js -r ./modelizer-client:modelizer -r q -o ../browser-dist/modelizer.js
+ *  browserify ./lib/modelizer-client.js -r ./lib/modelizer-client:modelizer -r q -o ./browser-dist/modelizer.js
  */
 
 var Q = require('q');
@@ -83,7 +83,6 @@ Model.ClientConnector = function (host, port) {
 
       res.on('end', function () {
         data = JSON.parse(data);
-        //console.log("end", data);
 
         if (data.hasOwnProperty("error")) {
           callback(new Error(data.error), null);
