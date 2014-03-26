@@ -16,11 +16,17 @@ module.exports = function(grunt) {
       }
     },
 
+    clean: {
+      build: {
+        src: ["./lib", "./browser-dist"]
+      }
+    },
+
     copy: {
       main: {
         expand : true,
         cwd: 'src/',
-        src: '*.js',
+        src: ['model.js', 'modelizer.js', 'microlibs.js', 'modelizer-client.js', 'angular-client.js'],
         dest: 'lib/'
       }
     },
@@ -37,21 +43,66 @@ module.exports = function(grunt) {
         },
         src: ['test/*.js']
       }
+    },
+
+    karma: {
+      client: {
+        configFile: './test/integration/karma-client-connector.conf.js',
+        singleRun: true
+      },
+      angular: {
+        configFile: './test/integration/karma-angular-connector.conf.js',
+        singleRun: true
+      }//,
+//      phantom : {
+//        configFile: './test/integration/karma-client-connector.conf.js',
+//        singleRun: true,
+//        browsers: ['PhantomJS']
+//      }
+    },
+
+    // browserify ./lib/modelizer-client.js -r ./lib/modelizer-client:modelizer -r q -o ./browser-dist/modelizer.js
+    // browserify ./lib/angular-client.js -r ./lib/angular-client:modelizer -r q -o ./browser-dist/modelizer-angular.js
+    browserify: {
+      client : {
+        src : './lib/modelizer-client.js',
+        dest : './browser-dist/modelizer.js',
+        options: {
+          require : ['q'],
+          alias: ['./lib/modelizer-client:modelizer']
+        }
+      },
+      angular : {
+        src : './lib/angular-client.js',
+        dest : './browser-dist/modelizer-angular.js',
+        options: {
+          require : ['q'],
+          alias: ['./lib/angular-client:modelizer']
+        }
+      }
     }
+
   });
 
+  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-mocha-test');
+  grunt.loadNpmTasks('grunt-karma');
+  grunt.loadNpmTasks('grunt-release');
+  grunt.loadNpmTasks('grunt-npm-install');
+
+  grunt.registerTask('build', ['npm-install', 'clean', 'copy', 'browserify']);
 
   // this would be run by typing "grunt test" on the command line
-  grunt.registerTask('test', ['copy', 'mochaTest']);
+  grunt.registerTask('test', ['build', 'mochaTest', 'karma']);
   //grunt.registerTask('test', ['jshint', 'mochaTest']);
 
   // the default task can be run just by typing "grunt" on the command line
   //grunt.registerTask('default', ['jshint', 'mochaTest', 'copy']);
-  grunt.registerTask('default', ['copy', 'mochaTest']);
+  grunt.registerTask('default', ['build', 'mochaTest']);
 
 }
 
