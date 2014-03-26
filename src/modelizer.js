@@ -38,7 +38,7 @@ Model.MongoConnector = function (databaseConnection) {
       return deferred.promise;
     };
 
-    // findOne overwrite - workaround for Bug #10
+/*    // findOne overwrite - workaround for Bug #10
     collection.findOne = function (search, callback) {
       collection.find(search, function (err, docs) {
         if (err) {
@@ -52,7 +52,7 @@ Model.MongoConnector = function (databaseConnection) {
         callback(err, docs[0]);
       });
     };
-
+*/
     return collection;  // the collection for this model
   }
 };

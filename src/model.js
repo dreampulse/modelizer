@@ -11,6 +11,7 @@ var check = require('./microlibs').check;
 var isEmptyObject = require('./microlibs').isEmptyObject;
 
 var Q = require('q');
+//var _ = require('lodash');
 
 
 //////////////////////////
@@ -102,16 +103,27 @@ var Model = function(modelName, schema) {
 
 
 
+/*
 ///////
 // Der Store
 
 
+/// Problem: ich will eigentlich Mengen abonieren
+// das geht aber nicht so einfach
+// couchdb anschauen...
+
 // alle objekte werden hier gecached
-// TODO: an remove denken
+// TODO: an remove denken -> geht nicht in js
 Model.prototype.store = (function(){
   var store = {};  // private store
 
   var watchers = {};
+
+
+  var all = [];
+  var find = {};  // set of array with this results
+  // änderungen können dann per websocket immer rein kommen
+  // ist eigentlich ein abo an mengen...
 
   // todo use getters & setters
   return {
@@ -148,6 +160,10 @@ Model.prototype.store = (function(){
         return store[id];
       }
     },
+    all : function() {
+
+      return all;
+    },
     addWatcher : function(id, callback) {
       //assert(typeof id === 'string', 'id has to be a string');
       id = id.toString();
@@ -156,7 +172,7 @@ Model.prototype.store = (function(){
     }
   }
 })();
-
+*/
 
 // "Subclasses"
 
@@ -748,20 +764,24 @@ Model.prototype.loadFromDoc = function(doc, initObj) {
 };
 
 
+/*
 Model.prototype.get = function(id) {
   var self = this;
 
   this.getQ(id)
     .then(function(obj) {
-console.log("then()", obj);
       self.store.set(obj);
     })
     .fail(function(err) {
+      if (err.message == "Object not found!") {
+        self.store.del(id);
+      }
  console.log("get() fail", err);
     });
 
   return this.store.get(id);  // todo: was tun wenns id nicht gibt -> fail
 };
+*/
 
 Model.prototype.getQ = function(id, initObj) {
   var self = this;
@@ -827,10 +847,6 @@ Model.prototype.findQ = function(search, initObj) {
   return deferred.promise;
 };
 
-
-Model.prototype.all = function() {
-
-};
 
 Model.prototype.allQ = function(initObj) {
   return this.findQ({}, initObj);

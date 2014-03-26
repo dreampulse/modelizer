@@ -846,7 +846,7 @@ describe('Modelizer', function() {
           done("it should fail");
         })
         .fail(function(err) {
-          console.log("err", err);
+          assert(err.message === "Object not found!")
           done();
         });
     });
@@ -888,9 +888,9 @@ describe('Modelizer', function() {
 
     });
 
-//    it("get(id) with previous valid id should be removed", function(done) {
-//      MyModel.get(ObjectId("123456789012345678901234"));
-//    });
+    it("get(id) with previous valid id should be removed", function(done) {
+      MyModel.get(ObjectId("123456789012345678901234"));
+    });
 
   });
 
