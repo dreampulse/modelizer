@@ -940,7 +940,7 @@ Q()
 ## Further examples
 
 For more examples take a look in the folder ```examples/```
-
+(examples are outdated)
 
 # Development
 
