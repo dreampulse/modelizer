@@ -102,6 +102,62 @@ var Model = function(modelName, schema) {
 
 
 
+///////
+// Der Store
+
+
+// alle objekte werden hier gecached
+// TODO: an remove denken
+Model.prototype.store = (function(){
+  var store = {};  // private store
+
+  var watchers = {};
+
+  // todo use getters & setters
+  return {
+    set : function(obj) {
+      assert(typeof obj === 'object', 'obj has to be an object');
+      assert(obj.hasOwnProperty("_id"), 'obj has no id');
+
+      // assume ObjectID right now!
+      var id = obj._id.toString();
+      if (store.hasOwnProperty(id)) {  // this object already exists
+
+        for (var i in obj) {  // copy values
+          store[id][i] = obj[i];
+        }
+
+        if (watchers.hasOwnProperty(id)) {  // call watcher
+          watchers[id](obj);
+        }
+
+      } else {
+        assert(false, "actually no problem, but get() shoud be called before set() - in this case ;-)");
+        store[id] = new Object();
+      }
+    },
+    get : function(id) {  // implements a get or create
+
+      //assert(typeof id === 'string', 'id has to be a string');
+      id = id.toString();
+
+      if (store.hasOwnProperty(id)) {  // there is that object
+        return store[id];
+      } else {  // create a new object
+        store[id] = new Object();
+        return store[id];
+      }
+    },
+    addWatcher : function(id, callback) {
+      //assert(typeof id === 'string', 'id has to be a string');
+      id = id.toString();
+
+      watchers[id] = callback;  // todo können auch mehere sein
+    }
+  }
+})();
+
+
 // "Subclasses"
 
 
@@ -692,6 +748,21 @@ Model.prototype.loadFromDoc = function(doc, initObj) {
 };
 
 
+Model.prototype.get = function(id) {
+  var self = this;
+
+  this.getQ(id)
+    .then(function(obj) {
+console.log("then()", obj);
+      self.store.set(obj);
+    })
+    .fail(function(err) {
+ console.log("get() fail", err);
+    });
+
+  return this.store.get(id);  // todo: was tun wenns id nicht gibt -> fail
+};
+
 Model.prototype.getQ = function(id, initObj) {
   var self = this;
   var deferred = Q.defer();
@@ -754,6 +825,11 @@ Model.prototype.findQ = function(search, initObj) {
   });
 
   return deferred.promise;
+};
+
+
+Model.prototype.all = function() {
+
 };
 
 Model.prototype.allQ = function(initObj) {

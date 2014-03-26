@@ -27,13 +27,16 @@ module.exports = function(grunt) {
         expand : true,
         cwd: 'src/',
         src: ['model.js', 'modelizer.js', 'microlibs.js', 'modelizer-client.js', 'angular-client.js'],
-        dest: 'lib/'
+        dest: 'lib/',
+        options: {
+          mode: '0444'  // remove write permission (so you can't change generated code)
+        }
       }
     },
 
     watch: {
       files: ['<%= jshint.files %>'],
-      tasks: ['jshint']
+      tasks: ['build']
     },
 
     mochaTest: {
@@ -94,7 +97,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-release');
   grunt.loadNpmTasks('grunt-npm-install');
 
-  grunt.registerTask('build', ['npm-install', 'clean', 'copy', 'browserify']);
+  grunt.registerTask('build', ['clean', 'copy', 'browserify']);
+  grunt.registerTask('dist', ['npm-install', "build"]);
 
   // this would be run by typing "grunt test" on the command line
   grunt.registerTask('test', ['build', 'mochaTest', 'karma']);
@@ -102,7 +106,7 @@ module.exports = function(grunt) {
 
   // the default task can be run just by typing "grunt" on the command line
   //grunt.registerTask('default', ['jshint', 'mochaTest', 'copy']);
-  grunt.registerTask('default', ['build', 'mochaTest']);
+  grunt.registerTask('default', ['dist', 'mochaTest']);
 
 }
 

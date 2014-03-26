@@ -45,7 +45,7 @@ Model.MongoConnector = function (databaseConnection) {
           callback(err, docs);
           return;
         }
-        if (docs.lengh < 1) {
+        if (docs.length < 1) {
           callback(err, null);
           return;
         }

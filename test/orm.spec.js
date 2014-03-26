@@ -13,6 +13,7 @@ describe('Modelizer', function() {
   var MyModel1 = new model("MyModel1").attr("attr1", Types.string).attr("attr2", Types.string);
 
   var mongojs = require('mongojs');
+  var ObjectId = mongojs.ObjectId;
   var db = mongojs('mongodb://127.0.0.1/testModel1');
   var connector = model.MongoConnector(db);
   MyModel1.connection(connector);
@@ -837,6 +838,59 @@ describe('Modelizer', function() {
           }
         });
     });
+
+    it("should fail to get non existing Object", function(done) {
+      MyModel11.getQ(ObjectId("123456789012345678901234"))
+        .then(function(obj) {
+          console.log("obj", obj);
+          done("it should fail");
+        })
+        .fail(function(err) {
+          console.log("err", err);
+          done();
+        });
+    });
+
+  });
+
+  describe('Object Store', function() {
+    var MyModel = new model("MyModel", {
+      attr1 : Attr(Types.string),
+      nested: {
+        stuff : Attr(Types.string),
+        unnamed : Attr(Attr.default("unnamed"))
+      },
+      array : [{
+        foobar : Attr(Types.string)
+      }]
+    });
+
+    MyModel.connection(connector);
+
+
+    it("get() should work", function(done) {
+      var obj1 = MyModel.create();
+      obj1.attr1 = "foo";
+
+      obj1.saveQ().then(function(obj1_saved) {
+
+        var obj1_got = undefined;
+
+        MyModel.store.addWatcher(obj1_saved._id ,function(o) {
+          assert(obj1_got.attr1 === obj1.attr1);
+          assert(o.attr1 === obj1.attr1);
+
+          done();
+        });
+
+        obj1_got = MyModel.get(obj1_saved._id);
+      })
+
+    });
+
+//    it("get(id) with previous valid id should be removed", function(done) {
+//      MyModel.get(ObjectId("123456789012345678901234"));
+//    });
 
   });
 
