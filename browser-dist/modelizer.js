@@ -820,6 +820,10 @@ Model.prototype.loadFromDoc = function(doc, initObj) {
      // create stuff for attrArrays
     for (var i in model.attrArrays) {
 
+      if (doc[i] === undefined || doc[i] === null) {
+        obj[i] = [];
+      }
+
       // jedes element kopieren
       for (var j=0; j<doc[i].length; j++) {
         copy(obj[i][j], doc[i][j], model.attrArrays[i]);
@@ -1259,7 +1263,9 @@ if (typeof window === 'undefined') {
   }
 }
 */
-},{"./microlibs":1,"q":"qLuPo1"}],"tVRSAQ":[function(require,module,exports){
+},{"./microlibs":1,"q":"qLuPo1"}],"modelizer":[function(require,module,exports){
+module.exports=require('tVRSAQ');
+},{}],"tVRSAQ":[function(require,module,exports){
 /**
  *  The Client implementation of Modelizer
  *
@@ -1456,9 +1462,7 @@ Model.ClientConnector = function (host, port) {
 // CommonJS
 module.exports = Model;
 
-},{"./microlibs":1,"./model":2,"http":9,"q":"qLuPo1"}],"modelizer":[function(require,module,exports){
-module.exports=require('tVRSAQ');
-},{}],5:[function(require,module,exports){
+},{"./microlibs":1,"./model":2,"http":9,"q":"qLuPo1"}],5:[function(require,module,exports){
 /**
  * The buffer module from node.js, for the browser.
  *

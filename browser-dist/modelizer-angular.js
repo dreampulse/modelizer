@@ -1020,6 +1020,10 @@ Model.prototype.loadFromDoc = function(doc, initObj) {
      // create stuff for attrArrays
     for (var i in model.attrArrays) {
 
+      if (doc[i] === undefined || doc[i] === null) {
+        obj[i] = [];
+      }
+
       // jedes element kopieren
       for (var j=0; j<doc[i].length; j++) {
         copy(obj[i][j], doc[i][j], model.attrArrays[i]);
