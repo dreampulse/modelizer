@@ -708,7 +708,7 @@ describe('Modelizer', function() {
         assert(resObj.nested.stuff == "stuff");
 
         assert(resObj.hasOwnProperty("createAObjArray"), "create() method for ObjArray is missing after loading!");
-        assert(resObj.aObjArray.hasOwnProperty('createASubArray'), "recursive create() method is missing after loading!");
+        assert(resObj.aObjArray[0].hasOwnProperty('createASubArray'), "recursive create() method is missing after loading!");
 
         return resObj.aReference.loadQ();
       }).then(function(loadedObj) {
