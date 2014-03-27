@@ -871,7 +871,7 @@ describe('Modelizer', function() {
     var obj1 = MyModel.create();
     obj1.attr1 = "foo";
 
-    it("get() should work", function(done) {
+    it("$get() should work", function(done) {
 
       obj1.saveQ().then(function(obj1_saved) {
 
@@ -888,6 +888,11 @@ describe('Modelizer', function() {
         obj1_got = MyModel.$get(obj1_saved._id);
       })
 
+    });
+
+    it("$all() should have the created object", function(done) {
+      if (MyModel.$all()[0].attr1 == "foo") done();
+      else done("$all didn't work");
     });
 
     it("get(id) with previous valid id should be removed", function(done) {
@@ -907,6 +912,11 @@ describe('Modelizer', function() {
 
       }).done();
 
+    });
+
+    it("$all() should now be empty", function(done) {
+      if (MyModel.$all().length === 0) done();
+      else done("$all() didn't work");
     });
 
   });
