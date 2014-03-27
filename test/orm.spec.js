@@ -6,6 +6,7 @@ describe('Modelizer', function() {
   var Attr = model.Attr;
   var Ref = model.Ref;
   var RefArray = model.RefArray;
+  var ObjArray = model.ObjArray;
   var Operation = model.Operation;
   var Factory = model.Factory;
   var Types = model.Attr.Types;
@@ -640,6 +641,8 @@ describe('Modelizer', function() {
       aReference : Ref(MyModel10),
       aManyReferences : RefArray(MyModel10),
 
+      aObjArray : ObjArray(MyModel10),
+
       aOperation : Operation(),
 
       aFactory : Factory()
@@ -668,6 +671,9 @@ describe('Modelizer', function() {
       assert(MyModel9["aOperation"] != undefined);
       assert(MyModel9["aFactory"] != undefined);
 
+      assert(obj["createAObjArray"] != undefined);
+      var objArrayEl = obj.createAObjArray();
+      assert(objArrayEl.hasOwnProperty('stuff'));
 
       var resObj;
       Q().then(function() {

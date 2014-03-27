@@ -1100,6 +1100,9 @@ Model.prototype.findOneQ = function(search, initObj) {
   return deferred.promise;
 };
 
+Model.prototype.findOneQ = Model.prototype.findOne;
+
+
 Model.prototype.findQ = function(search, initObj) {
   var self = this;
   var deferred = Q.defer();
@@ -1121,6 +1124,8 @@ Model.prototype.findQ = function(search, initObj) {
 
   return deferred.promise;
 };
+
+Model.prototype.find = Model.prototype.findQ;
 
 Model.prototype.$all = function() {
   return this.store.all();
@@ -1241,6 +1246,10 @@ Model.prototype.processSchema = function(schema) {
     } else if (value._what == 'attrRefArray') {
       this.attrRefArray(entry, value.ref);
 
+      // it is an array with objects
+    } else if (value._what == 'attrObjArray') {
+      this.attrArray(entry, value.ref);
+
       // it is a operation definition
       // todo parameter validation
     } else if (value._what == 'operation') {
@@ -1290,6 +1299,13 @@ Model.Ref = function(reference) {
 Model.RefArray = function(reference) {
   return {
     '_what' : 'attrRefArray',
+    ref : reference
+  }
+}
+
+Model.ObjArray = function(reference) {
+  return {
+    '_what' : 'attrObjArray',
     ref : reference
   }
 }
