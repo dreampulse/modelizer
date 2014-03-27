@@ -808,23 +808,21 @@ Model.prototype.loadFromDoc = function(doc, initObj) {
 
   var copy = function(obj, doc, model) {
 
-    for (var j in doc) {  // kopiere alles was von der Datenquelle kommt
-      obj[j] = doc[j];
+    for (var i in doc) {  // kopiere alles was von der Datenquelle kommt
+      obj[i] = doc[i];    // todo remove
     }
 
     // copy Attribute Objects (a sub structure)
     for(var i in model.attrObjs) {
-      var attrObj = copy(obj[i], doc[i], model.attrObjs[i]);  // recursive
-      obj[i] = attrObj;
+      copy(obj[i], doc[i], model.attrObjs[i]);  // recursive
     }
 
      // create stuff for attrArrays
     for (var i in model.attrArrays) {
 
-      if (doc[i] && doc[i].length > 0) {
-        obj[i] = copy(obj[i], doc[i], model.attrArrays[i]);
-      } else {
-        obj[i] = doc[i];
+      // jedes element kopieren
+      for (var j=0; j<doc[i].length; j++) {
+        copy(obj[i][j], doc[i][j], model.attrArrays[i]);
       }
 
       var arrayName = i;
@@ -863,10 +861,9 @@ Model.prototype.loadFromDoc = function(doc, initObj) {
 
     // TODO: kopieren von anderen Methoden die durch das kopieren oben überschrieben werden
 
-    return obj;
   };
 
-  obj = copy(obj, doc, this);
+  copy(obj, doc, this);
 
   return obj;
 };
