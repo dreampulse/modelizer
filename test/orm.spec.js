@@ -169,7 +169,7 @@ describe('Modelizer', function() {
       assert(myObject2.myAttrObj.hasOwnProperty('attr1') && myObject2.myAttrObj.hasOwnProperty('attr2'));
 
       myObject2.saveQ()
-        .then(function() {
+        .then(function(obj) {
           done();
         })
         .fail(function(err) {
@@ -708,7 +708,7 @@ describe('Modelizer', function() {
         assert(resObj.nested.stuff == "stuff");
 
         assert(resObj.hasOwnProperty("createAObjArray"), "create() method for ObjArray is missing after loading!");
-        assert(resObj.nested.hasOwnProperty('createASubArray'), "recursive create() method is missing after loading!");
+        assert(resObj.aObjArray.hasOwnProperty('createASubArray'), "recursive create() method is missing after loading!");
 
         return resObj.aReference.loadQ();
       }).then(function(loadedObj) {
@@ -858,7 +858,6 @@ describe('Modelizer', function() {
     it("should fail to get non existing Object", function(done) {
       MyModel11.getQ(ObjectId("123456789012345678901234"))
         .then(function(obj) {
-          console.log("obj", obj);
           done("it should fail");
         })
         .fail(function(err) {

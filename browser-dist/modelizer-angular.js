@@ -946,6 +946,8 @@ Model.prototype._initObject = function() {
     var arrayName = i;
     arrayName = arrayName[0].toUpperCase() + arrayName.substr(1);
     obj["create" + arrayName] = this.createArrayElement(this.attrArrays[i], obj, i);
+
+    //obj[i].create = this.createArrayElement(this.attrArrays[i], obj, i);  // add create method directly on the array
   }
 
   return obj;
@@ -999,40 +1001,72 @@ Model.prototype._getWriteFilter = function(obj, req) {
 
 Model.prototype.loadFromDoc = function(doc, initObj) {
   var obj = initObj || this.create();
+
   // TODO: das hier überschreibt ja alle Methoden
   // da muss ich mir was besseres überlegen
 
-  for (var j in doc) {
-    obj[j] = doc[j];
-  }
 
-  // TODO: hier kopierere ich teilweise _initObject verhalten (-> kapseln )
+  var copy = function(obj, doc, model) {
 
-  // hier kümmere ich mich um die Referenzen
-  for(var j in this.attrRefs) {
-    var modelRef = this.attrRefs[j];
-    var ref_id = obj[j]._reference;
-    obj[j] = new this.reference(modelRef, this);
-    obj[j]._reference = ref_id;
-  }
-
-  // hier kümmere ich mich um Referenz-Arrays
-  for(var j in this.attrRefArrays) {
-    var modelRef = this.attrRefArrays[j];
-    var refArray = obj[j];
-
-    assert(typeof refArray.length === 'number');
-    for (var k=0; k<refArray.length; k++) {
-      var ref = refArray[k];
-      var ref_id = ref._reference;   // _reference retten
-      obj[j][k] = new this.arrayReference(modelRef, this);
-      obj[j][k]._reference = ref_id;       // zurück speichern
+    for (var j in doc) {  // kopiere alles was von der Datenquelle kommt
+      obj[j] = doc[j];
     }
-    this.arrayReferenceRoot(modelRef, obj, j);
-  }
 
-  // TODO: kopieren von anderen Methoden die durch das kopieren oben überschrieben werden
+    // copy Attribute Objects (a sub structure)
+    for(var i in model.attrObjs) {
+      var attrObj = copy(obj[i], doc[i], model.attrObjs[i]);  // recursive
+      obj[i] = attrObj;
+    }
 
+     // create stuff for attrArrays
+    for (var i in model.attrArrays) {
+
+      if (doc[i] && doc[i].length > 0) {
+        obj[i] = copy(obj[i], doc[i], model.attrArrays[i]);
+      } else {
+        obj[i] = doc[i];
+      }
+
+      var arrayName = i;
+      arrayName = arrayName[0].toUpperCase() + arrayName.substr(1);
+      obj["create" + arrayName] = model.createArrayElement(model.attrArrays[i], obj, i);
+
+  //    obj[i].create = this.createArrayElement(this.attrArrays[i], obj, i);  // add create method directly on the array
+    }
+
+
+    // TODO: hier kopierere ich teilweise _initObject verhalten (-> kapseln )
+    // TODO: big todo!!
+
+    // hier kümmere ich mich um die Referenzen
+    for(var j in model.attrRefs) {
+      var modelRef = model.attrRefs[j];
+      var ref_id = obj[j]._reference;
+      obj[j] = new model.reference(modelRef, model);
+      obj[j]._reference = ref_id;
+    }
+
+    // hier kümmere ich mich um Referenz-Arrays
+    for(var j in model.attrRefArrays) {
+      var modelRef = model.attrRefArrays[j];
+      var refArray = obj[j];
+
+      assert(typeof refArray.length === 'number');
+      for (var k=0; k<refArray.length; k++) {
+        var ref = refArray[k];
+        var ref_id = ref._reference;   // _reference retten
+        obj[j][k] = new model.arrayReference(modelRef, model);
+        obj[j][k]._reference = ref_id;       // zurück speichern
+      }
+      model.arrayReferenceRoot(modelRef, obj, j);
+    }
+
+    // TODO: kopieren von anderen Methoden die durch das kopieren oben überschrieben werden
+
+    return obj;
+  };
+
+  obj = copy(obj, doc, this);
 
   return obj;
 };
@@ -1156,7 +1190,6 @@ Model.prototype.saveQ = function(obj) {
 Model.prototype.save = Model.prototype.saveQ;
 
 Model.prototype.removeQ = function(id) {
-  console.log("removeQ", id, id instanceof ObjectId);
   var deferred = Q.defer();
   this.collection.remove({_id:id}, true, function(err, result) {
     if (err) {
