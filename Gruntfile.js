@@ -18,10 +18,11 @@ module.exports = function(grunt) {
 
     clean: {
       build: {
-        src: ["./lib", "./browser-dist"]
+        src: ["./browser-dist"]
       }
     },
 
+/*  // currently there is no need for that
     copy: {
       main: {
         expand : true,
@@ -33,7 +34,7 @@ module.exports = function(grunt) {
         }
       }
     },
-
+*/
     watch: {
       files: ['<%= jshint.files %>'],
       tasks: ['build']
@@ -97,7 +98,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-release');
   grunt.loadNpmTasks('grunt-npm-install');
 
-  grunt.registerTask('build', ['clean', 'copy', 'browserify']);
+  grunt.registerTask('build', ['clean', 'browserify']);
   grunt.registerTask('dist', ['npm-install', "build"]);
 
   // this would be run by typing "grunt test" on the command line
