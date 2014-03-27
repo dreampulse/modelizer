@@ -382,14 +382,14 @@ Model.prototype.store = (function(){
           store[id][i] = obj[i];
         }
 
-        updateSets();
+        updateSets();  // TODO: performace only do that if object changed (later)
 
         if (watchers.hasOwnProperty(id)) {  // call watcher
           watchers[id](obj);
         }
 
       } else {
-        assert(false, "actually no problem, but get() shoud be called before set() - in this case ;-)");
+        assert(false, "actually no problem, but get() should be called before set() - in this case ;-)");
         store[id] = new Object();
       }
     },
