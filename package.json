@@ -1,6 +1,6 @@
 {
   "name": "modelizer",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "An ORM-Mapper with a shared model between client and server for MongoDB",
   "main": "lib/modelizer.js",
   "directories": {
