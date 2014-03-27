@@ -958,13 +958,13 @@ Model.prototype.save = Model.prototype.saveQ;
 Model.prototype.removeQ = function(id) {
   var deferred = Q.defer();
   this.collection.remove({_id:id}, true, function(err, result) {
-    if (result.status == "OK") {  // success from a client call
-      deferred.resolve();
+    if (err) {
+      deferred.reject(new Error('Failed to remove document!'));
       return;
     }
 
-    if (err) {
-      deferred.reject(new Error('Failed to remove document!'));
+    if (result.status == "OK") {  // success from a client call
+      deferred.resolve();
       return;
     }
 
