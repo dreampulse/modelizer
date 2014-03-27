@@ -853,7 +853,7 @@ describe('Modelizer', function() {
 
   });
 
-  /*
+
   describe('Object Store', function() {
     var MyModel = new model("MyModel", {
       attr1 : Attr(Types.string),
@@ -868,10 +868,10 @@ describe('Modelizer', function() {
 
     MyModel.connection(connector);
 
+    var obj1 = MyModel.create();
+    obj1.attr1 = "foo";
 
     it("get() should work", function(done) {
-      var obj1 = MyModel.create();
-      obj1.attr1 = "foo";
 
       obj1.saveQ().then(function(obj1_saved) {
 
@@ -881,19 +881,34 @@ describe('Modelizer', function() {
           assert(obj1_got.attr1 === obj1.attr1);
           assert(o.attr1 === obj1.attr1);
 
+          MyModel.store.removeWatcher(obj1_saved._id);
           done();
         });
 
-        obj1_got = MyModel.get(obj1_saved._id);
+        obj1_got = MyModel.$get(obj1_saved._id);
       })
 
     });
 
     it("get(id) with previous valid id should be removed", function(done) {
-      MyModel.get(ObjectId("123456789012345678901234"));
+      var obj1_id = obj1._id;
+      obj1.removeQ().then(function(){
+        assert(MyModel.$get(obj1_id) && MyModel.$get(obj1_id).attr1 === "foo", "deleted object should still exist");
+
+
+        MyModel.store.addWatcher(obj1_id ,function(o) {
+          assert(o == undefined);
+          MyModel.store.removeWatcher(obj1_id);
+          done();
+        });
+
+        var obj1_got = MyModel.$get(obj1_id);
+        assert(obj1_got.attr1 == "foo");
+
+      }).done();
+
     });
 
   });
-  */
 
 });
