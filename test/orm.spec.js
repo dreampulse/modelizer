@@ -619,8 +619,14 @@ describe('Modelizer', function() {
   describe('Define Model in JSON-Notation', function() {
 
     var MyModel10 = new model("MyModel10", {
-      stuff : Attr(Types.string, Attr.default("some stuff"))
+      stuff : Attr(Types.string, Attr.default("some stuff")),
+
+      aSubArray : [{
+        aStringInsideOfTheArray : Attr(Types.string)
+      }]
+
     });
+
     MyModel10.connection(connector);
 
     var MyModel9 = new model("MyModel9", {
@@ -674,6 +680,7 @@ describe('Modelizer', function() {
       assert(obj["createAObjArray"] != undefined);
       var objArrayEl = obj.createAObjArray();
       assert(objArrayEl.hasOwnProperty('stuff'));
+      assert(objArrayEl.hasOwnProperty('createASubArray'));
 
       var resObj;
       Q().then(function() {
@@ -699,6 +706,9 @@ describe('Modelizer', function() {
         assert(resObj.aArray[0].aStringInsideOfTheArray == "bar");
 
         assert(resObj.nested.stuff == "stuff");
+
+        assert(resObj.hasOwnProperty("createAObjArray"), "create() method for ObjArray is missing after loading!");
+        assert(resObj.nested.hasOwnProperty('createASubArray'), "recursive create() method is missing after loading!");
 
         return resObj.aReference.loadQ();
       }).then(function(loadedObj) {

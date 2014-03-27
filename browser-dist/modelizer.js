@@ -956,6 +956,7 @@ Model.prototype.saveQ = function(obj) {
 Model.prototype.save = Model.prototype.saveQ;
 
 Model.prototype.removeQ = function(id) {
+  console.log("removeQ", id, id instanceof ObjectId);
   var deferred = Q.defer();
   this.collection.remove({_id:id}, true, function(err, result) {
     if (err) {
