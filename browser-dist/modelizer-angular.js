@@ -321,12 +321,12 @@ var Model = function(modelName, schema) {
 
 
   // init sample Server
-  if (Model.sampleServer) {
-    console.log("init sample server for", this.modelName);
+  if (Model.simpleServer) {
+    console.log("init simple server for", this.modelName);
 
     // say that our model should use express and the database connector
-    this.connection(Model.sampleServer.connector);
-    this.express(Model.sampleServer.app);
+    this.connection(Model.simpleServer.connector);
+    this.express(Model.simpleServer.app);
     this.serve();
   }
 
