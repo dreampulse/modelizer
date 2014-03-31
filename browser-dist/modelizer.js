@@ -361,7 +361,7 @@ Model.prototype.connection = function(connector) {
 Model.prototype.reference = function(refModel, parentModel) {
 
   // das weiterreichn wollte macht irgendwie probleme (sollte eigentlich auch ohne funktionieren) TODO
-  refModel.connection(parentModel.connector);  // mongodb connection an child modell durchreichen
+  //refModel.connection(parentModel.connector);  // mongodb connection an child modell durchreichen
 
   this.create = function() {
     var refObj = refModel.create();
@@ -433,7 +433,7 @@ Model.prototype.arrayReferenceRoot = function(refModel, obj, arrayName) {
 
 // Many-Referenzen (das laden aus der DB)
 Model.prototype.arrayReference = function(refModel, parentModel) {
-  refModel.connection(parentModel.connector);  // mongodb connection an child modell durchreichen
+  //refModel.connection(parentModel.connector);  // mongodb connection an child modell durchreichen
 
   this.loadQ = function() {   //TODO: ist ja genau das selbe Load wie beim reference!!
     var loadScope = this;

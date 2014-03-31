@@ -7,6 +7,10 @@ if (typeof window === 'undefined') {  // running in node-environment
   var models = require("./shared/models");
   var PersonModel = models.PersonModel;
   var ContentModel = models.ContentModel;
+  var PersonalSettingModel = models.PersonalSettingModel;
+  var AddressModel = models.AddressModel;
+  var ProfileModel = models.ProfileModel;
+  var PostingModel = models.PostingModel;
 
 } else {
   // http://stackoverflow.com/questions/17544965/unhandled-rejection-reasons-should-be-empty
@@ -20,7 +24,12 @@ if (typeof angular !== 'undefined') {
   var connector = modelizer.ClientConnector("localhost", "6123");
 }
 
+console.log("models", models);
 PersonModel.connection(connector);
+PersonalSettingModel.connection(connector);
+AddressModel.connection(connector);
+ProfileModel.connection(connector);
+PostingModel.connection(connector);
 ContentModel.connection(connector);
 
 var assert = function (condition, message) {
