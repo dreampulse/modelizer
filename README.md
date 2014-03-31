@@ -61,7 +61,7 @@ var model = require('modelizer');
 // Setup a express server at port 8080,
 // Serving all files at __dirname (current working directory)
 // and connect to the example database at localhost
-model.runSampleServer(__dirname, 8080, 'mongodb://127.0.0.1/example');
+model.runSimpleServer(__dirname, 8080, 'mongodb://127.0.0.1/example');
 
 // importing our model definitions
 var myModels = require('./models.js');
@@ -76,11 +76,6 @@ var myModels = require('./models.js');
 ```html
 ...
 <head>
-  <!-- External Library -->
-  <!-- You need to inclue AnguarJS and the Q-Library -->
-  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/q.js/1.0.0/q.min.js"></script>
-  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js"></script>
-
   <!-- The Modelizer Library -->
   <!-- If you use the sampleServer this is the way to load the library -->
   <script type="text/javascript" src="modelizer.js"></script>
@@ -92,7 +87,7 @@ var myModels = require('./models.js');
   <!-- This is an example how to use the model from the client / view -->
   <script type="text/javascript">
     // Define how to access the model (using AngularConnector to a remote model)
-    var connector = Model.AngularConnector("http://localhost:8080/");
+    var connector = Model.ClientConnector("localhost", 8000);
     UserModel.connection(connector);   // use the connector for the example Model
 
     // example Usage
@@ -944,6 +939,8 @@ For more examples take a look in the folder ```examples/```
 
 # Development
 
+Run ```grunt``` to build browser distribution libs.
+
 If you want to join our development team or if you have suggestions/feature requests write a mail :-)
 
 ## Testing
@@ -951,6 +948,7 @@ If you want to join our development team or if you have suggestions/feature requ
 
 You can find the unit- and integration tests in the ```test/``` folder. To run the tests use:
 
-* ```mocha```
-* ```karma start test/integration/karma.conf.js```
+* ```mocha``` or
+* ```grunt test``` to run unit- and integration tests
+
 
