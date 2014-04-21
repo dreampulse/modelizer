@@ -14,7 +14,7 @@ describe('Modelizer', function() {
   var MyModel1 = new model("MyModel1").attr("attr1", Types.string).attr("attr2", Types.string);
 
   var mongojs = require('mongojs');
-  var ObjectId = mongojs.ObjectId;
+  var ObjectId = require('../lib/objectid.js');
   var db = mongojs('mongodb://127.0.0.1/testModel1');
   var connector = model.MongoConnector(db);
   MyModel1.connection(connector);
@@ -465,7 +465,7 @@ describe('Modelizer', function() {
           assert(obj.attr1 === "A" && obj.attr2 === "C");
           done();
         })
-        //.done();
+        .done();
     });
 
     it('filter for attr1 should be A', function(done) {
@@ -479,7 +479,7 @@ describe('Modelizer', function() {
           assert(objs[0].attr1 === "A" && objs[1].attr1 === "A");
           done();
         })
-        //.done();
+        .done();
 
     });
 
@@ -494,7 +494,7 @@ describe('Modelizer', function() {
           assert(objs[0].attr1 === "A" && objs[0].attr2 === "B");
           done();
         })
-        //.done();
+        .done();
 
     });
 
@@ -504,7 +504,7 @@ describe('Modelizer', function() {
           assert(obj.attr1 === "A" && obj.attr2 === "B");
           done();
         })
-        //.done();
+        .done();
     });
 
     it("obj1 shouldn't be found", function(done) {
