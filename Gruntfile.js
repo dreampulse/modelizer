@@ -73,7 +73,7 @@ module.exports = function(grunt) {
         dest : './browser-dist/modelizer.js',
         options: {
           require : ['q'],
-          alias: ['./lib/modelizer-client:modelizer']
+          alias: ['./lib/modelizer-client:modelizer', 'objectid-browser:./objectid']
         }
       },
       angular : {
@@ -81,7 +81,7 @@ module.exports = function(grunt) {
         dest : './browser-dist/modelizer-angular.js',
         options: {
           require : ['q'],
-          alias: ['./lib/angular-client:modelizer']
+          alias: ['./lib/angular-client:modelizer', 'objectid-browser:./objectid']
         }
       }
     }

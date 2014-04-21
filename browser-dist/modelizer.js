@@ -1463,13 +1463,11 @@ module.exports = Model;
 },{"./microlibs":1,"./model":2,"http":9,"q":"qLuPo1"}],"modelizer":[function(require,module,exports){
 module.exports=require('tVRSAQ');
 },{}],5:[function(require,module,exports){
-/**
+/*!
  * The buffer module from node.js, for the browser.
  *
- * Author:   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
- * License:  MIT
- *
- * `npm install buffer`
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @license  MIT
  */
 
 var base64 = require('base64-js')
@@ -1486,17 +1484,14 @@ Buffer.poolSize = 8192
  *   === false   Use Object implementation (compatible down to IE6)
  */
 Buffer._useTypedArrays = (function () {
-   // Detect if browser supports Typed Arrays. Supported browsers are IE 10+,
-   // Firefox 4+, Chrome 7+, Safari 5.1+, Opera 11.6+, iOS 4.2+.
-  if (typeof Uint8Array !== 'function' || typeof ArrayBuffer !== 'function')
-    return false
-
-  // Does the browser support adding properties to `Uint8Array` instances? If
-  // not, then that's the same as no `Uint8Array` support. We need to be able to
-  // add all the node Buffer API methods.
-  // Bug in Firefox 4-29, now fixed: https://bugzilla.mozilla.org/show_bug.cgi?id=695438
+  // Detect if browser supports Typed Arrays. Supported browsers are IE 10+, Firefox 4+,
+  // Chrome 7+, Safari 5.1+, Opera 11.6+, iOS 4.2+. If the browser does not support adding
+  // properties to `Uint8Array` instances, then that's the same as no `Uint8Array` support
+  // because we need to be able to add all the node Buffer API methods. This is an issue
+  // in Firefox 4-29. Now fixed: https://bugzilla.mozilla.org/show_bug.cgi?id=695438
   try {
-    var arr = new Uint8Array(0)
+    var buf = new ArrayBuffer(0)
+    var arr = new Uint8Array(buf)
     arr.foo = function () { return 42 }
     return 42 === arr.foo() &&
         typeof arr.subarray === 'function' // Chrome 9-10 lack `subarray`
@@ -1539,14 +1534,14 @@ function Buffer (subject, encoding, noZero) {
   else if (type === 'string')
     length = Buffer.byteLength(subject, encoding)
   else if (type === 'object')
-    length = coerce(subject.length) // Assume object is an array
+    length = coerce(subject.length) // assume that object is array-like
   else
     throw new Error('First argument needs to be a number, array or string.')
 
   var buf
   if (Buffer._useTypedArrays) {
     // Preferred: Return an augmented `Uint8Array` instance for best performance
-    buf = augment(new Uint8Array(length))
+    buf = Buffer._augment(new Uint8Array(length))
   } else {
     // Fallback: Return THIS instance of Buffer (created by `new`)
     buf = this
@@ -1555,9 +1550,8 @@ function Buffer (subject, encoding, noZero) {
   }
 
   var i
-  if (Buffer._useTypedArrays && typeof Uint8Array === 'function' &&
-      subject instanceof Uint8Array) {
-    // Speed optimization -- use set if we're copying from a Uint8Array
+  if (Buffer._useTypedArrays && typeof subject.byteLength === 'number') {
+    // Speed optimization -- use set if we're copying from a typed array
     buf._set(subject)
   } else if (isArrayish(subject)) {
     // Treat array-ish objects as a byte array
@@ -1854,9 +1848,14 @@ Buffer.prototype.copy = function (target, target_start, start, end) {
   if (target.length - target_start < end - start)
     end = target.length - target_start + start
 
-  // copy!
-  for (var i = 0; i < end - start; i++)
-    target[i + target_start] = this[i + start]
+  var len = end - start
+
+  if (len < 100 || !Buffer._useTypedArrays) {
+    for (var i = 0; i < len; i++)
+      target[i + target_start] = this[i + start]
+  } else {
+    target._set(this.subarray(start, start + len), target_start)
+  }
 }
 
 function _base64Slice (buf, start, end) {
@@ -1925,7 +1924,7 @@ Buffer.prototype.slice = function (start, end) {
   end = clamp(end, len, len)
 
   if (Buffer._useTypedArrays) {
-    return augment(this.subarray(start, end))
+    return Buffer._augment(this.subarray(start, end))
   } else {
     var sliceLen = end - start
     var newBuf = new Buffer(sliceLen, undefined, true)
@@ -2368,7 +2367,7 @@ Buffer.prototype.inspect = function () {
  * Added in Node 0.12. Only available in browsers that support ArrayBuffer.
  */
 Buffer.prototype.toArrayBuffer = function () {
-  if (typeof Uint8Array === 'function') {
+  if (typeof Uint8Array !== 'undefined') {
     if (Buffer._useTypedArrays) {
       return (new Buffer(this)).buffer
     } else {
@@ -2393,9 +2392,9 @@ function stringtrim (str) {
 var BP = Buffer.prototype
 
 /**
- * Augment the Uint8Array *instance* (not the class!) with Buffer methods
+ * Augment a Uint8Array *instance* (not the Uint8Array class!) with Buffer methods
  */
-function augment (arr) {
+Buffer._augment = function (arr) {
   arr._isBuffer = true
 
   // save reference to original Uint8Array get/set methods before overwriting
@@ -3576,7 +3575,7 @@ var isArray = Array.isArray || function (xs) {
   // [https://gist.github.com/1020396] by [https://github.com/atk]
   object.atob || (
   object.atob = function (input) {
-    input = input.replace(/=+$/, '')
+    input = input.replace(/=+$/, '');
     if (input.length % 4 == 1) {
       throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");
     }
@@ -7571,7 +7570,122 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require("/Users/jonathan/Projects/modelizer/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":28,"/Users/jonathan/Projects/modelizer/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14,"inherits":13}],"q":[function(require,module,exports){
+},{"./support/isBuffer":28,"/Users/jonathan/Projects/modelizer/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14,"inherits":13}],"./objectid":[function(require,module,exports){
+module.exports=require('H6+VjG');
+},{}],"H6+VjG":[function(require,module,exports){
+/*
+*
+* Copyright (c) 2011 Justin Dearing (zippy1981@gmail.com)
+* Dual licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)
+* and GPL (http://www.opensource.org/licenses/gpl-license.php) version 2 licenses.
+* This software is not distributed under version 3 or later of the GPL.
+*
+* Version 1.0.1-dev
+
+* Changes made by Jonathan Häberle (jonathan.haeberle@gmail.com)
+* Published to BPM for browserify-usage
+*
+*/
+
+/**
+ * Javascript class that mimics how WCF serializes a object of type MongoDB.Bson.ObjectId
+ * and converts between that format and the standard 24 character representation.
+*/
+var ObjectId = (function () {
+    var increment = 0;
+    var pid = Math.floor(Math.random() * (32767));
+    var machine = Math.floor(Math.random() * (16777216));
+
+    if (typeof (localStorage) != 'undefined') {
+        var mongoMachineId = parseInt(localStorage['mongoMachineId']);
+        if (mongoMachineId >= 0 && mongoMachineId <= 16777215) {
+            machine = Math.floor(localStorage['mongoMachineId']);
+        }
+        // Just always stick the value in.
+        localStorage['mongoMachineId'] = machine;
+        document.cookie = 'mongoMachineId=' + machine + ';expires=Tue, 19 Jan 2038 05:00:00 GMT'
+    }
+    else {
+        var cookieList = document.cookie.split('; ');
+        for (var i in cookieList) {
+            var cookie = cookieList[i].split('=');
+            if (cookie[0] == 'mongoMachineId' && cookie[1] >= 0 && cookie[1] <= 16777215) {
+                machine = cookie[1];
+                break;
+            }
+        }
+        document.cookie = 'mongoMachineId=' + machine + ';expires=Tue, 19 Jan 2038 05:00:00 GMT';
+
+    }
+
+    function ObjId() {
+        if (!(this instanceof ObjectId)) {
+            return new ObjectId(arguments[0], arguments[1], arguments[2], arguments[3]).toString();
+        }
+
+        if (typeof (arguments[0]) == 'object') {
+            this.timestamp = arguments[0].timestamp;
+            this.machine = arguments[0].machine;
+            this.pid = arguments[0].pid;
+            this.increment = arguments[0].increment;
+        }
+        else if (typeof (arguments[0]) == 'string' && arguments[0].length == 24) {
+            this.timestamp = Number('0x' + arguments[0].substr(0, 8)),
+            this.machine = Number('0x' + arguments[0].substr(8, 6)),
+            this.pid = Number('0x' + arguments[0].substr(14, 4)),
+            this.increment = Number('0x' + arguments[0].substr(18, 6))
+        }
+        else if (arguments.length == 4 && arguments[0] != null) {
+            this.timestamp = arguments[0];
+            this.machine = arguments[1];
+            this.pid = arguments[2];
+            this.increment = arguments[3];
+        }
+        else {
+            this.timestamp = Math.floor(new Date().valueOf() / 1000);
+            this.machine = machine;
+            this.pid = pid;
+            this.increment = increment++;
+            if (increment > 0xffffff) {
+                increment = 0;
+            }
+        }
+    };
+    return ObjId;
+})();
+
+ObjectId.prototype.getDate = function () {
+    return new Date(this.timestamp * 1000);
+};
+
+ObjectId.prototype.toArray = function () {
+    var strOid = this.toString();
+    var array = [];
+    var i;
+    for(i = 0; i < 12; i++) {
+        array[i] = parseInt(strOid.slice(i*2, i*2+2), 16);
+    }
+    return array;
+};
+
+/**
+* Turns a WCF representation of a BSON ObjectId into a 24 character string representation.
+*/
+ObjectId.prototype.toString = function () {
+    var timestamp = this.timestamp.toString(16);
+    var machine = this.machine.toString(16);
+    var pid = this.pid.toString(16);
+    var increment = this.increment.toString(16);
+    return '00000000'.substr(0, 8 - timestamp.length) + timestamp +
+           '000000'.substr(0, 6 - machine.length) + machine +
+           '0000'.substr(0, 4 - pid.length) + pid +
+           '000000'.substr(0, 6 - increment.length) + increment;
+};
+
+module.exports = ObjectId;
+
+
+},{}],"q":[function(require,module,exports){
 module.exports=require('qLuPo1');
 },{}],"qLuPo1":[function(require,module,exports){
 (function (process){
@@ -9514,4 +9628,4 @@ return Q;
 });
 
 }).call(this,require("/Users/jonathan/Projects/modelizer/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/Users/jonathan/Projects/modelizer/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14}]},{},["tVRSAQ"]);
+},{"/Users/jonathan/Projects/modelizer/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14}]},{},["tVRSAQ"])

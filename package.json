@@ -9,7 +9,9 @@
   "dependencies": {
     "mongojs": "~0.9.9",
     "q": "~0.9.7",
-    "express": "~3.4.8"
+    "express": "~3.4.8",
+    "objectid-browser": "0.0.1",
+    "mongodb": "^1.4.2"
   },
   "devDependencies": {
     "mocha": "~1.17.1",
