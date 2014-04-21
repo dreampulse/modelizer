@@ -861,7 +861,7 @@ describe('Modelizer', function() {
           done("it should fail");
         })
         .fail(function(err) {
-          assert(err.message === "Object not found!")
+          assert(err.message === "Object not found!");
           done();
         });
     });
@@ -872,18 +872,59 @@ describe('Modelizer', function() {
   describe('Object linking', function() {
     var MyModel = new model("MyModel", {
       array : [{
-        foobar : Attr(Types.string)
+        foobar : Attr(Types.string),
+        subarray : [{
+          baz : Attr(Types.string)
+        }]
       }]
     });
 
     MyModel.connection(connector);
 
+    var obj = MyModel.create();
+
     it("every object in an array should have an _id", function(done) {
-      var obj = MyModel.create();
       var subObj = obj.createArray();
       if (subObj._id) done();
       else done("_id of object in an array is missing");
     });
+
+    it("should store a array element in the lookup-table", function(done) {
+      var id = obj.array[0]._id;
+
+      if (obj._childObjs[id]) done();
+      else done("object missing in the lookup-table");
+    });
+
+    it("should store a subobject in the lookup-table", function(done) {
+      var subObjId = obj.array[0].createSubarray()._id;
+
+      if (obj._childObjs[subObjId]) done();
+      else done("object missing in the lookup-table");
+    });
+
+    it("should rebuild lookup-table", function(done) {
+      obj.save()
+        .then(function(obj) {
+          return MyModel.get(obj._id);
+        })
+        .then(function(objLoaded){
+          //console.log(objLoaded);
+          assert(!objLoaded._childObjs[objLoaded._id], "reference to itself");
+          assert(objLoaded._childObjs[obj.array[0]._id]);
+          assert(objLoaded._childObjs[obj.array[0].subarray[0]._id]);
+          done();
+        })
+        .done();
+    });
+
+    it("should't store the lookup-table in the database", function(done) {
+      db.collection("MyModel").findOne({_id:obj._id}, function(err, doc) {
+        if (doc._childObjs) done("lookup-table has been stored");
+        else done();
+      });
+    });
+
   });
 
   describe('Object Store', function() {
