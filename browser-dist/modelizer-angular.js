@@ -245,6 +245,9 @@ var isEmptyObject = require('./microlibs').isEmptyObject;
 var Q = require('q');
 //var _ = require('lodash');
 
+// note: browserify will replace this ObjectId implementation by 'require("objectid-browser")' for the client
+var ObjectId = require('./objectid');
+
 
 //////////////////////////
 // The Model implementation
@@ -680,6 +683,10 @@ Model.prototype.createArrayElement = function(arrayModel, obj, arrayName) {
   // Das hier ist die Funktion um ein neues Array Element anzulegen
   return function() {
     var el = arrayModel._initObject(); // creates the new element
+
+    // add an unique id for each object in the array,
+    // to enable linking to that object
+    el._id = ObjectId();
 
     var array = obj[arrayName];
     array.push(el); // add the element to the array
@@ -1463,7 +1470,7 @@ if (typeof window === 'undefined') {
   }
 }
 */
-},{"./microlibs":3,"q":"qLuPo1"}],5:[function(require,module,exports){
+},{"./microlibs":3,"./objectid":"H6+VjG","q":"qLuPo1"}],5:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};

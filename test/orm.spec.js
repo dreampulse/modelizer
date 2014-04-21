@@ -869,6 +869,23 @@ describe('Modelizer', function() {
   });
 
 
+  describe('Object linking', function() {
+    var MyModel = new model("MyModel", {
+      array : [{
+        foobar : Attr(Types.string)
+      }]
+    });
+
+    MyModel.connection(connector);
+
+    it("every object in an array should have an _id", function(done) {
+      var obj = MyModel.create();
+      var subObj = obj.createArray();
+      if (subObj._id) done();
+      else done("_id of object in an array is missing");
+    });
+  });
+
   describe('Object Store', function() {
     var MyModel = new model("MyModel", {
       attr1 : Attr(Types.string),

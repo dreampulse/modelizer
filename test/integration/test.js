@@ -158,7 +158,7 @@ describe('Integration Tests', function() {
       addr.number = 1;
 
       dave.createAddress();
-      dave.address[1].street = "Second Home Town Street"
+      dave.address[1].street = "Second Home Town Street";
       dave.address[1].number = 2;
 
       dave.saveQ()
@@ -189,6 +189,8 @@ describe('Integration Tests', function() {
           assert(d.address[0].number === 1);
           assert(d.address[1].street === "Second Home Town Street");
           assert(d.address[1].number === 2);
+
+          if (!d.address[0]._id) done("Objects in array should have a _id");
 
           done();
         })
