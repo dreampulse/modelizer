@@ -85,6 +85,8 @@ var Model = function(modelName, schema) {
 
   this.attrRefArrays = {};
 
+  this.attrLinks = {};  // TODO
+
   this.operations = {};
 
   this.operationImpls = {};
@@ -308,6 +310,15 @@ Model.prototype.attrArray = function(attrName, obj) {
   return this;
 };
 
+Model.prototype.attrLink = function(linkName, model, link) {
+  this.attrLinks[linkName] = {
+    model : model,
+    link : link
+  };
+
+  return this;
+};
+
 
 Model.prototype.attrRefArray = function(attrName, obj) {
   this.attrRefArrays[attrName] = obj;
@@ -319,7 +330,7 @@ Model.prototype.attrRefArray = function(attrName, obj) {
 Model.prototype.operation = function(operationName) {
   this.operations[operationName] = operationName;
   this[operationName] = function(params) {
-    assert(this.collection != undefined, "Use a connectior!");
+    assert(this.collection != undefined, "Use a connector!");
     return this.callOpQ(operationName, params, null);
   };
 
@@ -358,6 +369,34 @@ Model.prototype.connection = function(connector) {
   this.collection = connector(this);
 };
 
+Model.prototype.link = function(model, linkModel) {
+  var object;
+  var subObject;
+
+  this.set = function(obj, link) {
+    //assert(obj instanceof model, "The object is not a instance of the right model");
+    //assert(link instanceof linkModel, "You linked to a model with the wrong type");
+    assert(link._id, "the target object has no _id");
+
+    object = obj;
+    subObject = link;
+    this._link = link._id;
+  };
+
+  this.init = function(obj) {
+    object = obj;
+  };
+
+  this.ref = function() {
+    if (object && this._link) {
+      var res = object._childObjs[this._link];
+      assert(res, "link missing in lookup-table");
+      return res;
+    } else {
+      throw new Error("Link not initialized");
+    }
+  }
+};
 
 // simuliert das verhalten einer referenz auf ein anderes Object
 // Zugriff dann mit object.ref().XXX
@@ -570,6 +609,15 @@ Model.prototype._addStore = function(obj) {
       //obj[i] = doc[i];  // copy back to obj
     }
 
+    // Speichern (vorbereiten) von Link-Attributen
+    for (var i in model.attrLinks) {
+      doc[i] = {};
+
+      if (obj[i]._link) {
+        doc[i]._link = obj[i]._link;
+      }
+    }
+
     // Speichern (vorbereiten) von Referenz-Arrays
     for (var i in model.attrRefArrays) {  // über alle Referenz Arrays die in meinem Modell vorkommen
       check(obj[i] instanceof Object, i + " not correctly provided");
@@ -725,7 +773,12 @@ Model.prototype._initObject = function(rootObject) {
   for(var i in this.attrRefs) {
     var modelRef = this.attrRefs[i];
     obj[i] = new this.reference(modelRef, this);
+  }
 
+  // create a links to objects
+  for(var i in this.attrLinks) {
+    var link = this.attrLinks[i];
+    obj[i] = new this.link(link.model, link.link);
   }
 
   // create a reference Array to another model
@@ -861,6 +914,15 @@ Model.prototype.loadFromDoc = function(doc, initObj) {
       var ref_id = obj[j]._reference;
       obj[j] = new model.reference(modelRef, model);
       obj[j]._reference = ref_id;
+    }
+
+    for(var j in model.attrLinks) {
+      var link = model.attrLinks[j];
+      var link_id = obj[j]._link;
+      obj[j] = new model.link(link.model, link.link);
+      if (link_id) {
+        obj[j]._link = link_id;
+      }
     }
 
     // hier kümmere ich mich um Referenz-Arrays
@@ -1099,6 +1161,10 @@ Model.prototype.processSchema = function(schema) {
     } else if (value._what == 'attrRef') {
       this.attrRef(entry, value.ref);
 
+      // it is a link to an object
+    } else if (value._what == 'attrLink') {
+      this.attrLink(entry, value.model, value.link);
+
       // it is a many Reference to another model
     } else if (value._what == 'attrRefArray') {
       this.attrRefArray(entry, value.ref);
@@ -1151,33 +1217,41 @@ Model.Ref = function(reference) {
     '_what' : 'attrRef',
     ref : reference
   };
-}
+};
+
+Model.Link = function(model, link) {
+  return {
+    '_what' : 'attrLink',
+    model : model,
+    link : link
+  };
+};
 
 Model.RefArray = function(reference) {
   return {
     '_what' : 'attrRefArray',
     ref : reference
   }
-}
+};
 
 Model.ObjArray = function(reference) {
   return {
     '_what' : 'attrObjArray',
     ref : reference
   }
-}
+};
 
 Model.Operation = function() {
   return {
     '_what' : 'operation'
   }
-}
+};
 
 Model.Factory = function() {
   return {
     '_what' : 'factory'
   }
-}
+};
 
 ///////////////////////////
 

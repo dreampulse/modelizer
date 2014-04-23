@@ -5,6 +5,7 @@ describe('Modelizer', function() {
   var model = require('../lib/modelizer');
   var Attr = model.Attr;
   var Ref = model.Ref;
+  var Link = model.Link;
   var RefArray = model.RefArray;
   var ObjArray = model.ObjArray;
   var Operation = model.Operation;
@@ -870,16 +871,24 @@ describe('Modelizer', function() {
 
 
   describe('Object linking', function() {
-    var MyModel = new model("MyModel", {
-      array : [{
-        foobar : Attr(Types.string),
-        subarray : [{
-          baz : Attr(Types.string)
-        }]
+    var MySubModel = new model("MySubModel", {
+      foobar : Attr(Types.string),
+      subarray : [{
+        baz : Attr(Types.string)
       }]
     });
 
+    var MyModel = new model("MyModel", {
+      array: ObjArray(MySubModel)
+    });
+
+    var MySourceModel = new model("MySourceModel", {
+      target : Ref(MyModel),
+      link : Link(MyModel, MySubModel)
+    });
+
     MyModel.connection(connector);
+    MySourceModel.connection(connector);
 
     var obj = MyModel.create();
 
@@ -924,6 +933,45 @@ describe('Modelizer', function() {
         else done();
       });
     });
+
+    var src_id;
+    var trg_link_id;
+    it("should be possible to set a link", function(done) {
+      var src = MySourceModel.create();
+      var trg = src.target.create();
+      var trgLink = trg.createArray();
+      trg_link_id = trgLink._id;
+
+      src.link.set(trg, trgLink);
+
+      var res = src.link.ref();
+
+      assert(trgLink._id.toString() === res._id.toString(), "linking failed");
+
+      trg.saveQ().then(function(){
+        return src.saveQ();
+      }).then(function(obj) {
+        src_id = obj._id;
+        done();
+      });
+    });
+
+    it("shout restore a link", function(done) {
+      var src;
+      var trg;
+      MySourceModel.getQ(src_id).then(function(srcObj) {
+        src = srcObj;
+        return src.target.loadQ();
+      }).then(function(trgObj){
+        trg = trgObj;
+
+        src.link.init(trg);
+
+        assert(src.link.ref()._id.toString() === trg_link_id.toString());
+        done();
+      }).done();
+    })
+
 
   });
 

@@ -24,7 +24,6 @@ if (typeof angular !== 'undefined') {
   var connector = modelizer.ClientConnector("localhost", "6123");
 }
 
-console.log("models", models);
 PersonModel.connection(connector);
 PersonalSettingModel.connection(connector);
 AddressModel.connection(connector);
