@@ -720,6 +720,10 @@ Model.prototype.create = function(initValues) {
   // lookup table of child objects
   obj._childObjs = {};
 
+  obj.getChild = function(id) {
+    return obj._childObjs[id];
+  }
+
   if (initValues) {
     for (var i in initValues) {
       obj[i] = initValues[i];
@@ -7781,8 +7785,6 @@ ObjectId.prototype.toString = function () {
 module.exports = ObjectId;
 
 
-},{}],"q":[function(require,module,exports){
-module.exports=require('qLuPo1');
 },{}],"qLuPo1":[function(require,module,exports){
 (function (process){
 // vim:ts=4:sts=4:sw=4:
@@ -9724,4 +9726,6 @@ return Q;
 });
 
 }).call(this,require("/Users/jonathan/Projects/modelizer/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/Users/jonathan/Projects/modelizer/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14}]},{},["tVRSAQ"])
+},{"/Users/jonathan/Projects/modelizer/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14}],"q":[function(require,module,exports){
+module.exports=require('qLuPo1');
+},{}]},{},["tVRSAQ"])

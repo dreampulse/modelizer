@@ -920,6 +920,10 @@ Model.prototype.create = function(initValues) {
   // lookup table of child objects
   obj._childObjs = {};
 
+  obj.getChild = function(id) {
+    return obj._childObjs[id];
+  }
+
   if (initValues) {
     for (var i in initValues) {
       obj[i] = initValues[i];
