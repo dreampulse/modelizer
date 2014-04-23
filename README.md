@@ -408,6 +408,8 @@ var ProjectsModel = new model('Project', {
 
 ```
 
+Within the Projects-Model there is now the array  ```participants``` with reference-IDs to employee objects.  
+
 #### Links (to subdocuments)
 
 Sometimes you need to link inside to specific document. Especially if you use nesed objects. Take a look at the folowing model:
@@ -467,10 +469,6 @@ MyCar.get([id of a car]).then(function(car) {
 });
 
 ```
-
-
-Within the Projects-Model there is now the array  ```participants``` with reference-IDs to employee objects.  
-
 
 ### Operation and Factories
 A very sexy feature of modelizer is the possibility to define operations for a model. An operation is a function on the model-scope, which can be called from within the client app and is implemented and runs on your server. The operation returns everything you want to your client. You never need to implement a REST-Handler for this again :-)
