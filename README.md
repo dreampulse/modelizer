@@ -354,7 +354,7 @@ var uppercase = function(value) {
 
 ### References
 
-The employee model from the previous chapter still includes everything in one Mongo-Document. There are many good reasons to build relationships between model-entities.  
+The employee model from the previous chapter still includes everything in one Mongo-Document. There are many good reasons to build relationships between model-entities. But remeber that nosql-databases to not guarantee integrety between documents! 
 
 
 #### 1:1 Relationships
@@ -407,6 +407,67 @@ var ProjectsModel = new model('Project', {
 });
 
 ```
+
+#### Links (to subdocuments)
+
+Sometimes you need to link inside to specific document. Especially if you use nesed objects. Take a look at the folowing model:
+
+```javascript
+
+var Car = new model("Cars", {
+  brand : Attr(Types.string),  // like 'A-Class', or Audi 'A8'
+  moreStuff : Attr(Types.string)
+});
+
+// Vendors of some cars
+var Vendor = new model("Vendors", {
+  name : Attr(Types.string),  // name of a vendor like: Daimler, or BMW
+
+  cars : ObjArray(Cars)  // <-- an array of many objects
+});
+
+// the Cars of my garage
+var MyCar = new model("MyCars", {
+  vendor : Ref(Vendor),
+  car : Link(Vendor, Car)  // <- this is a link to a object (Car) inside of a model (Vendor)
+});
+
+```
+
+Now create some objects, ahh.. I mean cars ;-)
+
+```javascript
+var myGolf = MyCar.create();
+
+var vendor = myGolf.vendor.create();
+vendor.name = "Volkswagen";
+var car = vendor.createCars();
+car.brand = "Golf";
+
+// now set the link to the object 
+myGolf.car.set(vendor, car);
+
+// you can now access you Car-Object via:
+myGolf.car.ref();  // -> returns a Car-Object 
+
+```
+
+If you recive a objec you need to init the link manually:
+
+```javascript
+var myGolf;
+MyCar.get([id of a car]).then(function(car) {
+  myGolf = car;
+  return car.vendor.load();  // load the referenced object
+}).then(function(vendor){
+
+  myGolf.car.init(vendor);  // <- this is the way to init a link
+  
+  // ...
+});
+
+```
+
 
 Within the Projects-Model there is now the array  ```participants``` with reference-IDs to employee objects.  
 
