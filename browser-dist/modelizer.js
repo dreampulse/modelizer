@@ -1273,6 +1273,15 @@ Model.Attr.default = function(def) {
   }
 };
 
+Model.Attr.required = function(def) {
+  return function (value) {
+    if (value === undefined || value === null || value === "") {
+      throw new Error("you have to provide a username (it is empty)");
+    }
+    return value;
+  }
+};
+
 Model.Attr.Types = {
   // define a string type
   string : function(value, action) {
