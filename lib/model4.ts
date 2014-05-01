@@ -1,4 +1,3 @@
-
 var ObjectId = (function() {
     var cnt = -1;
     return function () {
@@ -60,7 +59,7 @@ class LocalConnector {
         // setup Transport 1
         this.transport1.sendUpdate = (obj : Model) => {
             var objJSON = obj.toJSON();
-            var revObj = <Model>obj;
+            var revObj = <Model>obj; //Todo: oh nö!
             this.transport2.receiveUpdate(revObj);
         }
 
