@@ -161,7 +161,7 @@ class Collection {
 
 class Model {
 
-    private _collection : Collection;
+    _collection : Collection;
 
     constructor(modelName : string, collection : Collection) {
         this.type = modelName;
@@ -245,7 +245,7 @@ var fooView = new View<User>((obj, emit) => {
 }, appCollection);
 
 fooView.bind( (objs) => {
-    console.log("binding foo");
+    console.log("binding local");
     for (var key in objs) {
         console.log(key, " -> ", objs[key].toJSON());
     }
@@ -254,7 +254,10 @@ fooView.bind( (objs) => {
 
 
 var remoteView = new View<User>((obj, emit) => {
-    emit(user.id, user);
+    if (obj.type === "users") {
+        var user = <User>obj;
+        emit(user.id, user);
+    }
 }, remoteCollection);
 
 remoteView.bind( (objs) => {
@@ -273,16 +276,22 @@ user.adr = "foo";
 user.save();
 
 
-var user2 = new User();
-user2.name = "matthias";
-user2.adr = "foo";
+//var user2 = new User();
+//user2.name = "matthias";
+//user2.adr = "foo";
 
-appTransport.receiveUpdate(user2);
+//appTransport.receiveUpdate(user2);
 
-var user3 = new User();
-user3.name = "jonathan";
-user3.adr = "bar";
-user3.save();
+//var user3 = new User();
+//user3.name = "jonathan";
+//user3.adr = "bar";
+//user3.save();
+
+var user4 = new User();
+user4._collection = remoteCollection;
+user4.name = "katharina";
+user4.adr = "foo";
+user4.save();
 
 
 
