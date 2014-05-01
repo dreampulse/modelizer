@@ -52,6 +52,19 @@ class LocalConnector {
     private transport1;
     private transport2;
 
+    private createObjectFromJSON(objJSON : string, coll : Collection) : Model {
+        var revObj = JSON.parse(objJSON);
+        var obj = new Model(revObj.type, coll);
+
+        for (var key in revObj) {
+            if (revObj.hasOwnProperty(key)) {
+                obj[key] = revObj[key];
+            }
+        }
+
+        return obj;
+    }
+
     constructor(trans1 : Transport, trans2 : Transport) {
         this.transport1 = trans1;
         this.transport2 = trans2;
@@ -59,29 +72,26 @@ class LocalConnector {
         // setup Transport 1
         this.transport1.sendUpdate = (obj : Model) => {
             var objJSON = obj.toJSON();
-            var revObj = <Model>obj; //Todo: oh nö!
+            var revObj = this.createObjectFromJSON(objJSON, this.transport2.collection);
             this.transport2.receiveUpdate(revObj);
         }
 
         this.transport1.sendCreate = (obj : Model) => {
             var objJSON = obj.toJSON();
-            var revObj = <Model>obj;
-
+            var revObj = this.createObjectFromJSON(objJSON, this.transport2.collection);
             this.transport2.receiveCreate(revObj);
         }
 
         // setup Transport 2
         this.transport2.sendUpdate = (obj : Model) => {
             var objJSON = obj.toJSON();
-            var revObj = <Model>obj;
-
+            var revObj = this.createObjectFromJSON(objJSON, this.transport1.collection);
             this.transport1.receiveUpdate(revObj);
         }
 
         this.transport2.sendCreate = (obj : Model) => {
             var objJSON = obj.toJSON();
-            var revObj = <Model>obj;
-
+            var revObj = this.createObjectFromJSON(objJSON, this.transport1.collection);
             this.transport1.receiveCreate(revObj);
         }
 
