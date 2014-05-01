@@ -48,6 +48,7 @@ class View<T extends Model> {
     }
 }
 
+
 class LocalConnector {
     private transport1;
     private transport2;
@@ -90,10 +91,7 @@ class LocalConnector {
 
 class Transport {
 
-    private collection : Collection;
-    constructor(collection : Collection) {
-        this.collection = collection;
-    }
+    collection : Collection;
 
     sendUpdate(obj : Model) {
         //console.log("sendUpdate()", obj.toJSON());
@@ -122,6 +120,7 @@ class Collection {
         return this.objs[id];
     }
 
+    // a remote update occurred
     update(obj : Model) {
         this.objs[obj.id] = obj;
 
@@ -130,6 +129,7 @@ class Collection {
         });
     }
 
+    // a remote create occurred
     create(obj : Model) {
         this.objs[obj.id] = obj;
 
@@ -154,15 +154,19 @@ class Collection {
 
     setTransport(transport : Transport) {
         this.transport = transport;
+        this.transport.collection = this;
     }
 }
 
 
 class Model {
 
-    constructor(modelName : string) {
+    private _collection : Collection;
+
+    constructor(modelName : string, collection : Collection) {
         this.type = modelName;
         this.id = ObjectId();
+        this._collection = collection;
     }
 
     save() {
@@ -179,11 +183,6 @@ class Model {
         if (this._binding) {
             this._binding(obj);
         }
-    }
-
-    private _collection : Collection;
-    setCollection(collection:Collection) {
-        this._collection = collection;
     }
 
     toDoc() {
@@ -205,26 +204,34 @@ class Model {
     type : string;
 }
 
+
+// setup stuff
+
+var appCollection = new Collection();
+var appTransport = new Transport();
+appCollection.setTransport(appTransport);
+
+
 // Example Models
 
 class User extends Model {
-    constructor() { super("users"); }
+    constructor() {
+        super("users", appCollection);
+    }
 
     name : string;
     adr : string;
 
 }
 
-var theCollection = new Collection();
-var theTransport = new Transport(theCollection)
-theCollection.setTransport(theTransport);
 
+// pseudo remote stuff
 
 var remoteCollection = new Collection();
-var remoteTransport = new Transport(remoteCollection);
+var remoteTransport = new Transport();
 remoteCollection.setTransport(remoteTransport);
 
-var theConnector = new LocalConnector(theTransport, remoteTransport);
+var appConnector = new LocalConnector(appTransport, remoteTransport);
 
 
 
@@ -235,7 +242,7 @@ var fooView = new View<User>((obj, emit) => {
             emit(user.id, user);
         }
     }
-}, theCollection);
+}, appCollection);
 
 fooView.bind( (objs) => {
     console.log("binding foo");
@@ -258,23 +265,21 @@ remoteView.bind( (objs) => {
 });
 
 
+// example usage
 
 var user = new User();
-user.setCollection(theCollection);
 user.name = "jonthan";
 user.adr = "foo";
 user.save();
 
 
 var user2 = new User();
-user2.setCollection(theCollection);
 user2.name = "matthias";
 user2.adr = "foo";
 
-theTransport.receiveUpdate(user2);
+appTransport.receiveUpdate(user2);
 
 var user3 = new User();
-user3.setCollection(theCollection);
 user3.name = "jonathan";
 user3.adr = "bar";
 user3.save();
