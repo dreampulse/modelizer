@@ -7,50 +7,55 @@ var ObjectId = (function() {
 })();
 
 
-class View<T extends Model> {
-    private _objs : {[id:string] : Model} = {};
-    private _map : (obj:T, emit:(key:string, obj:T) => void ) => void;
-    private _collection : Collection;
+class View {
+    private objs : {[id:string] : Model} = {};
+    private map : (obj:Model, emit:(key:string, obj:Model) => void ) => void;
+    private collection : Collection;
+    name : string;
 
-    private emit : (key:string, obj:T) => void;
+    private emit : (key:string, obj:Model) => void;
 
-    constructor(map: (obj:T, emit:(key:string, obj:T) => void ) => void , collection:Collection) {
-        this._collection = collection;
-        this._map = map;
-        this._collection.addView(this);
+    constructor(name : string, map: (obj:Model, emit:(key:string, obj:Model) => void ) => void , collection:Collection) {
+        this.name = name;
+        this.collection = collection;
+        this.map = map;
+        this.collection.addView(this);
 
         // definition of the emit function
         var self = this;
-        this.emit = function(key:string, obj:T) {
-            self._objs[key] = obj;
+        this.emit = function(key:string, obj:Model) {
+            self.objs[key] = obj;
+            self.collection.transport.sendViewUpdate(obj);
             self.changed();
         }
     }
 
     // ein object hat sich verändert
-    update(obj : T) {
-        this._map(obj, this.emit);
+    update(obj : Model) {
+        this.map(obj, this.emit);
     }
 
     delete(id : string) {
-        if (this._objs[id]) delete this._objs[id];
+        if (this.objs[id]) delete this.objs[id];
         this.changed();
     }
 
-    private _binding : (objs : {[id:string] : Model}) => void;
+    private binding : (objs : {[id:string] : Model}) => void;
     bind(to : (objs : {[id:string] : Model}) => void) : void {
-        this._binding = to;
+        this.binding = to;
+        this.collection.transport.sendSubscribe(this);
+        this.binding(this.objs);
     }
 
     private changed() {
-        this._binding(this._objs);
+        this.binding(this.objs);
     }
 }
 
 
 class LocalConnector {
-    private transport1;
-    private transport2;
+    private transportApp;
+    private transportRemote;
 
     private createObjectFromJSON(objJSON : string, coll : Collection) : Model {
         var revObj = JSON.parse(objJSON);
@@ -65,35 +70,37 @@ class LocalConnector {
         return obj;
     }
 
-    constructor(trans1 : Transport, trans2 : Transport) {
-        this.transport1 = trans1;
-        this.transport2 = trans2;
+    constructor(transApp : Transport, transRemote : Transport) {
+        this.transportApp = transApp;
+        this.transportRemote = transRemote;
 
         // setup Transport 1
-        this.transport1.sendUpdate = (obj : Model) => {
+        this.transportApp.sendUpdate = (obj : Model) => {
             var objJSON = obj.toJSON();
-            var revObj = this.createObjectFromJSON(objJSON, this.transport2.collection);
-            this.transport2.receiveUpdate(revObj);
-        }
+            var revObj = this.createObjectFromJSON(objJSON, this.transportRemote.collection);
+            this.transportRemote.receiveUpdate(revObj);
+        };
 
-        this.transport1.sendCreate = (obj : Model) => {
+        this.transportApp.sendCreate = (obj : Model) => {
             var objJSON = obj.toJSON();
-            var revObj = this.createObjectFromJSON(objJSON, this.transport2.collection);
-            this.transport2.receiveCreate(revObj);
-        }
+            var revObj = this.createObjectFromJSON(objJSON, this.transportRemote.collection);
+            this.transportRemote.receiveCreate(revObj);
+        };
 
         // setup Transport 2
-        this.transport2.sendUpdate = (obj : Model) => {
+        this.transportRemote.sendUpdate = (obj : Model) => {
             var objJSON = obj.toJSON();
-            var revObj = this.createObjectFromJSON(objJSON, this.transport1.collection);
-            this.transport1.receiveUpdate(revObj);
+            var revObj = this.createObjectFromJSON(objJSON, this.transportApp.collection);
+            this.transportApp.receiveUpdate(revObj);
+        };
+
+        this.transportRemote.sendCreate = (obj : Model) => {
+            var objJSON = obj.toJSON();
+            var revObj = this.createObjectFromJSON(objJSON, this.transportApp.collection);
+            this.transportApp.receiveCreate(revObj);
         }
 
-        this.transport2.sendCreate = (obj : Model) => {
-            var objJSON = obj.toJSON();
-            var revObj = this.createObjectFromJSON(objJSON, this.transport1.collection);
-            this.transport1.receiveCreate(revObj);
-        }
+
 
     }
 }
@@ -104,6 +111,10 @@ class Transport {
 
     sendUpdate(obj : Model) {
         //console.log("sendUpdate()", obj.toJSON());
+    }
+
+    sendViewUpdate(obj : Model) {
+
     }
 
     sendCreate(obj : Model) {
@@ -117,13 +128,17 @@ class Transport {
     receiveCreate(newObject : Model) {
         this.collection.create(newObject);
     }
+
+    sendSubscribe(view : View) {
+
+    }
 }
 
 
 class Collection {
     private objs : {[id:string] : Model} = {};
-    private views : View<Model>[] = [];
-    private transport : Transport;
+    private views : {[viewName : string] : View} = {};
+    transport : Transport;
 
     getObject(id : string) : Model {
         return this.objs[id];
@@ -133,18 +148,18 @@ class Collection {
     update(obj : Model) {
         this.objs[obj.id] = obj;
 
-        this.views.forEach(view => {
-            view.update(obj);
-        });
+        for (var key in this.views) {
+            this.views[key].update(obj);
+        }
     }
 
     // a remote create occurred
     create(obj : Model) {
         this.objs[obj.id] = obj;
 
-        this.views.forEach(view => {
-            view.update(obj);
-        });
+        for (var key in this.views) {
+            this.views[key].update(obj);
+        }
     }
 
     save(obj : Model) {
@@ -157,8 +172,8 @@ class Collection {
         }
     }
 
-    addView(view : View<Model>) {
-        this.views.push(view);
+    addView(view : View) {
+        this.views[view.name] = view;
     }
 
     setTransport(transport : Transport) {
@@ -244,7 +259,7 @@ var appConnector = new LocalConnector(appTransport, remoteTransport);
 
 
 
-var fooView = new View<User>((obj, emit) => {
+var fooView = new View("fooView", (obj, emit) => {
     if (obj.type === "users") {
         var user = <User>obj;
         if (user.adr === "foo") {
@@ -262,7 +277,7 @@ fooView.bind( (objs) => {
 
 
 
-var remoteView = new View<User>((obj, emit) => {
+var remoteView = new View("remoteView", (obj, emit) => {
     if (obj.type === "users") {
         var user = <User>obj;
         emit(user.id, user);
