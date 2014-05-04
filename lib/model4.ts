@@ -54,9 +54,7 @@ class Inbound implements InboundChannel {
         } else if (cmd === 'create') {
             this.transport.receiveCreate(this.createObjectFromJSON(msg));
         } else if (cmd === 'subscribe') {
-            // not implemented yet
-        } else if (cmd === 'view update') {
-            // not implemented yet
+            this.transport.receiveSubscribe(msg);
         } else {
             throw new Error("unkown command! " + cmd);
         }
@@ -80,14 +78,6 @@ class Outbound {
         this.out.emit("create", objJSON);
     }
 
-    sendViewUpdate(viewName : string, obj : Model) : void {
-        var objJSON = obj.toJSON();
-        this.out.emit("view update", {
-            view : viewName,
-            obj : obj
-        });
-    }
-
     sendSubscribe(viewName : string) : void {
         this.out.emit("subscribe", viewName);
     }
@@ -105,10 +95,12 @@ interface Transport {
 
     receiveUpdate(obj : Model) : void;
     receiveCreate(obj : Model) : void;
+
     receiveSubscribe(viewName : string) : void;
 }
 
 
+// The communication from the Client to the Server
 class ClientServerImpl implements Transport {
     collection : Collection;
 
@@ -121,15 +113,17 @@ class ClientServerImpl implements Transport {
     }
 
     sendUpdate(obj : Model) : void {
+        console.log("client - sendUpdate()");
         this.out.sendUpdate(obj);
     }
 
     sendCreate(obj : Model) {
+        console.log("client - createUpdate()");
         this.out.sendCreate(obj);
     }
 
     sendViewUpdate(viewName : string, obj : Model) : void {
-        this.out.sendViewUpdate(viewName, obj);
+        //this.out.sendViewUpdate(viewName, obj);
     }
 
     sendSubscribe(viewName : string) : void {
@@ -137,24 +131,28 @@ class ClientServerImpl implements Transport {
     }
 
     receiveUpdate(obj : Model) : void {
+        console.log("client - receiveUpdate()");
         this.collection.update(obj);
     }
 
     receiveCreate(obj : Model) : void {
+        console.log("client - receiveCreate()");
         this.collection.create(obj);
     }
     receiveSubscribe(viewName : string) : void {
-
+        // noting to do for the client
     }
 
 }
 
+// The communication from the Server to the Client
 class ServerClientImpl implements Transport {
-    // spezial implementierung
 
     collection : Collection;
-
     private out : Outbound;
+
+    private subscribedViews : {[viewName : string] : View} = {};
+
 
     constructor(outChannel : OutboundCannel, collection : Collection) {
         this.out = new Outbound(outChannel);
@@ -163,43 +161,55 @@ class ServerClientImpl implements Transport {
     }
 
     sendUpdate(obj : Model) : void {
-        this.out.sendUpdate(obj);
+        // do noting
     }
 
     sendCreate(obj : Model) {
-        this.out.sendCreate(obj);
+        // do noting
     }
 
     sendViewUpdate(viewName : string, obj : Model) : void {
-        this.out.sendViewUpdate(viewName, obj);
+        console.log("server - sendViewUpdate()");
+        if (this.subscribedViews.hasOwnProperty(viewName)) {
+            this.out.sendUpdate(obj);
+        }
     }
 
     sendSubscribe(viewName : string) : void {
-        this.out.sendSubscribe(viewName);
+        // do noting
     }
 
     receiveUpdate(obj : Model) : void {
+        console.log("server - receiveUpdate()");
         this.collection.update(obj);
     }
 
     receiveCreate(obj : Model) : void {
+        console.log("server - receiveCreate()");
         this.collection.create(obj);
     }
     receiveSubscribe(viewName : string) : void {
-
+        console.log("receiveSubscribe", viewName);
+        this.subscribedViews[viewName] = null;
     }
 }
 
 
 class View {
-    private objs : {[id:string] : Model} = {};
-    private map : (obj:Model, emit:(key:string, obj:Model) => void ) => void;
-    private collection : Collection;
     name : string;
 
-    private emit : (key:string, obj:Model) => void;
+    private objs : {[id:string] : Model} = {};
+    private referencedObjsForObjs : {[id:string] : string[]} = {};           // die referenzierten Obj. die für dieses Obj benötigt werden -> für get
+    private referencedObjsForView : {[ref_id:string] : Model} = {};        // die referenzierten Obj. die für die View benötigt werden -> für update
 
-    constructor(name : string, map: (obj:Model, emit:(key:string, obj:Model) => void ) => void , collection:Collection) {
+    private map : (obj:Model, emit:(key:string, obj:Model) => void, get:(id:string) => Model ) => void;
+    private collection : Collection;
+
+
+    private emit : (key:string, obj:Model) => void;
+    private getObj : (viewObj:Model) => (id:string) => Model;
+
+    constructor(name : string, map: (obj:Model, emit:(key:string, obj:Model) => void, get:(id:string) => Model) => void, collection:Collection) {
         this.name = name;
         this.collection = collection;
         this.map = map;
@@ -210,13 +220,50 @@ class View {
         this.emit = function(key:string, obj:Model) {
             self.objs[key] = obj;
             self.collection.transport.sendViewUpdate(self.name, obj);
+            self.referencedObjsForObjs[obj.id].forEach((ref_id) => {
+                console.log("update for referenced objs", ref_id);
+                self.collection.transport.sendViewUpdate(self.name, self.referencedObjsForView[ref_id]);
+            });
             self.changed();
+        }
+
+        // get function for resolving references in map-function
+        this.getObj = function(viewObj : Model) {
+
+            // clear
+            if (self.referencedObjsForObjs[viewObj.id]) {
+                self.referencedObjsForObjs[viewObj.id].forEach((id) => {
+                    delete self.referencedObjsForView[id];
+                });
+            }
+            self.referencedObjsForObjs[viewObj.id] = [];
+
+            return function(id:string) : Model {
+                var obj = self.collection.getObject(id);
+
+                self.referencedObjsForObjs[viewObj.id].push(id);
+                self.referencedObjsForView[id] = viewObj;
+
+                return obj;
+            };
         }
     }
 
     // ein object hat sich verändert
     update(obj : Model) {
-        this.map(obj, this.emit);
+        //console.log("update view", this.name, obj.toJSON());
+        this.map(obj, this.emit, this.getObj(obj));
+
+        // an referenced object has changed
+        if (this.referencedObjsForView[obj.id]) {
+            this.referencedObjsForView[obj.id] = obj;
+            this.collection.transport.sendViewUpdate(this.name, obj);
+        }
+
+    }
+
+    create(obj : Model) {
+        this.update(obj);
     }
 
     delete(id : string) {
@@ -232,14 +279,15 @@ class View {
     }
 
     private changed() {
-        this.binding(this.objs);
+        if (this.binding)
+            this.binding(this.objs);
     }
 }
 
 
 class Collection {
     private objs : {[id:string] : Model} = {};
-    private views : {[viewName : string] : View} = {};
+    views : {[viewName : string] : View} = {};
     transport : Transport;
 
     getObject(id : string) : Model {
@@ -260,7 +308,7 @@ class Collection {
         this.objs[obj.id] = obj;
 
         for (var key in this.views) {
-            this.views[key].update(obj);
+            this.views[key].create(obj);
         }
     }
 
@@ -280,7 +328,7 @@ class Collection {
 }
 
 
-class Model {
+class Model { // rename to Obj
 
     _collection : Collection;
 
@@ -292,7 +340,7 @@ class Model {
 
     save() {
         this._collection.save(this);
-        this.ref +=1;
+        this.rev +=1;
     }
 
     private _binding : (obj : Model) => void;
@@ -321,7 +369,7 @@ class Model {
     }
 
     id : string;
-    ref : number = 0;
+    rev : number = 0;
     type : string;
 }
 
@@ -361,49 +409,83 @@ remoteCannel.inbound = appInbound;
 
 
 
+//
+//
+//var fooView = new View("fooView", (obj, emit) => {
+//    if (obj.type === "users") {
+//        var user = <User>obj;
+//        if (user.adr === "foo") {
+//            emit(user.id, user);
+//        }
+//    }
+//}, appCollection);
+//
+//fooView.bind( (objs) => {
+//    console.log("binding local");
+//    for (var key in objs) {
+//        console.log(key, " -> ", objs[key].toJSON());
+//    }
+//});
+//
+//
+//
+//var remoteView = new View("remoteView", (obj, emit) => {
+//    if (obj.type === "users") {
+//        var user = <User>obj;
+//        emit(user.id, user);
+//    }
+//}, remoteCollection);
+//
+//remoteView.bind( (objs) => {
+//    console.log("binding remote");
+//    for (var key in objs) {
+//        console.log(key, " -> ", objs[key].toJSON());
+//    }
+//});
 
 
-
-
-var fooView = new View("fooView", (obj, emit) => {
+var localView = new View("theView", (obj, emit, getObj) => {
     if (obj.type === "users") {
         var user = <User>obj;
-        if (user.adr === "foo") {
-            emit(user.id, user);
-        }
-    }
-}, appCollection);
-
-fooView.bind( (objs) => {
-    console.log("binding local");
-    for (var key in objs) {
-        console.log(key, " -> ", objs[key].toJSON());
-    }
-});
-
-
-
-var remoteView = new View("remoteView", (obj, emit) => {
-    if (obj.type === "users") {
-        var user = <User>obj;
+        if (user.id === 'id:user2') getObj("id:user1");
         emit(user.id, user);
     }
 }, remoteCollection);
 
-remoteView.bind( (objs) => {
-    console.log("binding remote");
+localView.bind( (objs) => {
+    console.log("remote binding");
     for (var key in objs) {
         console.log(key, " -> ", objs[key].toJSON());
     }
 });
+
+
+var remoteView = new View("theView", (obj, emit, getObj) => {
+    if (obj.type === "users") {
+        var user = <User>obj;
+        if (user.id === 'id:user2') getObj("id:user1");
+        emit(user.id, user);
+    }
+}, appCollection);
+
+remoteView.bind( (objs) => {
+        console.log("local binding");
+        for (var key in objs) {
+            console.log(key, " -> ", objs[key].toJSON());
+        }
+    });
+
 
 
 // example usage
 
 var user = new User();
+user.id = "id:user1";
 user.name = "jonthan";
 user.adr = "foo";
 user.save();
+
+
 
 
 //var user2 = new User();
@@ -412,16 +494,22 @@ user.save();
 
 //appTransport.receiveUpdate(user2);
 
-//var user3 = new User();
-//user3.name = "jonathan";
-//user3.adr = "bar";
-//user3.save();
+var user2 = new User();
+user2.id = "id:user2";
+user2.name = "jonathan";
+user2.adr = "bar";
+user2.save();
 
-var user4 = new User();
-user4._collection = remoteCollection;
-user4.name = "katharina";
-user4.adr = "foo";
-user4.save();
+//var user4 = new User();
+//user4._collection = remoteCollection;
+//user4.name = "katharina";
+//user4.adr = "foo";
+//user4.save();
 
 
 
+console.log("done()");
+
+user.save();
+
+console.log("done(2)");
