@@ -225,7 +225,7 @@ class View {
                 self.collection.transport.sendViewUpdate(self.name, self.referencedObjsForView[ref_id]);
             });
             self.changed();
-        }
+        };
 
         // get function for resolving references in map-function
         this.getObj = function(viewObj : Model) {
@@ -336,11 +336,17 @@ class Model { // rename to Obj
         this.type = modelName;
         this.id = ObjectId();
         this._collection = collection;
+
+        this.rev = {
+            token : Math.random().toString(16).substr(2),
+            seq : 0
+        };
     }
 
     save() {
         this._collection.save(this);
-        this.rev +=1;
+        this.rev.token = Math.random().toString(16).substr(2);
+        this.rev.seq = this.rev.seq += 1;
     }
 
     private _binding : (obj : Model) => void;
@@ -369,7 +375,10 @@ class Model { // rename to Obj
     }
 
     id : string;
-    rev : number = 0;
+    rev : {
+        token : string;
+        seq : number;
+    };
     type : string;
 }
 
