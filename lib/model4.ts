@@ -7,6 +7,190 @@ var ObjectId = (function() {
 })();
 
 
+interface OutboundCannel {
+    emit(cmd :string, msg : any);
+}
+
+interface InboundChannel {
+    on(key : string, msg : any);
+}
+
+
+class LocalChannel implements OutboundCannel {
+    inbound : InboundChannel;
+
+    constructor(inbound? : InboundChannel) {
+        this.inbound = inbound;
+    }
+
+    emit(cmd :string, msg : any) {
+        this.inbound.on(cmd, msg);
+    }
+}
+
+class Inbound implements InboundChannel {
+    private transport : Transport;
+
+    constructor(transport : Transport) {
+        this.transport = transport;
+    }
+
+    private createObjectFromJSON(objJSON : string) : Model {
+        var revObj = JSON.parse(objJSON);
+        var obj = new Model(revObj.type, this.transport.collection);
+
+        for (var key in revObj) {
+            if (revObj.hasOwnProperty(key)) {
+                obj[key] = revObj[key];
+            }
+        }
+
+        return obj;
+    }
+
+    on(cmd : string, msg : any) {
+        if (cmd === 'update') {
+            this.transport.receiveUpdate(this.createObjectFromJSON(msg));
+        } else if (cmd === 'create') {
+            this.transport.receiveCreate(this.createObjectFromJSON(msg));
+        } else if (cmd === 'subscribe') {
+            // not implemented yet
+        } else if (cmd === 'view update') {
+            // not implemented yet
+        } else {
+            throw new Error("unkown command! " + cmd);
+        }
+    }
+}
+
+class Outbound {
+    private out : OutboundCannel;
+
+    constructor(out : OutboundCannel) {
+        this.out = out;
+    }
+
+    sendUpdate(obj : Model) : void {
+        var objJSON = obj.toJSON();
+        this.out.emit("update", objJSON);
+    }
+
+    sendCreate(obj : Model) {
+        var objJSON = obj.toJSON();
+        this.out.emit("create", objJSON);
+    }
+
+    sendViewUpdate(viewName : string, obj : Model) : void {
+        var objJSON = obj.toJSON();
+        this.out.emit("view update", {
+            view : viewName,
+            obj : obj
+        });
+    }
+
+    sendSubscribe(viewName : string) : void {
+        this.out.emit("subscribe", viewName);
+    }
+
+}
+
+interface Transport {
+    collection : Collection;
+
+    sendUpdate(obj : Model) : void;
+    sendCreate(obj : Model) : void;
+
+    sendViewUpdate(viewName : string, obj : Model) : void ;
+    sendSubscribe(viewName : string) : void;
+
+    receiveUpdate(obj : Model) : void;
+    receiveCreate(obj : Model) : void;
+    receiveSubscribe(viewName : string) : void;
+}
+
+
+class ClientServerImpl implements Transport {
+    collection : Collection;
+
+    private out : Outbound;
+
+    constructor(outChannel : OutboundCannel, collection : Collection) {
+        this.out = new Outbound(outChannel);
+        this.collection = collection;
+        this.collection.transport = this;
+    }
+
+    sendUpdate(obj : Model) : void {
+        this.out.sendUpdate(obj);
+    }
+
+    sendCreate(obj : Model) {
+        this.out.sendCreate(obj);
+    }
+
+    sendViewUpdate(viewName : string, obj : Model) : void {
+        this.out.sendViewUpdate(viewName, obj);
+    }
+
+    sendSubscribe(viewName : string) : void {
+        this.out.sendSubscribe(viewName);
+    }
+
+    receiveUpdate(obj : Model) : void {
+        this.collection.update(obj);
+    }
+
+    receiveCreate(obj : Model) : void {
+        this.collection.create(obj);
+    }
+    receiveSubscribe(viewName : string) : void {
+
+    }
+
+}
+
+class ServerClientImpl implements Transport {
+    // spezial implementierung
+
+    collection : Collection;
+
+    private out : Outbound;
+
+    constructor(outChannel : OutboundCannel, collection : Collection) {
+        this.out = new Outbound(outChannel);
+        this.collection = collection;
+        this.collection.transport = this;
+    }
+
+    sendUpdate(obj : Model) : void {
+        this.out.sendUpdate(obj);
+    }
+
+    sendCreate(obj : Model) {
+        this.out.sendCreate(obj);
+    }
+
+    sendViewUpdate(viewName : string, obj : Model) : void {
+        this.out.sendViewUpdate(viewName, obj);
+    }
+
+    sendSubscribe(viewName : string) : void {
+        this.out.sendSubscribe(viewName);
+    }
+
+    receiveUpdate(obj : Model) : void {
+        this.collection.update(obj);
+    }
+
+    receiveCreate(obj : Model) : void {
+        this.collection.create(obj);
+    }
+    receiveSubscribe(viewName : string) : void {
+
+    }
+}
+
+
 class View {
     private objs : {[id:string] : Model} = {};
     private map : (obj:Model, emit:(key:string, obj:Model) => void ) => void;
@@ -25,7 +209,7 @@ class View {
         var self = this;
         this.emit = function(key:string, obj:Model) {
             self.objs[key] = obj;
-            self.collection.transport.sendViewUpdate(obj);
+            self.collection.transport.sendViewUpdate(self.name, obj);
             self.changed();
         }
     }
@@ -43,94 +227,12 @@ class View {
     private binding : (objs : {[id:string] : Model}) => void;
     bind(to : (objs : {[id:string] : Model}) => void) : void {
         this.binding = to;
-        this.collection.transport.sendSubscribe(this);
+        this.collection.transport.sendSubscribe(this.name);
         this.binding(this.objs);
     }
 
     private changed() {
         this.binding(this.objs);
-    }
-}
-
-
-class LocalConnector {
-    private transportApp;
-    private transportRemote;
-
-    private createObjectFromJSON(objJSON : string, coll : Collection) : Model {
-        var revObj = JSON.parse(objJSON);
-        var obj = new Model(revObj.type, coll);
-
-        for (var key in revObj) {
-            if (revObj.hasOwnProperty(key)) {
-                obj[key] = revObj[key];
-            }
-        }
-
-        return obj;
-    }
-
-    constructor(transApp : Transport, transRemote : Transport) {
-        this.transportApp = transApp;
-        this.transportRemote = transRemote;
-
-        // setup Transport 1
-        this.transportApp.sendUpdate = (obj : Model) => {
-            var objJSON = obj.toJSON();
-            var revObj = this.createObjectFromJSON(objJSON, this.transportRemote.collection);
-            this.transportRemote.receiveUpdate(revObj);
-        };
-
-        this.transportApp.sendCreate = (obj : Model) => {
-            var objJSON = obj.toJSON();
-            var revObj = this.createObjectFromJSON(objJSON, this.transportRemote.collection);
-            this.transportRemote.receiveCreate(revObj);
-        };
-
-        // setup Transport 2
-        this.transportRemote.sendUpdate = (obj : Model) => {
-            var objJSON = obj.toJSON();
-            var revObj = this.createObjectFromJSON(objJSON, this.transportApp.collection);
-            this.transportApp.receiveUpdate(revObj);
-        };
-
-        this.transportRemote.sendCreate = (obj : Model) => {
-            var objJSON = obj.toJSON();
-            var revObj = this.createObjectFromJSON(objJSON, this.transportApp.collection);
-            this.transportApp.receiveCreate(revObj);
-        }
-
-
-
-    }
-}
-
-class Transport {
-
-    collection : Collection;
-
-    sendUpdate(obj : Model) {
-        //console.log("sendUpdate()", obj.toJSON());
-    }
-
-    sendViewUpdate(obj : Model) {
-
-    }
-
-    sendCreate(obj : Model) {
-        //console.log("sendCreate()", obj.toJSON());
-    }
-
-    receiveUpdate(newObject : Model) {
-        this.collection.update(newObject);
-    }
-
-    receiveCreate(newObject : Model) {
-        this.collection.create(newObject);
-    }
-
-    sendSubscribe(view : View) {
-
     }
 }
 
@@ -174,11 +276,6 @@ class Collection {
 
     addView(view : View) {
         this.views[view.name] = view;
-    }
-
-    setTransport(transport : Transport) {
-        this.transport = transport;
-        this.transport.collection = this;
     }
 }
 
@@ -231,9 +328,12 @@ class Model {
 
 // setup stuff
 
+var appChannel = new LocalChannel();
+var remoteCannel = new LocalChannel();
+
 var appCollection = new Collection();
-var appTransport = new Transport();
-appCollection.setTransport(appTransport);
+var appTransport = new ClientServerImpl(appChannel, appCollection);
+var appInbound = new Inbound(appTransport);
 
 
 // Example Models
@@ -252,10 +352,16 @@ class User extends Model {
 // pseudo remote stuff
 
 var remoteCollection = new Collection();
-var remoteTransport = new Transport();
-remoteCollection.setTransport(remoteTransport);
+var remoteTransport = new ServerClientImpl(remoteCannel, remoteCollection);
+var remoteInbound = new Inbound(remoteTransport);
 
-var appConnector = new LocalConnector(appTransport, remoteTransport);
+appChannel.inbound = remoteInbound;
+remoteCannel.inbound = appInbound;
+
+
+
+
+
 
 
 
