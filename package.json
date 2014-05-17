@@ -11,8 +11,9 @@
     "q": "~0.9.7",
     "express": "~3.4.8",
     "objectid-browser": "0.0.1",
-    "mongodb": "^1.4.2",
-    "assert": "^1.1.1"
+    "mongodb": "^1.4.4",
+    "assert": "^1.1.1",
+    "collections": "^1.1.0"
   },
   "devDependencies": {
     "mocha": "~1.17.1",

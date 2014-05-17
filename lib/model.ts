@@ -1,3 +1,7 @@
+//import Collections = require('./Collectons');
+export import Storage = require('./storage');
+export import Transport = require('./transport');
+
 var ObjectId = (function() {
     var cnt = -1;
     return function () {
@@ -7,215 +11,21 @@ var ObjectId = (function() {
 })();
 
 
-export interface OutboundCannel {
-    emit(cmd :string, msg : any);
-}
-
-export interface InboundChannel {
-    on(key : string, msg : any);
-}
-
-// reicht alles einfach weiter
-export class LocalChannel implements OutboundCannel {
-    inbound : InboundChannel;
-
-    constructor(inbound? : InboundChannel) {
-        this.inbound = inbound;
-    }
-
-    emit(cmd :string, msg : any) {
-        this.inbound.on(cmd, msg);
-    }
-}
-
-// Eingehender Kommunikationskanal
-export class Inbound implements InboundChannel {
-    private transport : Transport;
-
-    constructor(transport : Transport) {
-        this.transport = transport;
-    }
-
-    private createObjectFromJSON(objJSON : string) : Obj {
-        var revObj = JSON.parse(objJSON);
-        var obj = new Obj(revObj.type, this.transport.collection);
-
-        for (var key in revObj) {
-            if (revObj.hasOwnProperty(key)) {
-                obj[key] = revObj[key];
-            }
-        }
-
-        return obj;
-    }
-
-    on(cmd : string, msg : any) {
-        if (cmd === 'update') {
-            this.transport.receiveUpdate(this.createObjectFromJSON(msg));
-        } else if (cmd === 'create') {
-            this.transport.receiveCreate(this.createObjectFromJSON(msg));
-        } else if (cmd === 'subscribe') {
-            this.transport.receiveSubscribe(msg);
-        } else {
-            throw new Error("unkown command! " + cmd);
-        }
-    }
-}
-
-// Ausgehender Kommunikationskanal
-export class Outbound {
-    private out : OutboundCannel;
-
-    constructor(out : OutboundCannel) {
-        this.out = out;
-    }
-
-    sendUpdate(obj : Obj) : void {
-        var objJSON = obj.toJSON();
-        this.out.emit("update", objJSON);
-    }
-
-    sendCreate(obj : Obj) {
-        var objJSON = obj.toJSON();
-        this.out.emit("create", objJSON);
-    }
-
-    sendSubscribe(viewName : string) : void {
-        this.out.emit("subscribe", viewName);
-    }
-
-}
-
-export interface Transport {
-    collection : Collection;
-
-    sendUpdate(obj : Obj) : void;
-    sendCreate(obj : Obj) : void;
-
-    sendViewUpdate(viewName : string, obj : Obj) : void ;
-    sendSubscribe(viewName : string) : void;
-
-    receiveUpdate(obj : Obj) : void;
-    receiveCreate(obj : Obj) : void;
-
-    receiveSubscribe(viewName : string) : void;
-}
-
-
-// The communication from the Client to the Server
-export class ClientServerImpl implements Transport {
-    collection : Collection;
-
-    private out : Outbound;
-
-    constructor(outChannel : OutboundCannel, collection : Collection) {
-        this.out = new Outbound(outChannel);
-        this.collection = collection;
-        this.collection.transport = this;
-    }
-
-    sendUpdate(obj : Obj) : void {
-        //console.log("client - sendUpdate()");
-        this.out.sendUpdate(obj);
-    }
-
-    sendCreate(obj : Obj) {
-        //console.log("client - createUpdate()");
-        this.out.sendCreate(obj);
-    }
-
-    sendViewUpdate(viewName : string, obj : Obj) : void {
-        //this.out.sendViewUpdate(viewName, obj);
-    }
-
-    sendSubscribe(viewName : string) : void {
-        this.out.sendSubscribe(viewName);
-    }
-
-    receiveUpdate(obj : Obj) : void {
-        //console.log("client - receiveUpdate()");
-        this.collection.update(obj);
-    }
-
-    receiveCreate(obj : Obj) : void {
-        //console.log("client - receiveCreate()");
-        this.collection.create(obj);
-    }
-    receiveSubscribe(viewName : string) : void {
-        // noting to do for the client
-    }
-
-}
-
-// The communication from the Server to the Client
-export class ServerClientImpl implements Transport {
-
-    collection : Collection;
-    private out : Outbound;
-
-    private subscribedViews : {[viewName : string] : View} = {};
-
-
-    constructor(outChannel : OutboundCannel, collection : Collection) {
-        this.out = new Outbound(outChannel);
-        this.collection = collection;
-        this.collection.transport = this;
-    }
-
-    sendUpdate(obj : Obj) : void {
-        // do noting
-    }
-
-    sendCreate(obj : Obj) {
-        // do noting
-    }
-
-    sendViewUpdate(viewName : string, obj : Obj) : void {
-        //console.log("server - sendViewUpdate()");
-        if (this.subscribedViews.hasOwnProperty(viewName)) {
-            this.out.sendUpdate(obj);
-        }
-    }
-
-    sendSubscribe(viewName : string) : void {
-        // do noting
-    }
-
-    receiveUpdate(obj : Obj) : void {
-        //console.log("server - receiveUpdate()");
-        this.collection.update(obj);
-    }
-
-    receiveCreate(obj : Obj) : void {
-        //console.log("server - receiveCreate()");
-        this.collection.create(obj);
-    }
-    receiveSubscribe(viewName : string) : void {
-        //console.log("receiveSubscribe", viewName);
-        this.subscribedViews[viewName] = null;
-    }
-}
-
 
 export class View {
     name : string;
 
     // alle View-Objekte
-    private objs : {[key:string] : Obj} = {};
+    //private objs : Collections.SortedMap<string,Obj> = new Collections.SortedMap();
+    objs : {[key:string] : Obj} = {};
 
-    // Welche Objekt zum konstruieren eines View-Objects benötigt werden
-    private referencedObjsForObjs : {[key:string] : string[]} = {};       // die referenzierten Obj. die für dieses Obj benötigt werden -> für get
-    // Objekte von denen die View abhängt
-    private referencedObjsForView : {[ref_id:string] : Obj} = {};        // die referenzierten Obj. die für die View benötigt werden -> für update
-
-    private map : (obj:Obj, emit:(key:string, obj:Obj) => void, get:(id:string) => Obj ) => void;
+    private map : (obj:Obj, emit:(key:string, obj:Obj) => void) => void;
     private collection : Collection;
 
 
     private emit : (key:string, obj:Obj) => void;
-    private getObj : (viewObj:Obj) => (id:string) => Obj;
 
-    constructor(name : string, map: (obj:Obj, emit:(key:string, obj:Obj) => void, get:(id:string) => Obj) => void, collection:Collection) {
+    constructor(name : string, map: (obj:Obj, emit:(key:string, obj:Obj) => void) => void, collection:Collection) {
         this.name = name;
         this.collection = collection;
         this.map = map;
@@ -226,49 +36,23 @@ export class View {
         this.emit = function(key:string, obj:Obj) {
             self.objs[key] = obj;
             self.collection.transport.sendViewUpdate(self.name, obj);
-            self.referencedObjsForObjs[obj.id].forEach((ref_id) => {         // <- die referenzierten objekte müssen dem client auch mitgeteilt werden
-                //console.log("update for referenced objs", ref_id);
-                self.collection.transport.sendViewUpdate(self.name, self.referencedObjsForView[ref_id]);
-            });
             self.changed();
         };
 
-        // get function for resolving references in map-function
-        this.getObj = function(viewObj : Obj) {
-
-            // clear
-            if (self.referencedObjsForObjs[viewObj.id]) {
-                self.referencedObjsForObjs[viewObj.id].forEach((id) => {
-                    delete self.referencedObjsForView[id];
-                });
-            }
-            self.referencedObjsForObjs[viewObj.id] = [];
-
-            return function(id:string) : Obj {
-                var obj = self.collection.getObject(id);
-
-                self.referencedObjsForObjs[viewObj.id].push(id);
-                self.referencedObjsForView[id] = viewObj;
-
-                return obj;
-            };
-        }
     }
 
     // ein object hat sich verändert
     update(obj : Obj) {
         //console.log("update view", this.name, obj.toJSON());
-        this.map(obj, this.emit, this.getObj(obj));
-
-        // an referenced object has changed
-        if (this.referencedObjsForView[obj.id]) {
-            this.referencedObjsForView[obj.id] = obj;
-            this.collection.transport.sendViewUpdate(this.name, obj);
-        }
-
+        this.map(obj, this.emit);
     }
 
     create(obj : Obj) {
+        this.update(obj);
+    }
+
+    // synced from somewhere
+    sync(obj : Obj) {
         this.update(obj);
     }
 
@@ -277,7 +61,7 @@ export class View {
         this.changed();
     }
 
-    private binding : (objs : {[id:string] : Obj}) => void;
+    private binding : (objs : {[key:string] : Obj}) => void;
     bind(to : (objs : {[id:string] : Obj}) => void) : void {
         this.binding = to;
         this.collection.transport.sendSubscribe(this.name);
@@ -294,7 +78,8 @@ export class View {
 export class Collection {
     objs : {[id:string] : Obj} = {};
     views : {[viewName : string] : View} = {};
-    transport : Transport;
+    private store : Storage.Storage = new Storage.NullStorage();
+    transport : Transport.Transport;
 
     getObject(id : string) : Obj {
         return this.objs[id];
@@ -303,6 +88,8 @@ export class Collection {
     // a remote update occurred
     update(obj : Obj) {
         this.objs[obj.id] = obj;
+
+        this.store.update(obj);
 
         for (var key in this.views) {
             this.views[key].update(obj);
@@ -313,8 +100,19 @@ export class Collection {
     create(obj : Obj) {
         this.objs[obj.id] = obj;
 
+        this.store.create(obj);
+
         for (var key in this.views) {
             this.views[key].create(obj);
+        }
+    }
+
+    // a object has been loaded from database
+    sync(obj: Obj) {
+        this.objs[obj.id] = obj;
+
+        for (var key in this.views) {
+            this.views[key].sync(obj);
         }
     }
 
@@ -330,6 +128,34 @@ export class Collection {
 
     addView(view : View) {
         this.views[view.name] = view;
+    }
+
+    // sync the views with all objects from the collection
+    syncViews() {
+        // init view with objects from the collection
+        for (var i in this.objs) {
+            var obj = this.objs[i];
+            for (var j in this.views) {
+                this.views[j].sync(obj);
+            }
+        }
+
+    }
+
+    setStore(store : Storage.Storage) : Storage.Promise {
+        var Q = new Storage.Promise();
+
+        this.store = store;
+
+        this.store.init().then(() => {
+            this.store.all((obj) => {
+                this.sync(obj);
+            });
+
+            Q.resolve();
+        });
+
+        return Q;
     }
 }
 
@@ -379,6 +205,18 @@ export class Obj {
 
     toJSON() : string {
         return JSON.stringify(this.toDoc(), null, 2);
+    }
+
+    static createObjectFromJSON(objJSON : Obj, collection : Collection) : Obj {
+        var obj = new Obj(objJSON.type, collection);
+
+        for (var key in objJSON) {
+            if (objJSON.hasOwnProperty(key)) {
+                obj[key] = objJSON[key];
+            }
+        }
+
+        return obj;
     }
 
     id : string;
