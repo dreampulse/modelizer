@@ -60,7 +60,7 @@ describe('modelizer', function() {
             //console.log(' (o) create test object');
             user = new User("user", appCollection);
             user.name = "jonathan";
-            user.email = "jonathan@e.mail";
+            user.email = "modelizer@dreampulse.de";
             user.save();
         });
 

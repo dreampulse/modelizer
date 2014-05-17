@@ -15,7 +15,7 @@ export interface InboundChannel {
     on(key : string, msg : any);
 }
 
-
+// reicht alles einfach weiter
 export class LocalChannel implements OutboundCannel {
     inbound : InboundChannel;
 
@@ -28,6 +28,7 @@ export class LocalChannel implements OutboundCannel {
     }
 }
 
+// Eingehender Kommunikationskanal
 export class Inbound implements InboundChannel {
     private transport : Transport;
 
@@ -61,6 +62,7 @@ export class Inbound implements InboundChannel {
     }
 }
 
+// Ausgehender Kommunikationskanal
 export class Outbound {
     private out : OutboundCannel;
 
@@ -198,8 +200,12 @@ export class ServerClientImpl implements Transport {
 export class View {
     name : string;
 
-    private objs : {[id:string] : Obj} = {};
-    private referencedObjsForObjs : {[id:string] : string[]} = {};           // die referenzierten Obj. die für dieses Obj benötigt werden -> für get
+    // alle View-Objekte
+    private objs : {[key:string] : Obj} = {};
+
+    // Welche Objekt zum konstruieren eines View-Objects benötigt werden
+    private referencedObjsForObjs : {[key:string] : string[]} = {};       // die referenzierten Obj. die für dieses Obj benötigt werden -> für get
+    // Objekte von denen die View abhängt
     private referencedObjsForView : {[ref_id:string] : Obj} = {};        // die referenzierten Obj. die für die View benötigt werden -> für update
 
     private map : (obj:Obj, emit:(key:string, obj:Obj) => void, get:(id:string) => Obj ) => void;
@@ -220,7 +226,7 @@ export class View {
         this.emit = function(key:string, obj:Obj) {
             self.objs[key] = obj;
             self.collection.transport.sendViewUpdate(self.name, obj);
-            self.referencedObjsForObjs[obj.id].forEach((ref_id) => {
+            self.referencedObjsForObjs[obj.id].forEach((ref_id) => {         // <- die referenzierten objekte müssen dem client auch mitgeteilt werden
                 //console.log("update for referenced objs", ref_id);
                 self.collection.transport.sendViewUpdate(self.name, self.referencedObjsForView[ref_id]);
             });
@@ -328,7 +334,8 @@ export class Collection {
 }
 
 
-export class Obj { // rename to Obj
+// Object definitions are derived from this class
+export class Obj {
 
     _collection : Collection;
 
