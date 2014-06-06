@@ -884,8 +884,8 @@ Model.prototype.loadFromDoc = function(doc, initObj) {
       obj[i] = doc[i];    // todo remove
     }
 
-    for (var i in model.attr) {
-      obj[i.name] = doc[i.name];
+    for (var i in model.attrs) {
+      obj[i] = doc[i];
     }
 
     // copy Attribute Objects (a sub structure)
