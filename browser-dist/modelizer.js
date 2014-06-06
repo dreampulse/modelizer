@@ -879,17 +879,17 @@ Model.prototype.loadFromDoc = function(doc, initObj) {
 
 
   var copy = function(obj, doc, model) {
+    if (!doc) {  // doc missing
+      doc = {};  // use empty one
+    }
+
 
     for (var i in doc) {  // kopiere alles was von der Datenquelle kommt
       obj[i] = doc[i];    // todo remove
     }
 
     for (var i in model.attrs) {
-      if (doc[i]) {
         obj[i] = doc[i];
-      } else {
-        obj[i] = undefined;
-      }
     }
 
     // copy Attribute Objects (a sub structure)
