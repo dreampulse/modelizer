@@ -881,6 +881,9 @@ Model.prototype.loadFromDoc = function(doc, initObj) {
   var copy = function(obj, doc, model) {
     if (!doc) {  // doc missing
       doc = {};  // use empty one
+      if (!obj) {
+        obj = {};
+      }
     }
 
 
@@ -894,7 +897,6 @@ Model.prototype.loadFromDoc = function(doc, initObj) {
 
     // copy Attribute Objects (a sub structure)
     for(var i in model.attrObjs) {
-      obj[i] = {};
       copy(obj[i], doc[i], model.attrObjs[i]);  // recursive
     }
 
