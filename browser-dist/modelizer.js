@@ -98,6 +98,8 @@ var Model = function(modelName, schema) {
   // setup filters for using the model
   this.readFilters = [];
 
+  this.afterReadFilters = function() { };  // only one
+
 
   // setup write filters for using the model
   this.writeFilters = [];
@@ -830,6 +832,10 @@ Model.prototype.readFilter = function(fn) {
   this.readFilters.push(fn);
 };
 
+Model.prototype.afterReadFilter = function(fn) {
+  this.afterReadFilters = fn;
+}
+
 
 // create the filter hash (mongo search string)
 Model.prototype._getReadFilter = function(req) {
@@ -1067,16 +1073,25 @@ Model.prototype.findQ = function(search, initObj) {
   self.collection.find(search, function(err, docs) {
     if (err) return deferred.reject(err);
     var objs = initObj || self.createCollection();
+    var promises = [];
 
     // für jedes document in der DB ein object anlegen
     for (var i=0; i<docs.length; i++) {
       var doc = docs[i];
       var obj = self.loadFromDoc(doc);
 
-      objs.push(obj);
+      promises.push(
+        Q(self.afterReadFilters(obj))
+          .then(function() {
+            objs.push(obj);
+          })
+      );
     }
 
-    deferred.resolve(objs);
+    return Q.all(promises)
+      .then(function() {
+        deferred.resolve(objs);
+      })
   });
 
   return deferred.promise;
@@ -7831,6 +7846,8 @@ ObjectId.prototype.toString = function () {
 module.exports = ObjectId;
 
 
+},{}],"q":[function(require,module,exports){
+module.exports=require('qLuPo1');
 },{}],"qLuPo1":[function(require,module,exports){
 (function (process){
 // vim:ts=4:sts=4:sw=4:
@@ -9772,6 +9789,4 @@ return Q;
 });
 
 }).call(this,require("/Users/jonathan/Projects/modelizer/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/Users/jonathan/Projects/modelizer/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14}],"q":[function(require,module,exports){
-module.exports=require('qLuPo1');
-},{}]},{},["tVRSAQ"])
+},{"/Users/jonathan/Projects/modelizer/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14}]},{},["tVRSAQ"])

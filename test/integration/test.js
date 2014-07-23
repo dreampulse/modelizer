@@ -473,6 +473,19 @@ describe('Integration Tests', function() {
         });
     });
 
+    it('should have a working afterReadFilter', function(done) {
+      ContentModel.allQ()
+        .then(function(objs){
+          if (objs.length != 1) done("One element expected");
+          if (objs[0].afterRead !== 'it worked!') done("afterReadFilterFailed");
+
+          done();
+        })
+        .fail(function(err) {
+          done(err);
+        });
+    });
+
     it('should succeeded to save an object when being logged in', function(done){
       var obj = ContentModel.create();
       obj.saveQ()

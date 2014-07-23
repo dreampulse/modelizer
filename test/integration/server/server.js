@@ -76,6 +76,9 @@ ContentModel.readFilter(function (req) {
   return {_id : ObjectId(req.session.user_id)};
 });
 
+ContentModel.afterReadFilter(function(obj) {
+  obj.afterRead = 'it worked!';
+});
 
 ContentModel.writeFilter(function(obj, req) {
    return req.session.auth == true;
