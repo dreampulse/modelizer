@@ -471,7 +471,8 @@ describe('Modelizer', function() {
 
     it('filter for attr1 should be A', function(done) {
       MyModel5.readFilter(function () {
-        return {attr1 : "A"};
+        //return {attr1 : "A"};
+        return Q({attr1 : "A"});
       });
 
       MyModel5.filtered_allQ()

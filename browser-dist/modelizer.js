@@ -834,17 +834,30 @@ Model.prototype.readFilter = function(fn) {
 // create the filter hash (mongo search string)
 Model.prototype._getReadFilter = function(req) {
   var res = {};
-  for (var i=0; i<this.readFilters.length; i++) {  // alle filter
-    var filter = this.readFilters[i](req);
-    if (filter === false) return false;  // deny all filter
-    if (filter === true) continue;  // ignore filter
+  var bool_res = null;
 
-    // copy content
-    for (var j in filter) {
-      res[j] = filter[j];
-    }
+  var promises = [];
+
+  for (var i=0; i<this.readFilters.length; i++) {  // alle filter
+    promises.push(Q(this.readFilters[i](req))
+      .then(function(filter) {
+        if (filter === false) bool_res = false;
+        if (filter === true) bool_res = true;
+
+        // copy content
+        for (var j in filter) {
+          res[j] = filter[j];
+        }
+
+      }))
   }
-  return res;
+
+  return Q.all(promises)
+    .then(function() {
+      if (bool_res === null)
+        return res
+      else return bool_res;
+    })
 }
 
 
@@ -856,17 +869,30 @@ Model.prototype.writeFilter = function(fn) {
 // create the filter hash (mongo search string)
 Model.prototype._getWriteFilter = function(obj, req) {
   var res = {};
-  for (var i=0; i<this.writeFilters.length; i++) {  // alle filter
-    var filter = this.writeFilters[i](obj, req);
-    if (filter === false) return false;  // deny all filter
-    if (filter === true) continue;  // ignore filter
+  var bool_res = null;
 
-    // copy content
-    for (var j in filter) {
-      res[j] = filter[j];
-    }
+  var promises = [];
+
+  for (var i=0; i<this.writeFilters.length; i++) {  // alle filter
+    promises.push(Q(this.writeFilters[i](req))
+      .then(function (filter) {
+        if (filter === false) bool_res = false;
+        if (filter === true) bool_res = true;
+
+        // copy content
+        for (var j in filter) {
+          res[j] = filter[j];
+        }
+
+      }))
   }
-  return res;
+
+  return Q.all(promises)
+    .then(function() {
+      if (bool_res === null)
+        return res
+      else return bool_res;
+    })
 }
 
 // Using the model (static functions)
