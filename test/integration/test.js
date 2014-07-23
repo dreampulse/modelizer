@@ -408,9 +408,9 @@ describe('Integration Tests', function() {
   });
 
   describe("Filters", function() {
+    var obj;
     it('should fail to save an object without login', function(done){
-      var obj = ContentModel.create();
-      obj.saveQ()
+      ContentModel.create().saveQ()
         .then(function(){
           done("it should have failed");
         })
@@ -478,6 +478,8 @@ describe('Integration Tests', function() {
         .then(function(objs){
           if (objs.length != 1) done("One element expected");
           if (objs[0].afterRead !== 'it worked!') done("afterReadFilterFailed");
+
+          obj = objs[0];
 
           done();
         })

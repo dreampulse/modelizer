@@ -1033,7 +1033,11 @@ Model.prototype.getQ = function(id, initObj) {
     }
 
     var obj = self.loadFromDoc(doc, initObj);
-    deferred.resolve(obj);
+
+    Q(self.afterReadFilters(obj))
+      .then(function () {
+        deferred.resolve(obj);
+      })
   });
 
   return deferred.promise;
@@ -1057,7 +1061,12 @@ Model.prototype.findOneQ = function(search, initObj) {
     }
 
     var obj = self.loadFromDoc(doc, initObj);
-    deferred.resolve(obj);
+
+    Q(self.afterReadFilters(obj))
+      .then(function () {
+        deferred.resolve(obj);
+      });
+
   });
 
   return deferred.promise;
