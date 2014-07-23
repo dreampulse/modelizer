@@ -1077,15 +1077,17 @@ Model.prototype.findQ = function(search, initObj) {
 
     // für jedes document in der DB ein object anlegen
     for (var i=0; i<docs.length; i++) {
-      var doc = docs[i];
-      var obj = self.loadFromDoc(doc);
+      (function() {  // extra closure für obj
+        var doc = docs[i];
+        var obj = self.loadFromDoc(doc);
 
-      promises.push(
-        Q(self.afterReadFilters(obj))
-          .then(function() {
-            objs.push(obj);
-          })
-      );
+        promises.push(
+          Q(self.afterReadFilters(obj))
+            .then(function () {
+              objs.push(obj);
+            })
+        );
+      })();
     }
 
     return Q.all(promises)
