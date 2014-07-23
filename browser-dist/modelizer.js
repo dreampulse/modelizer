@@ -874,7 +874,7 @@ Model.prototype._getWriteFilter = function(obj, req) {
   var promises = [];
 
   for (var i=0; i<this.writeFilters.length; i++) {  // alle filter
-    promises.push(Q(this.writeFilters[i](req))
+    promises.push(Q(this.writeFilters[i](obj, req))
       .then(function (filter) {
         if (filter === false) bool_res = false;
         if (filter === true) bool_res = true;
@@ -7831,8 +7831,6 @@ ObjectId.prototype.toString = function () {
 module.exports = ObjectId;
 
 
-},{}],"q":[function(require,module,exports){
-module.exports=require('qLuPo1');
 },{}],"qLuPo1":[function(require,module,exports){
 (function (process){
 // vim:ts=4:sts=4:sw=4:
@@ -9774,4 +9772,6 @@ return Q;
 });
 
 }).call(this,require("/Users/jonathan/Projects/modelizer/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js"))
-},{"/Users/jonathan/Projects/modelizer/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14}]},{},["tVRSAQ"])
+},{"/Users/jonathan/Projects/modelizer/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":14}],"q":[function(require,module,exports){
+module.exports=require('qLuPo1');
+},{}]},{},["tVRSAQ"])
