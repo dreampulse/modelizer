@@ -969,6 +969,10 @@ Model.prototype._initObject = function(rootObject) {
     obj[this.attrs[i].name] = null;
   }
 
+  for (var i in this.virtualAttrs) {
+    obj[this.virtualAttrs[i].name] = null;
+  }
+
   // create Attribute Objects (a sub structure)
   for(var i in this.attrObjs) {
     var attrObj = this.attrObjs[i]._initObject(rootObject);
@@ -1424,6 +1428,10 @@ Model.prototype.processSchema = function(schema) {
     } else if (value._what == 'attr') {
       this.attr(entry, value.filter);
 
+      // it is a virutal attribute
+    } else if (value._what == 'virtualAttr') {
+      this.virtualAttr(entry);
+
       // it is a reference to another model
     } else if (value._what == 'attrRef') {
       this.attrRef(entry, value.ref);
@@ -1476,6 +1484,12 @@ Model.Attr = function() {
       }
       return value;
     }
+  };
+};
+
+Model.VirtualAttr = function(reference) {
+  return {
+    '_what' : 'virtualAttr'
   };
 };
 

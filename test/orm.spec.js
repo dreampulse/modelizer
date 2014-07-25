@@ -4,6 +4,7 @@ var Q = require('q');
 describe('Modelizer', function() {
   var model = require('../lib/modelizer');
   var Attr = model.Attr;
+  var VirtualAttr = model.VirtualAttr;
   var Ref = model.Ref;
   var Link = model.Link;
   var RefArray = model.RefArray;
@@ -653,7 +654,9 @@ describe('Modelizer', function() {
 
       aOperation : Operation(),
 
-      aFactory : Factory()
+      aFactory : Factory(),
+
+      aVirtual : VirtualAttr(Types.string)
     });
     MyModel9.connection(connector);
 
