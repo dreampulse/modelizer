@@ -1253,6 +1253,10 @@ Model.prototype.processSchema = function(schema) {
     } else if (value._what == 'operation') {
       this.operation(entry);
 
+    } else if (value._what == 'method') {
+        this.method(entry);
+        this.methodImpl(entry, value.impl);
+
     } else if (value._what == 'factory') {
       this.factory(entry);
 
@@ -1263,8 +1267,6 @@ Model.prototype.processSchema = function(schema) {
     }
   }
 };
-
-
 
 
 
@@ -1287,7 +1289,7 @@ Model.Attr = function() {
   };
 };
 
-Model.VirtualAttr = function(reference) {
+Model.VirtualAttr = function() {
   return {
     '_what' : 'virtualAttr'
   };
@@ -1329,9 +1331,16 @@ Model.Operation = function() {
 };
 
 Model.Factory = function() {
-  return {
-    '_what' : 'factory'
-  }
+    return {
+        '_what' : 'factory'
+    }
+};
+
+Model.Method = function(impl) {
+    return {
+        '_what' : 'method',
+        impl : impl
+    }
 };
 
 ///////////////////////////
