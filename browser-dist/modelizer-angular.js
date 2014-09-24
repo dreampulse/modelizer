@@ -22,25 +22,22 @@ Model.AngularConnector = function (connectionUrl) {
 
   var $http = angular.injector(['ng']).get('$http');
 
-  var findUnpackInterceptor = function (model, callback) {
+  var unpackInterceptor = function (model, callback) {
     return function (err, docs) {
+
       if (err == undefined) {
-        for (var i = 0; i < docs.length; i++) {
-          model._transform(model, docs[i], 'unpack');
+        if (Array.isArray(docs)) {  // result is a collection
+          for (var i = 0; i < docs.length; i++) {
+            model._transform(model, docs[i], 'unpack');
+          }
+        } else {
+          model._transform(model, docs, 'unpack');
         }
       }
+
       callback(err, docs);
     }
-  }
-
-  var findOneUnpackInterceptor = function (model, callback) {
-    return function (err, doc) {
-      if (err == undefined) {
-        model._transform(model, doc, 'unpack');
-      }
-      callback(err, doc);
-    }
-  }
+  };
 
 
   // ajax Call to the server backend
@@ -72,14 +69,14 @@ Model.AngularConnector = function (connectionUrl) {
     return {
       find: function (search, callback) {
         if (isEmptyObject(search)) {
-          ajaxCall('GET', connectionUrl + theModel.modelName + '/all', undefined, findUnpackInterceptor(theModel, callback));
+          ajaxCall('GET', connectionUrl + theModel.modelName + '/all', undefined, unpackInterceptor(theModel, callback));
         } else {
-          ajaxCall('POST', connectionUrl + theModel.modelName + '/find', search, findUnpackInterceptor(theModel, callback));
+          ajaxCall('POST', connectionUrl + theModel.modelName + '/find', search, unpackInterceptor(theModel, callback));
         }
       },
       findOne: function (search, callback) {
         assert(search.hasOwnProperty("_id"), "Only searching for id implemented so far");
-        ajaxCall('GET', connectionUrl + theModel.modelName + '/' + search._id, undefined, findOneUnpackInterceptor(theModel, callback));
+        ajaxCall('GET', connectionUrl + theModel.modelName + '/' + search._id, undefined, unpackInterceptor(theModel, callback));
       },
       save: function (doc, callback) {
         theModel._transform(theModel, doc, 'pack');
@@ -99,22 +96,26 @@ Model.AngularConnector = function (connectionUrl) {
 
           } else if (theModel.factorys.hasOwnProperty(opName)) {  // call is an factory
 
-            if (err) {
-              deferred.reject(err);
-              return deferred.promise;
-            }
+            unpackInterceptor(theModel, function(err, result) {
 
-            // restore object from document
-            if (Array.isArray(result)) {  // result is a collection
-              // für jedes document in der DB ein object anlegen
-              for (var i = 0; i < result.length; i++) {
-                result[i] = theModel.loadFromDoc(result[i]);
+              if (err) {
+                deferred.reject(err);
+                return deferred.promise;
               }
-            } else {  // result is one object
-              result = theModel.loadFromDoc(result);  // restore one object
-            }
 
-            deferred.resolve(result);
+              // restore object from document
+              if (Array.isArray(result)) {  // result is a collection
+                // für jedes document in der DB ein object anlegen
+                for (var i = 0; i < result.length; i++) {
+                  result[i] = theModel.loadFromDoc(result[i]);
+                }
+              } else {  // result is one object
+                result = theModel.loadFromDoc(result);  // restore one object
+              }
+
+              deferred.resolve(result);
+
+            })(err, result);
 
           } else {
             assert(false, "operation or factory is not defined");
