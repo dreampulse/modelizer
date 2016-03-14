@@ -1,5 +1,7 @@
 # Modelizer
 
+## Deprecated - Do Not Use!
+
 **The epic ORM-Mapper you want to use for every serious Web-Application. You can access the API directly from your Browser-Code.**
 
 ## Highlights
